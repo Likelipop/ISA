@@ -4,7 +4,7 @@ This repository provides a simple LaTeX template for team members to create cons
 
 ---
 
-````markdown
+
 # 🧮 Tóm gọn về dự án
 
 ## 1. Cài Đặt LaTeX Workshop Trên VSCode
@@ -20,7 +20,7 @@ Ta sẽ cần phải cài đặt các phần sau:
   ```bash
   sudo apt update
   sudo apt install texlive-latex-recommended
-````
+
 
 ### 🧩 Bước 2: Cài đặt tiện ích mở rộng **LaTeX Workshop**
 
