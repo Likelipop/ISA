@@ -73,8 +73,4 @@ Dự án sẽ bao gồm phần trình bày chi tiết và công thức tham chi�
 * Tạo một tài liệu LaTeX tổng hợp công thức, hàm mật độ xác suất (PDF/PMF), kỳ vọng, phương sai, và mối quan hệ giữa các phân phối.
 * Dễ dàng tra cứu và so sánh các phân phối trong thống kê và học máy.
 
-```
-
-
-```
 
