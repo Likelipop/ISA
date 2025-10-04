@@ -1,0 +1,47 @@
+\section{Phân phối rời rạc}
+
+\subsection{Phân phối nhị thức (Binomial Distribution)}
+\begin{itemize}
+    \item \textbf{Công thức xác suất:}
+    \[
+        P(X = k) = \binom{n}{k}p^k(1-p)^{n-k}
+    \]
+    \item \textbf{Kỳ vọng:} $E[X] = np$
+    \item \textbf{Phương sai:} $Var(X) = np(1-p)$
+    \item \textbf{Ứng dụng:} Mô hình hóa số lần thành công trong $n$ phép thử độc lập.
+\end{itemize}
+
+\subsection{Phân phối Poisson}
+\begin{itemize}
+    \item \textbf{Công thức xác suất:}
+    \[
+        P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}, \quad k = 0, 1, 2, \dots
+    \]
+    \item \textbf{Kỳ vọng và phương sai:} $E[X] = Var(X) = \lambda$
+    \item \textbf{Ứng dụng:} Mô hình hóa số sự kiện xảy ra trong một khoảng thời gian.
+\end{itemize}
+
+% =====================
+% PHẦN 3: Các phân phối liên tục
+% =====================
+\section{Phân phối liên tục}
+
+\subsection{Phân phối chuẩn (Normal Distribution)}
+\begin{itemize}
+    \item \textbf{Hàm mật độ xác suất:}
+    \[
+        f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}
+    \]
+    \item \textbf{Kỳ vọng:} $E[X] = \mu$, \textbf{Phương sai:} $Var(X) = \sigma^2$
+    \item \textbf{Ứng dụng:} Dữ liệu tự nhiên, điểm thi, chiều cao, sai số đo lường, v.v.
+\end{itemize}
+
+\subsection{Phân phối mũ (Exponential Distribution)}
+\begin{itemize}
+    \item \textbf{Hàm mật độ:}
+    \[
+        f(x) = \lambda e^{-\lambda x}, \quad x \ge 0
+    \]
+    \item \textbf{Kỳ vọng:} $E[X] = \frac{1}{\lambda}$, \textbf{Phương sai:} $Var(X) = \frac{1}{\lambda^2}$
+    \item \textbf{Ứng dụng:} Thời gian chờ giữa hai sự kiện.
+\end{itemize}
