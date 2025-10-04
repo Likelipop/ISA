@@ -10,14 +10,12 @@ This repository provides a simple LaTeX template for team members to create cons
 
 Dự án sẽ bao gồm phần trình bày chi tiết và công thức tham chiếu (distribution reference) của các phân phối xác suất phổ biến sau:
 
-| ---------------------- | --------------------------------------------------------- | ------------------------------------------ |
 | Nhóm                   | Phân phối                                                 | Ký hiệu / Ghi chú                          |
 | ---------------------- | --------------------------------------------------------- | ------------------------------------------ |
 | **Phân phối rời rạc**  | - Phân phối nhị thức (Binomial Distribution)              | ( X \sim \text{Bin}(n, p) )                |
 |                        | - Phân phối Poisson (Poisson Distribution)                | ( X \sim \text{Pois}(\lambda) )            |
 |                        | - Phân phối nhị thức âm (Negative Binomial Distribution)  | ( X \sim \text{NegBin}(r, p) )             |
 |                        | - Phân phối đa thức (Multinomial Distribution)            | ( X \sim \text{Mult}(n, \mathbf{p}) )      |
-| ---------------------- | --------------------------------------------------------- | ------------------------------------------ |
 | **Phân phối liên tục** | - Phân phối đều (Uniform Distribution)                    | ( X \sim U(a, b) )                         |
 |                        | - Phân phối chuẩn (Normal Distribution)                   | ( X \sim \mathcal{N}(\mu, \sigma^2) )      |
 |                        | - Phân phối Gamma (Gamma Distribution)                    | ( X \sim \text{Gamma}(k, \theta) )         |
@@ -28,7 +26,6 @@ Dự án sẽ bao gồm phần trình bày chi tiết và công thức tham chi�
 |                        | - Phân phối mũ (Exponential Distribution)                 | ( X \sim \text{Exp}(\lambda) )             |
 |                        | - Phân phối Cauchy (Cauchy Distribution)                  | ( X \sim \text{Cauchy}(\mu, \gamma) )      |
 |                        | - Phân phối Dirichlet (Dirichlet Distribution)            | ( X \sim \text{Dir}(\boldsymbol{\alpha}) ) |
-| ---------------------- | --------------------------------------------------------- | ------------------------------------------ |
 
 ## **2. Cài Đặt LaTeX Workshop Trên VSCode**
 
