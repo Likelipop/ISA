@@ -1,0 +1,73 @@
+\documentclass[a4paper,12pt]{article}
+
+% --- Packages ---
+\usepackage{fontspec}
+\usepackage[vietnamese,english]{babel}
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\usepackage{amsmath, amsthm, amsfonts}
+\usepackage{tikz}
+\usepackage[plain]{algorithm}
+\usepackage{algpseudocode}
+\usepackage{setspace}
+\usepackage{geometry}
+
+% --- Geometry setup ---
+\geometry{
+    left=3cm,
+    right=3cm,
+    top=3cm,
+    bottom=3cm
+}
+
+\usetikzlibrary{automata,positioning}
+
+\bibliographystyle{apalike}
+
+% --- Custom Info ---
+\newcommand{\hmwkTitle}{Assignment 1}
+\newcommand{\hmwkClass}{Xử lý số liệu thống kê}
+\newcommand{\hmwkAuthorName}{
+    \text{Trần Tiến Đạt} \\
+    \text{Nguyễn Thị Ngọc Anh} \\
+    \text{Nguyễn Thái Hưng Thịnh}
+}
+\newcommand{\hmwkDate}{\today}
+
+% --- Title Page ---
+\title{
+    \vspace{2in}
+    \textbf{\Large \hmwkClass} \\[1em]
+    \textmd{\LARGE \hmwkTitle} \\[2em]
+    \vspace{2in}
+}
+
+\author{\hmwkAuthorName}
+\date{\hmwkDate}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{3cm}
+    {\Huge \textbf{\hmwkClass}}\\[1.5cm]
+    {\LARGE \textbf{\hmwkTitle}}\\[1cm]
+    \vspace{2cm}
+    {\Large
+    \textit{Nhóm E:}\\[0.5cm]
+    \hmwkAuthorName
+    }\\[3cm]
+    {\Large Ngày nộp: \hmwkDate}\\
+    \vfill
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\input{sections/Descrete}
+\input{sections/Continuous}
+\input{sections/Others}
+
+\bibliography{references}
+
+\end{document}
