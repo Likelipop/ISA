@@ -28,7 +28,7 @@
 	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{Gamma Distribution-PDF} % Placeholder cho hình ảnh
+		\includegraphics[width=0.7\textwidth]{images/Gamma Distribution-PD.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Gamma với các tham số khác nhau.}
 		\label{fig:Gamma Distribution-PDF}
 	\end{figure}
@@ -37,45 +37,13 @@
 	
 		\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{CDFGamma Distribution-CDF} % Placeholder cho hình ảnh
+		\includegraphics[width=0.7\tetextwidth]{images/Gamma Distribution-CDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Gamma với các tham số khác nhau.}
 		\label{fig:Gamma Distribution-CDF}
 	\end{figure}
 	
 	\subsection{Ví dụ dữ liệu và bài toán thực tế}
-		Thời gian sống của linh kiện điện tử
-		Giả sử thời gian sống (tính bằng giờ) của một loại linh kiện điện tử tuân theo phân phối Gamma. Chúng ta có thể sử dụng phân phối này để mô hình hóa tuổi thọ của bóng đèn, pin, hoặc các thiết bị khác, nơi mà thất bại không xảy ra ngay lập tức mà cần một khoảng thời gian nhất định để "hao mòn". Chẳng hạn, với $k=2$ và $\theta=500$ giờ, phân phối Gamma có thể mô tả thời gian hoạt động của một bóng đèn LED.
-	
-		Tổng thời gian chờ đợi
-		Trong một hệ thống xếp hàng, nếu thời gian chờ đợi giữa các sự kiện đến tuân theo phân phối Poisson (tức là thời gian chờ đợi giữa các sự kiện liên tiếp tuân theo phân phối mũ), thì tổng thời gian chờ đợi cho $k$ sự kiện đến sẽ tuân theo phân phối Gamma. Ví dụ, tổng thời gian chờ đợi cho 5 khách hàng đến một cửa hàng.
-	
-\section{Phân phối Gamma Nghịch đảo (Inverse Gamma Distribution)}
-	Phân phối Gamma Nghịch đảo là phân phối xác suất liên tục của một biến ngẫu nhiên dương có nghịch đảo tuân theo phân phối Gamma. Nó thường được sử dụng làm phân phối tiên nghiệm (prior distribution) cho các tham số phương sai trong thống kê Bayes, đặc biệt trong các mô hình hồi quy.
-	
-	\subsection{Định nghĩa}
-		Một biến ngẫu nhiên $X$ tuân theo phân phối Gamma Nghịch đảo với tham số hình dạng $\alpha > 0$ và tham số tỷ lệ $\beta > 0$, ký hiệu $X \sim \text{InvGamma}(\alpha, \beta)$, có hàm mật độ xác suất (PDF) được cho bởi:
-		\[ f(x; \alpha, \beta) = \frac{\beta^\alpha}{\Gamma(\alpha)} x^{-\alpha-1} e^{-\beta/x} \quad \text{với } x > 0 \]
-	
-	\subsection{Hàm xác suất tích lũy (Cumulative Distribution Function - CDF)}
-	Hàm xác suất tích lũy của phân phối Gamma Nghịch đảo có thể được biểu diễn thông qua hàm Gamma không đầy đủ quy chuẩn:
-	\[ F(x; \alpha, \beta) = 1 - P\left(\alpha, \frac{\beta}{x}\right) = 1 - \frac{1}{\Gamma(\alpha)} \int_0^{\beta/x} t^{\alpha-1} e^{-t} dt \]
-	
-	\subsection{Các đặc trưng thống kê}
-	\begin{itemize}[leftmargin=*]
-		\item \textbf{Miền giá trị:} $x \in (0, \infty)$.
-		\item \textbf{Giá trị kỳ vọng (Mean):} $E[X] = \frac{\beta}{\alpha-1}$ \quad (chỉ tồn tại nếu $\alpha > 1$).
-		\item \textbf{Phương sai (Variance):} $\text{Var}[X] = \frac{\beta^2}{(\alpha-1)^2(\alpha-2)}$ \quad (chỉ tồn tại nếu $\alpha > 2$).
-		\item \textbf{Mode:} $\text{Mode} = \frac{\beta}{\alpha+1}$.
-		\item \textbf{Median:} Không có dạng đóng.
-		\item \textbf{Tính chất đối xứng/lệch:} Phân phối Gamma Nghịch đảo thường bị lệch phải. Khi $\alpha$ tăng, phân phối trở nên đối xứng hơn.
-	\end{itemize}
-	
-	\subsection{Biểu đồ minh họa}
-	Dưới đây là biểu đồ minh họa hàm mật độ xác suất của phân phối Gamma Nghịch đảo.
-	
-	\begin{figure}[h!]
-		\centering
-		\includegraphics[width=0.7\textwidth]{Inverse Gamma Distribution-PDF} % Placeholder cho hình ảnh
+		Thời gian spng} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Gamma Nghịch đảo với các tham số khác nhau.}
 		\label{fig:Inverse Gamma Distribution-PDF}
 	\end{figure}
@@ -84,7 +52,7 @@
 	
 		\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{Inverse Gamma Distribution-CDF} % Placeholder cho hình ảnh
+		\includegraphics[width=0.7\textwidth]{images/Inverse Gamma Distribution-CDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Gamma Nghịch đảo với các tham số khác nhau.}
 		\label{fig:Inverse Gamma Distribution-CDF}
 	\end{figure}
@@ -128,7 +96,7 @@
 	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{Beta Distribution-PDF} % Placeholder cho hình ảnh
+		\includegraphics[width=0.7\textwidth]{images/Beta Distribution-PDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Beta với các tham số khác nhau.}
 		\label{fig:Beta Distribution-PDF}
 	\end{figure}C
@@ -137,10 +105,10 @@
 	
 		\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{Beta Distribution-CDF} % Placeholder cho hình ảnh
+		\includegraphics[width=0.7\textwidth]{images/Beta Distribution-CDF.pngpng} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Beta với các tham số khác nhau.}
 		\label{fig:Beta Distribution-CDF}
-	\end{figure}C
+	\end{figure}
 	
 	\subsection{Ví dụ dữ liệu và bài toán thực tế}
 		Phân phối tiên nghiệm cho xác suất Bernoulli
@@ -181,7 +149,7 @@
 	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{Dirichlet Distribution-PDF} % Placeholder cho hình ảnh
+		\includegraphics[width=0.7\textwidth]{images/Dirichlet Distribution-PDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Dirichlet với $K=3$ và các tham số khác nhau.}
 		\label{fig:pngDirichlet Distribution-PDF}
 	\end{figurell}
@@ -190,7 +158,7 @@
 	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=B0.7\textwidth]{Dirichlet Distribution-CDF} % Placeholder cho hình ảnh
+		\includegraphics[width=B0.7\textwidth]{images/Dirichlet Distribution-CDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Dirichlet với $K=3$ và các tham số khác nhau.}
 		\label{fig:pngDirichlet Distribution-CDF}
 	\end{figurell}
