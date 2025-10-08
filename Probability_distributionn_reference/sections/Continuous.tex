@@ -229,20 +229,41 @@ Không tồn tại công thức nguyên hàm dạng đóng cho tích phân này,
 
 \subsection*{Ví dụ dữ liệu và ứng dụng thực tế }
 
-\paragraph{Ứng dụng 1: Điểm thi, chiều cao, chỉ số IQ.}  
-Nhiều đặc tính sinh học và xã hội (ví dụ: chiều cao của người trưởng thành trong một quần thể, điểm IQ, điểm thi chuẩn hoá) được mô tả rất tốt bởi phân phối chuẩn.  
-Lý do là vì các đặc tính này chịu ảnh hưởng của nhiều yếu tố ngẫu nhiên nhỏ, độc lập (yếu tố di truyền, môi trường, rèn luyện, ...), và theo \textbf{Định lý giới hạn trung tâm}, tổng hợp của các yếu tố này sẽ xấp xỉ phân phối chuẩn.
+\subsection{Ví dụ dữ liệu và ứng dụng thực tế }
 
-Ví dụ, điểm IQ trong dân số thường được mô hình hoá theo phân phối:
+\paragraph{Ứng dụng 1: Ứng dụng phân phối chuẩn trong điểm thi THPT Quốc gia.}   
+Điểm số của thí sinh chịu ảnh hưởng của nhiều yếu tố ngẫu nhiên nhỏ và độc lập 
+(như kiến thức, tâm lý phòng thi, độ khó của đề, may mắn, v.v.).
+
+Ví dụ, với dữ liệu phổ điểm môn Toán năm 2025 (hình~\ref{fig:thpt2025}), 
+ta có các tham số thống kê đặc trưng như sau:
 \[
-X \sim \mathcal{N}(100,\;15^2)
+\text{Trung bình } (\mu) = 4.78, \quad 
+\text{Độ lệch chuẩn } (\sigma) = 1.68.
 \]
-Xác suất để một người có IQ lớn hơn 130 là:
+
+Giả sử điểm của thí sinh được mô hình hoá bởi biến ngẫu nhiên:
 \[
-P(X > 130) = 1 - \Phi\Bigl(\frac{130 - 100}{15}\Bigr) 
-= 1 - \Phi(2) \approx 0.0228,
+X \sim \mathcal{N}(4.78,\;1.68^2).
 \]
-tức khoảng 2.28\% dân số.
+Ta có thể ước lượng xác suất đạt điểm cao, chẳng hạn điểm trên 8:
+\[
+P(X > 8) = 1 - \Phi\Bigl(\frac{8 - 4.78}{1.68}\Bigr)
+= 1 - \Phi(1.92) \approx 0.0274,
+\]
+tức chỉ khoảng \textbf{2.74\%} thí sinh có điểm trên 8.
+
+Kết quả này phù hợp với trực quan từ biểu đồ phổ điểm: 
+phần lớn thí sinh tập trung quanh mức trung bình 4--6 điểm, 
+và số lượng giảm dần ở hai đầu phổ điểm (dạng “chuông”).  
+Điều này cho thấy phân phối chuẩn mô tả khá tốt xu hướng điểm thi thực tế.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/PhodiemToan2025.png}
+    \caption{Phổ điểm môn Toán kỳ thi THPT Quốc gia năm 2025 ($\mu = 4.78$, $\sigma = 1.68$).}
+    \label{fig:thpt2025}
+\end{figure}
 
 \paragraph{Ứng dụng 2: Kiểm định giả thuyết và khoảng tin cậy.}  
 Phân phối chuẩn là nền tảng cho nhiều phương pháp thống kê suy luận, 
