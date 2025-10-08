@@ -1,21 +1,3 @@
-\documentclass[a4paper,12pt]{article}
-
-% --- Packages ---
-\usepackage{fontspec}
-\usepackage[vietnamese,english]{babel}
-\usepackage{fancyhdr}
-\usepackage{extramarks}
-\usepackage{amsmath, amsthm, amsfonts}
-\usepackage{tikz}
-\usepackage[plain]{algorithm}
-\usepackage{algpseudocode}
-\usepackage{setspace}
-\usepackage{graphicx}
-\usepackage{geometry}
-
-\begin{document}
-
-
 \section{Phân phối Đều (Uniform Distribution)}
 
 \textbf{Phân phối đều} là một trong những phân phối xác suất cơ bản nhất, đặc trưng bởi \textbf{xác suất hoặc mật độ phân bố đều trên toàn bộ miền xác định}.  
@@ -30,7 +12,7 @@ Ta ký hiệu:
 X \sim \mathrm{Uniform}(a, b), \quad -\infty < a < b < +\infty
 \]
 
-\subsection{Phân phối Đều Rời Rạc}
+\subsection{1. Phân phối Đều Rời Rạc}
 
 \subsubsection{Probability Mass Function - PMF}:
 
@@ -50,7 +32,7 @@ hay viết ngắn gọn:
 \mathrm{PMF}(x) = \frac{1}{n}, \quad \forall x \in \{x_1, x_2, \ldots, x_n\}.
 \]
 
-\subsubsection{Cumulative Distribution Function - CDF}
+\subsection{Cumulative Distribution Function - CDF}
 
 Hàm xác suất tích lũy được định nghĩa là:
 \[
@@ -69,7 +51,7 @@ F(x) = P(X \le x) =
     \label{fig:uniform_disc_dist}
 \end{figure}
 
-\subsection{Phân phối Đều Liên Tục}
+\subsection{2. Phân phối Đều Liên Tục}
 \subsubsection{Probability Density Function - PDF}:
 Hàm mật độ xác suất của phân phối đều liên tục được định nghĩa như sau:  
 Giả sử biến ngẫu nhiên \( X \) có phân phối đều liên tục trên đoạn \([a, b]\). Khi đó:
@@ -144,6 +126,8 @@ F(x; a, b) =
 
 \subsubsection{Ví dụ dữ liệu và ứng dụng thực tế}
 
+\subsubsection{Ví dụ dữ liệu và ứng dụng thực tế}
+
 \paragraph{Ứng dụng 1: Kiểm soát chất lượng sản phẩm trong dây chuyền sản xuất.} 
 Trong nhiều quy trình sản xuất, các sai số gia công cơ khí (như độ lệch kích thước, độ sâu mũi khoan, hoặc vị trí khoan lỗ) thường nằm trong một khoảng xác định \([a, b]\). Khi không có yếu tố nào khiến sai số tập trung về phía nào trong khoảng, một giả định hợp lý là sai số này tuân theo phân phối đều liên tục \(\mathcal{U}(a, b)\). 
 Mô hình này giúp các kỹ sư chất lượng ước lượng xác suất sản phẩm vượt ngoài giới hạn kỹ thuật, ví dụ như:
@@ -213,11 +197,12 @@ Không tồn tại công thức nguyên hàm dạng đóng cho tích phân này,
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{images/Normal_PDF_and_CDF.png}
-    \caption{Biểu đồ Hàm Mật độ Xác suất (PDF) và Hàm Phân phối Tích lũy (CDF) của Phân phối Chuẩn.}
+    \caption{Biểu đồ PDF và CDF của Phân phối Chuẩn.}
     \label{fig:normal_dist}
 \end{figure}
 
 \subsection{Các đặc trưng thống kê}
+
 \begin{itemize}
     \item \textbf{Kỳ vọng (Mean):} 
     \[
@@ -242,7 +227,7 @@ Không tồn tại công thức nguyên hàm dạng đóng cho tích phân này,
     \item \textbf{Độ lệch} (skewness) = 0; \textbf{kurtosis chuẩn} = 3 (excess kurtosis = 0).
 \end{itemize}
 
-\subsection{Ví dụ dữ liệu và ứng dụng thực tế }
+\subsection*{Ví dụ dữ liệu và ứng dụng thực tế }
 
 \paragraph{Ứng dụng 1: Điểm thi, chiều cao, chỉ số IQ.}  
 Nhiều đặc tính sinh học và xã hội (ví dụ: chiều cao của người trưởng thành trong một quần thể, điểm IQ, điểm thi chuẩn hoá) được mô tả rất tốt bởi phân phối chuẩn.  
@@ -339,5 +324,3 @@ Phân phối mũ thường được sử dụng để mô hình hóa \textit{th�
 
 \paragraph{Ứng dụng 2: Quản lý lưu lượng và hàng đợi.}  
 Trong các hệ thống xếp hàng (ví dụ: khách đến cửa hàng, gói tin đến máy chủ), thời gian giữa các lượt đến thường được giả định là phân phối mũ.
-
-\end{document}
