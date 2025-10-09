@@ -126,8 +126,6 @@ F(x; a, b) =
 
 \subsubsection{Ví dụ dữ liệu và ứng dụng thực tế}
 
-\subsubsection{Ví dụ dữ liệu và ứng dụng thực tế}
-
 \paragraph{Ứng dụng 1: Kiểm soát chất lượng sản phẩm trong dây chuyền sản xuất.} 
 Trong nhiều quy trình sản xuất, các sai số gia công cơ khí (như độ lệch kích thước, độ sâu mũi khoan, hoặc vị trí khoan lỗ) thường nằm trong một khoảng xác định \([a, b]\). Khi không có yếu tố nào khiến sai số tập trung về phía nào trong khoảng, một giả định hợp lý là sai số này tuân theo phân phối đều liên tục \(\mathcal{U}(a, b)\). 
 Mô hình này giúp các kỹ sư chất lượng ước lượng xác suất sản phẩm vượt ngoài giới hạn kỹ thuật, ví dụ như:
@@ -231,7 +229,7 @@ Không tồn tại công thức nguyên hàm dạng đóng cho tích phân này,
 
 \subsection{Ví dụ dữ liệu và ứng dụng thực tế }
 
-\paragraph{Ứng dụng 1: Ứng dụng phân phối chuẩn trong điểm thi THPT Quốc gia.}   
+\paragraph{Ứng dụng 1: Phân phối chuẩn trong điểm thi THPT Quốc gia.}   
 Điểm số của thí sinh chịu ảnh hưởng của nhiều yếu tố ngẫu nhiên nhỏ và độc lập 
 (như kiến thức, tâm lý phòng thi, độ khó của đề, may mắn, v.v.).
 
@@ -334,9 +332,9 @@ F(x;\lambda) = P(X \le x) =
 
 \begin{itemize}
     \item Phân phối mũ có \textbf{dạng hàm mật độ giảm đơn điệu} trên $[0,\infty)$, với \textbf{đỉnh tại $x=0$} và giảm theo hàm mũ khi $x$ tăng.
-    \item \textbf{Lệch phải rõ rệt}: Skewness $= 2$, Kurtosis chuẩn $= 9$ (excess kurtosis $= 6$) $\Rightarrow$ đuôi phải dày hơn chuẩn.
+    \item \textbf{Lệch phải rõ rệt}: phần lớn dữ liệu tập trung ở gần số 0, và tần suất giảm dần theo hàm mũ khi giá trị tăng lên, tạo thành một cái "đuôi" dài về phía dương.
     \item \textbf{Không đối xứng}: chỉ có một đuôi phải, giảm theo $e^{-\lambda x}$.
-    \item \textbf{Tính không nhớ}: $P(X > s + t \mid X > s) = P(X > t)$, đặc trưng riêng của phân phối mũ.
+    \item \textbf{Tính không nhớ (memoryless)}: $P(X > s + t \mid X > s) = P(X > t)$, đặc trưng riêng của phân phối mũ.
 \end{itemize}
 
 \subsection{Ví dụ dữ liệu và ứng dụng thực tế}
