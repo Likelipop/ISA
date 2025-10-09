@@ -12,7 +12,7 @@
 	\[ F(x; k, \theta) = P\left(k, \frac{x}{\theta}\right) = \frac{1}{\Gamma(k)} \int_0^x t^{k-1} e^{-t/\theta} dt \]
 	
 	\subsection{Các đặc trưng thống kê}
-	\begin{itemize}[leftmargin=*]
+	\begin{itemize}
 		\item \textbf{Miền giá trị:} $x \in (0, \infty)$.
 		\item \textbf{Giá trị kỳ vọng (Mean):} $E[X] = k\theta$.
 		\item \textbf{Phương sai (Variance):} $\text{Var}[X] = k\theta^2$.
@@ -28,7 +28,7 @@
 	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{images/Gamma Distribution-PD.png} % Placeholder cho hình ảnh
+		\includegraphics[width=0.7\textwidth]{images/Gamma Distribution-PDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Gamma với các tham số khác nhau.}
 		\label{fig:Gamma Distribution-PDF}
 	\end{figure}
@@ -37,7 +37,7 @@
 	
 		\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\tetextwidth]{images/Gamma Distribution-CDF.png} % Placeholder cho hình ảnh
+		\includegraphics[width=0.7\textwidth]{images/Gamma Distribution-CDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Gamma với các tham số khác nhau.}
 		\label{fig:Gamma Distribution-CDF}
 	\end{figure}
@@ -45,7 +45,7 @@
 	\subsection{Ví dụ dữ liệu và bài toán thực tế}
 	\begin{figure}
 		\centering
-		\includegraphics[width=0.7\tetextwidth]{images/Inverse Gamma Distribution-PDF.png}
+		\includegraphics[width=0.7\textwidth]{images/Inverse Gamma Distribution-PDF.png}
 		\caption{Hàm mật độ xác suất của Phân phối Gamma Nghịch đảo với các tham số khác nhau.}
 		\label{fig:Inverse Gamma Distribution-PDF}
 	\end{figure}
@@ -78,7 +78,7 @@
 	Trong đó, $B_x(\alpha, \beta) = \int_0^x t^{\alpha-1}(1-t)^{\beta-1} dt$ là hàm Beta không đầy đủ.
 	
 	\subsection{Các đặc trưng thống kê}
-	\begin{itemize}[leftmargin=*]
+	\begin{itemize}
 		\item \textbf{Miền giá trị:} $x \in [0, 1]$.
 		\item \textbf{Giá trị kỳ vọng (Mean):} $E[X] = \frac{\alpha}{\alpha+\beta}$.
 		\item \textbf{Phương sai (Variance):} $\text{Var}[X] = \frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}$.
@@ -134,20 +134,38 @@
 	Hàm xác suất tích lũy của phân phối Dirichlet không có dạng đóng đơn giản và phức tạp hơn nhiều so với các phân phối một biến. Thường không được sử dụng trực tiếp.
 	
 	\subsection{Các đặc trưng thống kê}
-	\begin{itemize}[leftmargin=*]
-		\item \textbf{Miền giá trị:} Simplex tiêu chuẩn $S_K = \left\{ (x_1, \dots, x_K) \mid x_i > 0, \sum_{i=1}^K x_i = 1 \right\}$.
+	\begin{itemize}
+		\item \textbf{Miền giá trị:} Simplex tiêu chuẩn 
+		\[
+		S_K = \left\{ (x_1, \dots, x_K) \mid x_i > 0,\; \sum_{i=1}^K x_i = 1 \right\}.
+		\]
+
 		\item \textbf{Giá trị kỳ vọng (Mean):} Đối với từng thành phần $X_i$:
-		\[ E[X_i] = \frac{\alpha_i}{\sum_{j=1}^K \alpha_j} \]
+		\[
+		E[X_i] = \frac{\alpha_i}{\sum_{j=1}^K \alpha_j}.
+		\]
+
 		\item \textbf{Phương sai (Variance):} Đối với từng thành phần $X_i$:
-		\[ \text{Var}[X_i] = \frac{\alpha_i \left( \sum_{j=1}^K \alpha_j - \alpha_i \right)}{\left( \sum_{j=1}^K \alpha_j \right)^2 \left( \sum_{j=1}^K \alpha_j + 1 \right)} \]
+		\[
+		\mathrm{Var}[X_i] = 
+		\frac{\alpha_i \left( \sum_{j=1}^K \alpha_j - \alpha_i \right)}
+			{\left( \sum_{j=1}^K \alpha_j \right)^2 \left( \sum_{j=1}^K \alpha_j + 1 \right)}.
+		\]
+
 		\item \textbf{Mode:} Đối với từng thành phần $X_i$:
-		\[ \text{Mode}_i = \frac{\alpha_i-1}{\sum_{j=1}^K \alpha_j - K} \quad \text{nếu tất cả \alpha_i > 1} \]
+		\[
+		\mathrm{Mode}_i = \frac{\alpha_i - 1}{\sum_{j=1}^K \alpha_j - K},
+		\quad \text{nếu tất cả } \alpha_i > 1.
+		\]
+
 		\item \textbf{Median:} Không có dạng đóng.
+
 		\item \textbf{Tính chất:} Phân phối Dirichlet là liên hợp tiên nghiệm cho phân phối Categorical và phân phối Đa thức.
 	\end{itemize}
+
 	
 	\subsection{Biểu đồ minh họa}
-	Việc minh họa hàm mật độ xác suất của phân phối Dirichlet yêu cầu các biểu đồ trên simplex. Đối với $K=3$, chúng ta có thể sử dụng biểu đồ tam giác.
+	Việc minh họa hàm	 mật độ xác suất của phân phối Dirichlet yêu cầu các biểu đồ trên simplex. Đối với $K=3$, chúng ta có thể sử dụng biểu đồ tam giác.
 	
 	\begin{figure}[h!]
 		\centering
@@ -167,7 +185,8 @@
 	
 	\subsection{Ví dụ dữ liệu và bài toán thực tế}
 		Phân phối tiên nghiệm cho phân loại văn bản
-		Trong mô hình hóa chủ đề (topic modeling) như Latent Dirichlet Allocation (LDA), phân phối Dirichlet được sử dụng làm phân phối tiên nghiệm cho hai cấp độ:
+		Trong mô hình hóa chủ đề (topic modeling) như Latent Dirichlet Allocation (LDA), 
+		phân phối Dirichlet được sử dụng làm phân phối tiên nghiệm cho hai cấp độ:
 		\begin{itemize}
 			\item Phân phối các chủ đề trên một tài liệu (document-topic distribution).
 			\item Phân phối các từ trên một chủ đề (topic-word distribution).
