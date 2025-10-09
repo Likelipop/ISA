@@ -24,45 +24,81 @@
 	\end{itemize}
 	
 	\subsection{Biểu đồ minh họa}
-	Dưới đây là biểu đồ minh họa hàm mật độ xác suất của phân phối Gamma với các giá trị khác nhau của tham số hình dạng $k$ và tham số tỷ lệ $\theta$.
+	Dưới đây là biểu đồ minh họa hàm mật độ xác suất 
+	và hàm xác suất tích lũy của phân phối Gamma với các giá trị khác nhau của tham số hình dạng 
+	$k$ và tham số tỷ lệ $\theta$.
 	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{images/Gamma Distribution-PDF.png} % Placeholder cho hình ảnh
+		\includegraphics[width=0.5\textwidth]{images/Gamma Distribution-PDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Gamma với các tham số khác nhau.}
 		\label{fig:Gamma Distribution-PDF}
 	\end{figure}
-	
-	Dưới đây, là biểu đồ minh họa hàm phân phối tích lũy của phan phối Gamma
-	
-		\begin{figure}[h!]
+	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{images/Gamma Distribution-CDF.png} % Placeholder cho hình ảnh
+		\includegraphics[width=0.5\textwidth]{images/Gamma Distribution-CDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Gamma với các tham số khác nhau.}
 		\label{fig:Gamma Distribution-CDF}
 	\end{figure}
 	
+
+	\newpage
 	\subsection{Ví dụ dữ liệu và bài toán thực tế}
-	\begin{figure}
+
+	Giả sử ta đang phân tích thời gian giữa các cuộc gọi đến tổng đài:
+
+	\begin{center}
+	\begin{tabular}{|c|c|}
+	\hline
+	Cuộc gọi thứ & Thời gian giữa các cuộc gọi (phút) \\
+	\hline
+	1 & 3.2 \\
+	2 & 5.1 \\
+	3 & 2.7 \\
+	4 & 4.3 \\
+	5 & 6.0 \\
+	\hline
+	\end{tabular}
+	\end{center}
+
+	Ta giả sử thời gian giữa các cuộc gọi tuân theo phân phối Gamma:
+
+	\[
+	X \sim \text{Gamma}(\alpha, \beta)
+	\]
+
+	Phân phối Gamma có mật độ xác suất:
+
+	\[
+	f(x; \alpha, \beta) = \frac{\beta^\alpha}{\Gamma(\alpha)} x^{\alpha - 1} e^{-\beta x}, \quad x > 0
+	\]
+
+	Phân phối này giúp mô hình hóa thời gian giữa các sự kiện ngẫu nhiên một cách linh hoạt và hiệu quả.
+	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=0.7\textwidth]{images/Inverse Gamma Distribution-PDF.png}
-		\caption{Hàm mật độ xác suất của Phân phối Gamma Nghịch đảo với các tham số khác nhau.}
-		\label{fig:Inverse Gamma Distribution-PDF}
+		
+		% Minipage cho hình ảnh thứ nhất (Cột 1)
+		\begin{subfigure}[b]{0.49\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/Inverse Gamma Distribution-PDF.png}
+			\caption{Hàm mật độ xác suất (PDF).}
+			\label{fig:InverseGamma-PDF}
+		\end{subfigure}
+		% Khoảng cách giữa hai cột (có thể dùng \hfill nếu muốn căn lề hoàn toàn)
+		\hfill 
+		% Minipage cho hình ảnh thứ hai (Cột 2)
+		\begin{subfigure}[b]{0.49\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/Inverse Gamma Distribution-CDF.png}
+			\caption{Hàm xác suất tích lũy (CDF).}
+			\label{fig:InverseGamma-CDF}
+		\end{subfigure}
+		
+		% Chú thích chung cho cả hai hình
+		\caption{So sánh Hàm mật độ xác suất và Hàm xác suất tích lũy của Phân phối Gamma Nghịch đảo (Inverse Gamma Distribution) với các tham số khác nhau.}
+		\label{fig:InverseGamma-Combined}
 	\end{figure}
-	
-	Dưới đây là biểu đồ minh họa hàm xác suất tích lũy của phân phối Gamma Nghịch đảo
-	
-		\begin{figure}[h!]
-		\centering
-		\includegraphics[width=0.7\textwidth]{images/Inverse Gamma Distribution-CDF.png} % Placeholder cho hình ảnh
-		\caption{Hàm mật độ xác suất của Phân phối Gamma Nghịch đảo với các tham số khác nhau.}
-		\label{fig:Inverse Gamma Distribution-CDF}
-	\end{figure}
-	
-	\subsection{Ví dụ dữ liệu và bài toán thực tế}
-		Phân phối tiên nghiệm cho phương sai
-		Trong thống kê Bayes, khi chúng ta cần đặt một phân phối tiên nghiệm cho tham số phương sai $\sigma^2$ của một phân phối chuẩn (normal distribution) hoặc các mô hình tuyến tính, phân phối Gamma Nghịch đảo là một lựa chọn phổ biến. Ví dụ, trong mô hình hồi quy tuyến tính, nếu chúng ta không có nhiều thông tin về phương sai của sai số, chúng ta có thể đặt một tiên nghiệm Gamma Nghịch đảo như $\text{InvGamma}(0.001, 0.001)$ để biểu thị sự không chắc chắn cao.
-	
+\newpage
 \section{Phân phối Beta (Beta Distribution)}
 	Phân phối Beta là một phân phối xác suất liên tục được định nghĩa trên khoảng $[0, 1]$. Nó rất hữu ích để mô hình hóa các đại lượng có giá trị giới hạn trong khoảng này, chẳng hạn như xác suất, tỷ lệ hoặc tỷ lệ phần trăm.
 	
@@ -94,31 +130,83 @@
 	\end{itemize}
 	
 	\subsection{Biểu đồ minh họa}
-	Dưới đây là biểu đồ minh họa hàm mật độ xác suất của phân phối Beta với các cặp tham số $\alpha, \beta$ khác nhau.
+	Dưới đây là biểu đồ minh họa hàm mật độ xác suất (hình 12) và hàm xác suất tích lũy (hình 13)  của phân phối Beta với các cặp tham số $\alpha, \beta$ khác nhau.
 	
 	\begin{figure}[h!]
 		\centering
 		\includegraphics[width=0.7\textwidth]{images/Beta Distribution-PDF.png} % Placeholder cho hình ảnh
 		\caption{Hàm mật độ xác suất của Phân phối Beta với các tham số khác nhau.}
 		\label{fig:Beta Distribution-PDF}
-	\end{figure}C
-	
-	Dưới đây là biểu đồ minh họa hàm xác suất tích lũy của phân phối Beta
-	
-		\begin{figure}[h!]
+	\end{figure}
+\newpage	
+	\begin{figure}[h!]
 		\centering
 		\includegraphics[width=0.7\textwidth]{images/Beta Distribution-CDF.png} % Placeholder cho hình ảnh
-		\caption{Hàm mật độ xác suất của Phân phối Beta với các tham số khác nhau.}
+		\caption{Hàm xác suất tích lũy của Phân phối Beta với các tham số khác nhau.}
 		\label{fig:Beta Distribution-CDF}
 	\end{figure}
 	
-	\subsection{Ví dụ dữ liệu và bài toán thực tế}
-		Phân phối tiên nghiệm cho xác suất Bernoulli
-		Trong thống kê Bayes, phân phối Beta là liên hợp tiên nghiệm (conjugate prior) cho tham số $p$ của phân phối Bernoulli hoặc phân phối nhị thức (binomial distribution). Nếu chúng ta muốn ước lượng xác suất thành công $p$ của một thí nghiệm, chúng ta có thể đặt một tiên nghiệm Beta trên $p$. Ví dụ, $\text{Beta}(1,1)$ là tiên nghiệm không thông tin (uniform prior), trong khi $\text{Beta}(2,2)$ cho thấy chúng ta tin rằng $p$ có xu hướng ở gần $0.5$.
-	
-		Tỷ lệ phiếu bầu
-		Giả sử chúng ta muốn mô hình hóa tỷ lệ phiếu bầu cho một ứng cử viên trong một cuộc bầu cử. Các giá trị tỷ lệ này nằm trong khoảng $[0, 1]$. Phân phối Beta có thể được sử dụng để biểu diễn sự không chắc chắn của chúng ta về tỷ lệ thực tế, dựa trên các cuộc thăm dò hoặc dữ liệu lịch sử.
-	
+
+\subsection{Cơ sở toán học: Phân phối Tiên nghiệm Liên hợp}
+
+Phân phối Beta ($\text{Beta}(\alpha, \beta)$) là một phân phối xác suất liên tục được định nghĩa trên khoảng $[0, 1]$. Nó được sử dụng lý tưởng để mô hình hóa các biến ngẫu nhiên là tỷ lệ hoặc xác suất.
+
+Trong thống kê Bayes, Phân phối Beta là tiên nghiệm liên hợp (conjugate prior) cho tham số xác suất thành công $p$ của Phân phối Nhị thức (Binomial Distribution).
+
+\begin{itemize}
+    \item \textbf{phân phối Tiên nghiệm (Prior):} Biểu thị niềm tin ban đầu của chúng ta về $p$ trước khi quan sát dữ liệu.
+    \[
+    p \sim \text{Beta}(\alpha, \beta)
+    \]
+    \item \textbf{Khả năng (Likelihood):} Mô hình hóa dữ liệu quan sát được (số lần thành công $k$ trong $n$ thử nghiệm).
+    \[
+    \text{Data} \mid p \sim \text{Binomial}(n, p) \quad \text{với} \quad P(k \mid p) \propto p^k (1-p)^{n-k}
+    \]
+    \item \text{Phân phối Hậu nghiệm (Posterior):} Phân phối sau khi cập nhật tiên nghiệm bằng dữ liệu. Nhờ tính chất tiên nghiệm liên hợp, hậu nghiệm cũng là một phân phối Beta với các tham số cập nhật.
+    \[
+    p \mid \text{Data} \sim \text{Beta}(\alpha', \beta')
+    \]
+\end{itemize}
+
+Công thức Cập nhật Hậu nghiệm:
+Nếu $\text{Prior} \sim \text{Beta}(\alpha, \beta)$ và ta quan sát $k$ thành công và $n-k$ thất bại, thì:
+\[
+\alpha' = \alpha + k \quad \text{và} \quad \beta' = \beta + (n-k)
+\]
+
+\subsection{Ví dụ thực tế: Ước lượng Tỷ lệ Phiếu ủng hộ}
+
+Bài toán: Ước lượng xác suất $p$ (tỷ lệ cử tri ủng hộ ứng cử viên A trong một quần thể).
+
+\textbf{Thiết lập Tiên nghiệm:}
+Chúng ta chọn tiên nghiệm $\text{Beta}(1, 1)$, được biết đến là tiên nghiệm đồng nhất (Uniform Prior), vì nó gán xác suất như nhau cho mọi giá trị của $p$ trong khoảng $[0, 1]$, thể hiện sự thiếu thông tin ban đầu.
+
+\[
+p \sim \text{Beta}(1, 1) \quad (\text{với } \alpha=1, \beta=1)
+\]
+
+\textbf{Dữ liệu Quan sát (Observation):}
+Chúng ta thực hiện một cuộc thăm dò với $n=20$ người, thu được:
+\begin{itemize}
+    \item Số lần thành công (ủng hộ): $k = 12$
+    \item Số lần thất bại (không ủng hộ): $n-k = 8$
+\end{itemize}
+\newpage
+\textbf{Tính toán Phân phối Hậu nghiệm:}
+Áp dụng công thức cập nhật hậu nghiệm:
+\begin{itemize}
+    \item $\alpha' = \alpha + k = 1 + 12 = 13$
+    \item $\beta' = \beta + (n-k) = 1 + 8 = 9$
+\end{itemize}
+
+Phân phối hậu nghiệm cho $p$ là:
+\[
+p \mid \text{Data} \sim \text{Beta}(13, 9)
+\]
+
+Kết luận: 
+Phân phối $\text{Beta}(13, 9)$ là phân phối hậu nghiệm, 
+biểu diễn sự không chắc chắn của chúng ta về tỷ lệ ủng hộ $p$ sau khi đã xem xét dữ liệu thăm dò. Giá trị kỳ vọng (mean) của phân phối này là $\frac{\alpha'}{\alpha' + \beta'} = \frac{13}{13+9} \approx 0.59$, cho thấy tỷ lệ ủng hộ có khả năng cao là khoảng $59\%$.
 \section{Phân phối Dirichlet (Dirichlet Distribution)}
 	Phân phối Dirichlet là một phân phối xác suất đa biến liên tục trên một simplex tiêu chuẩn. Nó là tổng quát hóa của phân phối Beta cho nhiều hơn hai danh mục và thường được sử dụng làm phân phối tiên nghiệm cho các tham số của phân phối Categorical hoặc phân phối đa thức (multinomial distribution).
 	
