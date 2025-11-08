@@ -39,7 +39,7 @@ Ta sẽ cần phải cài đặt các phần sau:
 - **Linux (Ubuntu/Debian):**
   ```bash
   sudo apt update
-  sudo apt install texlive-latex-recommended
+  sudo apt install texlive-bibtex-extra chktex latexmk
   ```
 
 ### 🧩 Bước 2: Cài đặt tiện ích mở rộng **LaTeX Workshop**
