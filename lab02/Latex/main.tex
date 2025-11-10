@@ -59,6 +59,40 @@
 \date{\hmwkDate}
 
 % ============================
+% ===== Countẻr fỏr sections =
+% ============================
+\newcounter{question}
+\newcounter{subquestion}[question]
+\newcounter{answer}[subquestion]
+
+\renewcommand{\thequestion}{\arabic{question}}
+\renewcommand{\thesubquestion}{\alph{subquestion}}
+\renewcommand{\theanswer}{\thequestion.\arabic{answer}}
+
+% --- Custom Environments ---
+\newenvironment{question}[1]
+{%
+  \refstepcounter{question}%
+  \section*{Bài #1}%
+  \addcontentsline{toc}{section}{Bài #1}%
+}
+{}
+
+\newenvironment{subquestion}[1]
+{%
+  \refstepcounter{subquestion}%
+  \noindent\textbf{(\thesubquestion)} #1  \par
+}
+{\vspace{0.5em}}
+
+\newenvironment{answer}
+{%
+  \refstepcounter{answer}%
+  \noindent\textbf{Lời giải :}\par
+}
+{\vspace{1em}}
+
+% ============================
 % ===== Document Start =======
 % ============================
 \begin{document}
@@ -82,11 +116,12 @@
 \tableofcontents
 \newpage
 
+
 % ============================
 % ===== Sections =============
 % ============================
 % Uncomment and create files under `sections/` directory
-% \input{sections/Descrete}
+\input{sections/bai6.tex}
 % \input{sections/Continuous}
 % \input{sections/Others}
 
