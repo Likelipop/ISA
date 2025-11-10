@@ -1,0 +1,69 @@
+\documentclass[12pt]{beamer}
+
+% ============================
+% ======== Packages =========
+% ============================
+\usepackage{fontspec}                        % XeLaTeX font support
+\usepackage[vietnamese,english]{babel}      % Language support
+\usepackage{amsmath, amsthm, amsfonts}      % Math packages
+\usepackage{tikz}                            % Drawing & diagrams
+\usepackage[plain]{algorithm}                % Algorithm environment
+\usepackage{algpseudocode}                   % Pseudocode inside algorithms
+\usepackage{hyperref}                        % Clickable TOC and references
+\usepackage{setspace}                        % Line spacing
+
+% TikZ libraries
+\usetikzlibrary{automata,positioning}
+
+% ============================
+% ===== Theme & Colors =======
+% ============================
+\usetheme{Madrid}
+\usecolortheme{beaver}
+
+% ============================
+% ===== Custom Commands =====
+% ============================
+\newcommand{\hmwkTitle}{Assignment 1}
+\newcommand{\hmwkClass}{Xử lý số liệu thống kê}
+\newcommand{\hmwkAuthors}{
+    Trần Tiến Đạt \\
+    Nguyễn Thị Ngọc Anh \\
+    Nguyễn Thái Hưng Thịnh
+}
+\newcommand{\hmwkDate}{\today}
+
+% ============================
+% ===== Title Page Setup =====
+% ============================
+\title{\hmwkClass \\[0.5em] \hmwkTitle}
+\author{\hmwkAuthors}
+\date{\hmwkDate}
+
+% ============================
+% ===== Document Start =======
+% ============================
+\begin{document}
+
+% ----- Title Page -----
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% ----- Table of Contents -----
+\begin{frame}{Nội Dung}
+    \tableofcontents
+\end{frame}
+
+% ============================
+% ===== Sections / Slides ====
+% ============================
+\input{sections/intro.tex}
+\input{sections/methodology.tex}
+% ----- Ending Slide -----
+\begin{frame}{Kết Thúc}
+    \centering
+    Cảm ơn các bạn đã lắng nghe!
+\end{frame}
+
+\end{document}
