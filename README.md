@@ -1,4 +1,4 @@
-# Lab02
+# XỬ LÝ SỐ LIỆU THÔNG KÊKÊ
 
 ## 1. **Mục tiêu của project:**
 
