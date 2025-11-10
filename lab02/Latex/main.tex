@@ -61,27 +61,27 @@
 % ============================
 % ===== Countẻr fỏr sections =
 % ============================
-\newcounter{assignment}
-\newcounter{question}[assignment]
-\newcounter{answer}[question]
+\newcounter{question}
+\newcounter{subquestion}[question]
+\newcounter{answer}[subquestion]
 
-\renewcommand{\theassignment}{\arabic{assignment}}
-\renewcommand{\thequestion}{\alph{question}}
+\renewcommand{\thequestion}{\arabic{question}}
+\renewcommand{\thesubquestion}{\alph{subquestion}}
 \renewcommand{\theanswer}{\thequestion.\arabic{answer}}
 
 % --- Custom Environments ---
-\newenvironment{assignment}[1]
-{%
-  \refstepcounter{assignment}%
-  \section*{Bài #1}%
-  \addcontentsline{toc}{section}{Assignment \theassignment: #1}%
-}
-{}
-
 \newenvironment{question}[1]
 {%
   \refstepcounter{question}%
-  \noindent\textbf{(\thequestion)} #1  \par
+  \section*{Bài #1}%
+  \addcontentsline{toc}{section}{Bài #1}%
+}
+{}
+
+\newenvironment{subquestion}[1]
+{%
+  \refstepcounter{subquestion}%
+  \noindent\textbf{(\thesubquestion)} #1  \par
 }
 {\vspace{0.5em}}
 
