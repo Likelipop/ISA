@@ -1,0 +1,154 @@
+---
+title: "Project"
+author: "Tran Tien Dat"
+date: "2025-11-11"
+output: html_document
+---
+# A/B testing application
+
+---
+
+## 1. Title
+**Project Name:**  A/B testing for landing page
+
+**Author:** Trần Tiến Đạt, Nguyễn Thị Ngọc Anh, Nguyễn Thái Hưng Thịnh
+
+**Date:** 13/11/2025
+
+---
+
+## 2. Objective
+The goal of this analysis is to determine whether different versions of a landing page (Version A vs Version B) lead to significantly different user behaviors, such as amount of time that the user spent on the web page during their session,... Specifically, we want to use permutation tests and bootstrap tests to statistically validate whether observed differences are likely due to chance or represent a true effect.
+
+---
+
+## 3. Background / Context
+Link dataset : https://www.kaggle.com/datasets/mariyamalshatta/e-news-express
+The design team of the company has researched and created a new landing page that has a new outline & more relevant content shown compared to the old page. In order to test the effectiveness of the new landing page in gathering new subscribers, the Data Science team conducted an experiment by randomly selecting 100 users and dividing them equally into two groups. The existing landing page was served to the first group (control group) and the new landing page to the second group (treatment group). Data regarding the interaction of users in both groups with the two versions of the landing page was collected. Being a data scientist in E-news Express, you have been asked to explore the data and perform a statistical analysis (at a significance level of 5%) to determine the effectiveness of the new landing page in gathering new subscribers for the news portal by answering the following questions:
+
+Do the users spend more time on the new landing page than on the existing landing page?
+Is the conversion rate (the proportion of users who visit the landing page and get converted) for the new page greater than the conversion rate for the old page?
+Does the converted status depend on the preferred language?
+Is the time spent on the new page the same for the different language users?
+
+## 4. Data Loading
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(reshape2)  # for melt()
+library(patchwork)
+```
+
+First, we load the data and take a quick look at its overview.
+
+```{r}
+landing_page_data <- read_csv("data/ab_data.csv")
+
+glimpse(landing_page_data)
+```
+
+```{r}
+landing_page_data |>
+  select(where(is.numeric)) |>
+  summarize(across(everything(), list(
+    mean = mean,
+    median = median,
+    sd = sd,
+    min = min,
+    max = max
+  ), na.rm = TRUE, .names = "{.col}.{.fn}")) |>  
+  pivot_longer(cols = everything(),
+               names_to = "name",
+               values_to = "value") |>
+  separate(name, into = c("variable", "stat"), sep = "\\.") |>  
+  pivot_wider(names_from = stat, values_from = value)
+
+```
+
+```{r}
+landing_page_data |>
+  select(where(~!is.numeric(.))) |>
+  summarize(across(everything(), list(
+    n_unique = ~n_distinct(.),
+    most_common = ~names(sort(table(.), decreasing = TRUE))[1],
+    n_missing = ~sum(is.na(.))
+  ), .names = "{.col}.{.fn}")) |>
+  mutate(across(everything(), as.character)) |> 
+  pivot_longer(everything(), names_to = "name", values_to = "value") |>
+  separate(name, into = c("variable", "stat"), sep = "\\.") |>
+  pivot_wider(names_from = stat, values_from = value)
+
+
+```
+## 5. Visualization
+
+```{r}
+landing_page_data |>
+  ggplot(aes(x = time_spent_on_the_page)) +
+  geom_histogram(bins = 30, fill = "steelblue", color = "white") +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Time Spent on the Page",
+    x = "Time Spent (seconds)",
+    y = "Count"
+  )
+
+```
+
+
+```{r, fig.width=12, fig.height=12}
+landing_page_data |>
+  select(where(~!is.numeric(.))) |>
+  pivot_longer(everything(), names_to = "variable", values_to = "value") |>
+  ggplot(aes(x = value)) +
+  geom_bar(fill = "steelblue") +
+  facet_wrap(~ variable,ncol = 2, scales = "free") +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Categorical Variables",
+    x = "Category",
+    y = "Count"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+```{r, fig.width=12, fig.height=12}
+
+# Select non-numeric columns
+non_numeric_cols <- landing_page_data %>% 
+  select(where(~ !is.numeric(.))) %>% 
+  names()
+
+# Create a list to store plots
+plot_list <- list()
+
+# Loop through each non-numeric column to create a pie chart
+for(col in non_numeric_cols){
+  
+  df_plot <- landing_page_data %>%
+    count(!!sym(col)) %>%
+    rename(value = !!sym(col), count = n)
+  
+  p <- ggplot(df_plot, aes(x = "", y = count, fill = value)) +
+    geom_col(width = 1, color = "white") +
+    coord_polar(theta = "y") +
+    theme_void() +
+    labs(title = paste( col)) +
+    geom_text(aes(label = paste0(round(count/sum(count)*100,1), "%")), 
+              position = position_stack(vjust = 0.5))
+  
+  plot_list[[col]] <- p
+}
+
+# Combine plots using patchwork
+combined_plot <- wrap_plots(plot_list, nrow = 2, ncol = 2)
+print(combined_plot)
+
+
+
+```
+
+
+
