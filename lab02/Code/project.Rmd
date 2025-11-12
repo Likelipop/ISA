@@ -23,15 +23,24 @@ The goal of this analysis is to determine whether different versions of a landin
 ---
 
 ## 3. Background / Context
+
+Inspired by the articles :"Young, Scott WH (2014) Improving Library User Experience with A/B Testing: Principles and Process. Weave: Journal of Library User Experience. University of Michigan Library". We sought to explore a similar experimental set up. While the original paper provides only the summary of its experiments, we identified another dataset that shares (most of) the charateristics of the original ones.
+
+In this dataset, a company’s design team developed a new landing page featuring an updated layout and more relevant content compared to the original version. To evaluate the effectiveness of this redesign in attracting new subscribers, the Data Science team conducted an A/B test. A total of 100 users were randomly selected and evenly divided into two groups: 
+
++ The control group, which was shown the existing landing page, 
++ The treatment group, which was shown the new version. 
+
+User interaction's data from both groups was then collected and analyzed to measure the impact of the redesign.
+
+Being a data scientist in E-news Express, we're interested in determine the effectiveness of the new landing page in gathering new subscribers for the news portal by answering the following questions:
+
+1. Do the users spend more time on the new landing page than on the existing landing page?
+2. Is the conversion rate (the proportion of users who visit the landing page and get converted) for the new page greater than the conversion rate for the old page?
+
 Link dataset : https://www.kaggle.com/datasets/mariyamalshatta/e-news-express
-The design team of the company has researched and created a new landing page that has a new outline & more relevant content shown compared to the old page. In order to test the effectiveness of the new landing page in gathering new subscribers, the Data Science team conducted an experiment by randomly selecting 100 users and dividing them equally into two groups. The existing landing page was served to the first group (control group) and the new landing page to the second group (treatment group). Data regarding the interaction of users in both groups with the two versions of the landing page was collected. Being a data scientist in E-news Express, you have been asked to explore the data and perform a statistical analysis (at a significance level of 5%) to determine the effectiveness of the new landing page in gathering new subscribers for the news portal by answering the following questions:
 
-Do the users spend more time on the new landing page than on the existing landing page?
-Is the conversion rate (the proportion of users who visit the landing page and get converted) for the new page greater than the conversion rate for the old page?
-Does the converted status depend on the preferred language?
-Is the time spent on the new page the same for the different language users?
-
-## 4. Data Loading
+## 4. Data Preparation
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -41,6 +50,14 @@ library(reshape2)  # for melt()
 library(patchwork)
 ```
 
+The datasets has 6 columns, each names:
+$ user_id: id of users
+$ group : control group or treatment groups
+$ landing_page : which pages (old/news) they are interact with
+$ time_spent_on_the_page : Time (in minutes) spent by the user on the landing page
+$ converted : Whether the user gets converted to a subscriber of the news portal or not
+$ language_preferred : Language chosen by the user to view the landing page
+
 First, we load the data and take a quick look at its overview.
 
 ```{r}
@@ -48,10 +65,11 @@ landing_page_data <- read_csv("data/ab_data.csv")
 
 glimpse(landing_page_data)
 ```
+As suggested, there are 100 records from both of the groups, while most of the variables are categorical, only the **time_spent_on_the_page** variables provide the quantitative data,
 
 ```{r}
-landing_page_data |>
-  select(where(is.numeric)) |>
+landing_page_data |>                          # dataframe_A
+  select(where(is.numeric)) |>                # take out the numeric_columns
   summarize(across(everything(), list(
     mean = mean,
     median = median,
@@ -62,8 +80,8 @@ landing_page_data |>
   pivot_longer(cols = everything(),
                names_to = "name",
                values_to = "value") |>
-  separate(name, into = c("variable", "stat"), sep = "\\.") |>  
-  pivot_wider(names_from = stat, values_from = value)
+  separate(name, into = c("variable", "stat"), sep = "\\.") |>
+  pivot_wider( names_from = variable, values_from = value)
 
 ```
 
@@ -82,21 +100,25 @@ landing_page_data |>
 
 
 ```
-## 5. Visualization
 
+## 5. Visualization
+ 
+To gain a clearer understanding of the data, we first present several visualization.
+In particular, we examine how users in the control group and treatment groups differ in terms of the time they spent on their respective landing pages
 ```{r}
 landing_page_data |>
-  ggplot(aes(x = time_spent_on_the_page)) +
-  geom_histogram(bins = 30, fill = "steelblue", color = "white") +
+  ggplot(aes(x = time_spent_on_the_page, fill = group)) +
+  geom_histogram(bins = 30, color = "white", alpha = 0.6, position = "identity") +
   theme_minimal() +
   labs(
     title = "Distribution of Time Spent on the Page",
     x = "Time Spent (seconds)",
-    y = "Count"
+    y = "Count",
+    fill = "User Group"
   )
 
 ```
-
+While the two distribution overlaps to some extent, the treatment group shows a noticeable rightward shift, indicating higher engagement with the new landing page. User in this group spent approximately 4 to over 9 minutes on average, compared to the control group, whose time ranged from only a few seconds to below 7 minutes.
 
 ```{r, fig.width=12, fig.height=12}
 landing_page_data |>
@@ -149,6 +171,62 @@ print(combined_plot)
 
 
 ```
+các phần sau đây là thử nghiệm :
+```{r}
 
+# Calculate the observed difference
+observed_diff <- landing_page_data |>
+  group_by(group) |>
+  summarize(mean_time = mean(time_spent_on_the_page, na.rm = TRUE)) |>
+  pivot_wider(names_from = group, values_from = mean_time)
 
+# Assuming columns are named 'treatment' and 'control'
+observed_stat <- observed_diff$treatment - observed_diff$control
+print(observed_stat)
+
+# 1. Set the number of permutations
+n_permutations <- 10000
+permutation_diffs <- numeric(n_permutations) # Initialize vector to store results
+
+# Get the original counts for splitting
+n_control <- sum(landing_page_data$group == "control")
+n_treatment <- sum(landing_page_data$group == "treatment")
+all_times <- landing_page_data$time_spent_on_the_page
+
+# 2. Loop for shuffling
+for (i in 1:n_permutations) {
+  # Shuffle the time values
+  shuffled_times <- sample(all_times)
+
+  # Assign the first n_control values to the simulated control group,
+  # and the rest to the simulated treatment group
+  sim_control <- shuffled_times[1:n_control]
+  sim_treatment <- shuffled_times[(n_control + 1):(n_control + n_treatment)]
+
+  # 3. Calculate the difference for this permutation
+  perm_diff <- mean(sim_treatment, na.rm = TRUE) - mean(sim_control, na.rm = TRUE)
+
+  # Store the result
+  permutation_diffs[i] <- perm_diff
+}
+```
+
+```{r}
+library(ggplot2)
+
+ggplot() +
+  geom_histogram(aes(x = permutation_diffs), bins = 50, fill = "lightblue", color = "white") +
+  geom_vline(aes(xintercept = observed_stat), color = "red", linetype = "dashed", linewidth = 1) +
+  theme_minimal() +
+  labs(
+    title = "Null Distribution of Mean Differences (Permutation Test)",
+    x = "Permutation Difference (Treatment - Control)",
+    y = "Frequency"
+  )
+```
+```{r}
+# Calculate two-sided p-value
+p_value <- sum(abs(permutation_diffs) >= abs(observed_stat)) / n_permutations
+print(paste("P-value:", p_value < 0.05))
+```
 
