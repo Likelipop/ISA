@@ -60,7 +60,7 @@ glimpse(landing_page_data)
 ```
 As suggested, there are 100 records from both of the groups, while most of the variables are categorical, only the **time_spent_on_the_page** variables provide the quantitative data,
 
-### 4.2 summarization
+### 4.2 Summarization
 
 ```{r}
 landing_page_data |>                          # dataframe_A
