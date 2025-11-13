@@ -3,7 +3,8 @@
 % ============================
 % ======== Packages =========
 % ============================
-\usepackage{fontspec}                        % XeLaTeX font support
+\usepackage{fontspec}      
+\usepackage{graphicx}                  % XeLaTeX font support
 \usepackage[vietnamese,english]{babel}      % Language support
 \usepackage{amsmath, amsthm, amsfonts}      % Math packages
 \usepackage{tikz}                            % Drawing & diagrams
@@ -46,9 +47,33 @@
 \begin{document}
 
 % ----- Title Page -----
-\begin{frame}
+\begin{frame}[plain]
+    % Title and subtitle
+    \title{\textbf{MINI PROJECT}\\[6pt]
+           \Large A/B Testing Application in Data Science}
+    \subtitle{Controlled Experiment on Landing Page Optimization}
+
+    % Author block
+    \author{
+        Trần Tiến Đạt -- 22520001 \\[3pt]
+        Nguyễn Thị Ngọc Anh -- 22520015 \\[3pt]
+        Nguyễn Thái Hưng Thịnh -- 22520027
+    }
+
+    % Institute / Course
+    \institute{%
+        \textbf{Môn: Xử lý số liệu thống kê} \\[3pt]
+        Khoa Toán - Tin, VNUHCM-US
+    }
+
+    % Date
+    \date{\today}
+
+    % Title page
     \titlepage
 \end{frame}
+
+
 
 % ----- Table of Contents -----
 \begin{frame}{Nội Dung}
@@ -59,7 +84,9 @@
 % ===== Sections / Slides ====
 % ============================
 \input{sections/intro.tex}
+\input{sections/case_study.tex}
 \input{sections/methodology.tex}
+
 % ----- Ending Slide -----
 \begin{frame}{Kết Thúc}
     \centering
