@@ -72,15 +72,10 @@
 \headcommand {\sectionentry {6}{Limitations}{29}{Limitations}{0}}
 \headcommand {\slideentry {6}{0}{1}{29/29}{}{0}}
 \headcommand {\beamer@framepages {29}{29}}
-\headcommand {\beamer@sectionpages {29}{29}}
-\headcommand {\beamer@subsectionpages {29}{29}}
-\headcommand {\sectionentry {7}{Phương Pháp}{30}{Phương Pháp}{0}}
-\headcommand {\slideentry {7}{0}{1}{30/30}{}{0}}
+\headcommand {\slideentry {6}{0}{2}{30/30}{}{0}}
 \headcommand {\beamer@framepages {30}{30}}
-\headcommand {\slideentry {7}{0}{2}{31/31}{}{0}}
-\headcommand {\beamer@framepages {31}{31}}
-\headcommand {\beamer@partpages {1}{31}}
-\headcommand {\beamer@subsectionpages {30}{31}}
-\headcommand {\beamer@sectionpages {30}{31}}
-\headcommand {\beamer@documentpages {31}}
-\headcommand {\gdef \inserttotalframenumber {30}}
+\headcommand {\beamer@partpages {1}{30}}
+\headcommand {\beamer@subsectionpages {29}{30}}
+\headcommand {\beamer@sectionpages {29}{30}}
+\headcommand {\beamer@documentpages {30}}
+\headcommand {\gdef \inserttotalframenumber {29}}
