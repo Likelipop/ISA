@@ -314,14 +314,6 @@ boot_ci_two_mean <- function(
 }
 ```
 
-### 6.3. Bootstrap test for the difference in conversion rates
-
-```{r}
-landing_page_data <- landing_page_data |>
-  mutate(
-    converted_num = if_else(converted == "yes", 1, 0)
-  )
-```
 ## 7 Bootstrap test result
 ### 7.1. Time spent on page: new vs old
 Let $\mu_{\text{new}}$ be the mean time on page for the new landing page, and $\mu_{\text{old}}$ for the old one.
@@ -329,6 +321,8 @@ Let $\mu_{\text{new}}$ be the mean time on page for the new landing page, and $\
 - $H_0: \mu_{\text{new}} \le \mu_{\text{old}}$ (the new page does **not** increase time on page)
 
 - $H_1: \mu_{\text{new}} > \mu_{\text{old}}$ (the new page increases time on page)
+
+First, we split the time_spent_on_the_page variable into treatment (new page) and control (old page) groups. Then, summarizing their mean, standard deviation, and sample size.
 
 ```{r}
 time_new <- landing_page_data |>
@@ -340,8 +334,7 @@ filter(group == "control") |>
 pull(time_spent_on_the_page)
 
 length(time_new); length(time_old)
-```
-```{r}
+
 tibble(
 group = c("old (control)", "new (treatment)"),
 mean  = c(mean(time_old), mean(time_new)),
@@ -358,7 +351,6 @@ The observed difference in means is:
 \[
 t_{\text{obs}} = \bar{Y}_{\text{new}} - \bar{Y}_{\text{old}} \approx 1.69.
 \]
-
 
 ```{r}
 #Bootstrap test (H1: μ_new > μ_old, α=0.05)
@@ -396,7 +388,7 @@ ggplot() +
 ```
 
 - Interpretation:
-  - `res_time$obs_diff ≈ 1.69`: on average, users in the treatment group (new landing page) stay about 1.7 time units longer on the page than users in the control group (old page).
+  - `res_time$obs_diff ≈ 1.69`: on average, users in the treatment group (new landing page) stay about 1.7 minutes longer on the page than users in the control group (old page).
   - `res_time$p_value` is very small (≪ 0.05), so we reject the null hypothesis that the mean time on the new page is less than or equal to that on the old page.
 
 ```{r}
@@ -418,11 +410,22 @@ ci_time_summary
 ```
 
 ### 7.2. Conversion rates: new vs old
+We convert the converted variable from "yes"/"no" into a numeric indicator converted_num equal to 1 for converted users and 0 for non-converted users.
+```{r}
+landing_page_data <- landing_page_data |>
+  mutate(
+    converted_num = if_else(converted == "yes", 1, 0)
+  )
+```
 Let $p_{\text{new}}$ be the conversion rate on the new landing page, and $p_{\text{old}}$ on the old one.
 
 - $H_0: p_{\text{new}} \le p_{\text{old}}$ (the new page does **not** improve conversion rate)
 
 - $H_1: p_{\text{new}} > p_{\text{old}}$ (the new page has a higher conversion rate)
+
+
+First, we split the converted_num variable into treatment (new page) and control (old page) groups. Then, summarizing the mean conversion and sample size for each group.
+
 ```{r}
 conv_new <- landing_page_data |>
 filter(group == "treatment") |>
@@ -438,6 +441,7 @@ mean_conv = c(mean(conv_old), mean(conv_new)),
 n = c(length(conv_old), length(conv_new))
 )
 ```
+
 From the data:
 
 - $p_{\text{old}} = \bar{X}_{\text{old}} \approx 0.42$ (42% conversion).
@@ -513,14 +517,14 @@ ci_conv_summary
 **Discussion of results**
 **1. Do the users spend more time on the new landing page than on the existing landing page?**
 
-Users on the old landing page spend on average about **4.53** time units on the page, while users on the new landing page spend about **6.22** time units.
+Users on the old landing page spend on average about **4.53** minutes on the page, while users on the new landing page spend about **6.22** minutes.
 
 So the observed difference in means is:
 \[
 \hat{\mu}_{\text{new}} - \hat{\mu}_{\text{old}} 
 = 6.22 - 4.53 \approx 1.69,
 \]
-which means the new page keeps users about **1.7 time units longer** on average.
+which means the new page keeps users about **1.7 minutes longer** on average.
 
 In relative terms:
 \[
@@ -535,16 +539,16 @@ H_0: \mu_{\text{new}} \le \mu_{\text{old}},
 H_1: \mu_{\text{new}} > \mu_{\text{old}}.
 \]
 
-The resulting p-value is very small \((p < 0.05)\), so at the 5\% significance level we **reject \(H_0\)**. It is unlikely that a difference as large as 1.69 time units would occur by chance if the two pages had the same true mean.
+The resulting p-value is very small \((p < 0.05)\), so at the 5\% significance level we **reject \(H_0\)**. It is unlikely that a difference as large as 1.69 minutes would occur by chance if the two pages had the same true mean.
 
 The 95\% bootstrap percentile confidence interval for \(\mu_{\text{new}} - \mu_{\text{old}}\) is:
 \[
 \text{CI}_{95\%}(\mu_{\text{new}} - \mu_{\text{old}}) = (0.83,\ 2.56),
 \]
-which is entirely above 0. This indicates that, in the population, the new page increases average time on page by **between 0.83 and 2.56 time units**.
+which is entirely above 0. This indicates that, in the population, the new page increases average time on page by **between 0.83 and 2.56 minutes**.
 
 **Answer to Question 1:**  
-Yes. At the 5\% significance level, users spend **significantly more time** on the new landing page than on the existing one. The average increase is about **1.7 time units**, with a 95\% confidence interval of \((0.83,\ 2.56)\).
+Yes. At the 5\% significance level, users spend **significantly more time** on the new landing page than on the existing one. The average increase is about **1.7 minutes**, with a 95\% confidence interval of \((0.83,\ 2.56)\).
 
 **2. Is the conversion rate (the proportion of users who visit the landing page and get converted) for the new page greater than the conversion rate for the old page?**
 
