@@ -1,14 +1,6 @@
----
-title: "Project"
-author: "Tran Tien Dat"
-date: "2025-11-11"
-output: html_document
----
-# A/B testing application
-
----
 
 ## 1. Title
+---
 **Project Name:**  A/B testing for landing page
 
 **Author:** Trần Tiến Đạt, Nguyễn Thị Ngọc Anh, Nguyễn Thái Hưng Thịnh
@@ -41,6 +33,7 @@ Being a data scientist in E-news Express, we're interested in determine the effe
 Link dataset : https://www.kaggle.com/datasets/mariyamalshatta/e-news-express
 
 ## 4. Data Preparation
+### 4.1 Data ingestion
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -51,12 +44,12 @@ library(patchwork)
 ```
 
 The datasets has 6 columns, each names:
-$ user_id: id of users
-$ group : control group or treatment groups
-$ landing_page : which pages (old/news) they are interact with
-$ time_spent_on_the_page : Time (in minutes) spent by the user on the landing page
-$ converted : Whether the user gets converted to a subscriber of the news portal or not
-$ language_preferred : Language chosen by the user to view the landing page
+$ user_id: id of users \\
+$ group : control group or treatment groups \\
+$ landing_page : which pages (old/news) they are interact with \\
+$ time_spent_on_the_page : Time (in minutes) spent by the user on the landing page \\
+$ converted : Whether the user gets converted to a subscriber of the news portal or not \\
+$ language_preferred : Language chosen by the user to view the landing page \\
 
 First, we load the data and take a quick look at its overview.
 
@@ -66,6 +59,8 @@ landing_page_data <- read_csv("data/ab_data.csv")
 glimpse(landing_page_data)
 ```
 As suggested, there are 100 records from both of the groups, while most of the variables are categorical, only the **time_spent_on_the_page** variables provide the quantitative data,
+
+### 4.2 summarization
 
 ```{r}
 landing_page_data |>                          # dataframe_A
@@ -84,27 +79,60 @@ landing_page_data |>                          # dataframe_A
   pivot_wider( names_from = variable, values_from = value)
 
 ```
-
 ```{r}
+# Count how many observations we have in each combination of group and landing page
 landing_page_data |>
-  select(where(~!is.numeric(.))) |>
-  summarize(across(everything(), list(
-    n_unique = ~n_distinct(.),
-    most_common = ~names(sort(table(.), decreasing = TRUE))[1],
-    n_missing = ~sum(is.na(.))
-  ), .names = "{.col}.{.fn}")) |>
-  mutate(across(everything(), as.character)) |> 
-  pivot_longer(everything(), names_to = "name", values_to = "value") |>
-  separate(name, into = c("variable", "stat"), sep = "\\.") |>
-  pivot_wider(names_from = stat, values_from = value)
+count(group, landing_page)
 
+# Create a summary table for time spent on the page
+summary_time <- landing_page_data |>
+group_by(group, landing_page) |>
+summarise(
+n = n(),
+mean_time = mean(time_spent_on_the_page, na.rm = TRUE),
+sd_time   = sd(time_spent_on_the_page, na.rm = TRUE),
+.groups   = "drop"
+)
 
+summary_time
+
+# Create a summary table for conversion rate
+summary_conv <- landing_page_data |>
+group_by(group, landing_page, converted) |>
+summarise(n = n(), .groups = "drop") |>
+group_by(group, landing_page) |>
+mutate(prop = n / sum(n)) 
+
+summary_conv
 ```
+Overall:
+
+- The number of users in each group is balanced: 50 in control group (old landing page), 50 in treatment group (new landing page).
+
+- Users in the control group spend on average 4.53 minutes on the page (SD ≈ 2.58), while users in the treatment group spend 6.22 minutes(SD ≈ 1.82). That means about 1.7 minutes longer on the new page. 
+- For conversion, 42% of control users convert (21/50) versus 66% of treatment users (33/50). These summaries suggest higher engagement and conversion on the new landing page.
+
+But we will use bootstrap methods to check if these differences are statistically significant.
+
 
 ## 5. Visualization
- 
+### 5.1. Distribution of time spent on the page
 To gain a clearer understanding of the data, we first present several visualization.
 In particular, we examine how users in the control group and treatment groups differ in terms of the time they spent on their respective landing pages
+
+
+```{r}
+# Histograms of time spent on the page, shown separately for each landing page
+ggplot(landing_page_data, aes(x = time_spent_on_the_page, fill = landing_page)) +
+geom_histogram(alpha = 0.5, position = "identity", bins = 15) +
+facet_wrap(~ landing_page, nrow = 2) +
+labs(
+x = "Time spent on the page",
+y = "Count"
+) +
+theme_bw() +
+theme(legend.position = "none")
+```
 ```{r}
 landing_page_data |>
   ggplot(aes(x = time_spent_on_the_page, fill = group)) +
@@ -118,24 +146,42 @@ landing_page_data |>
   )
 
 ```
-While the two distribution overlaps to some extent, the treatment group shows a noticeable rightward shift, indicating higher engagement with the new landing page. User in this group spent approximately 4 to over 9 minutes on average, compared to the control group, whose time ranged from only a few seconds to below 7 minutes.
+\\
+The histograms show the full distribution of time on page separately for each version. For the new page, times are mostly concentrated around 4–7 minutes, while the old page shows more spread and more very short visits. These patterns visually support the idea that the new landing page keeps users on the site longer.
 
-```{r, fig.width=12, fig.height=12}
-landing_page_data |>
-  select(where(~!is.numeric(.))) |>
-  pivot_longer(everything(), names_to = "variable", values_to = "value") |>
-  ggplot(aes(x = value)) +
-  geom_bar(fill = "steelblue") +
-  facet_wrap(~ variable,ncol = 2, scales = "free") +
-  theme_minimal() +
-  labs(
-    title = "Distribution of Categorical Variables",
-    x = "Category",
-    y = "Count"
-  ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+```{r}
+# Violin + boxplot of time spent on the page for each landing page
+ggplot(landing_page_data, aes(x = landing_page, y = time_spent_on_the_page, fill = landing_page)) +
+geom_violin(trim = FALSE, alpha = 0.4) +
+geom_boxplot(width = 0.15, alpha = 0.8) +
+labs(
+x = "Landing page",
+y = "Time spent on the page"
+) +
+theme_bw() +
+theme(legend.position = "none")
 ```
+
+The violin–boxplot compares the distribution of `time_spent_on_the_page` between the new and old landing pages. The median and most of the mass for the new page are higher than for the old page, suggesting that users generally spend more time on the new design.
+
+### 5.2. Conversion rate by group
+
+```{r}
+# Bar plot of conversion rate (yes/no) by landing page
+ggplot(summary_conv, aes(x = landing_page, y = prop, fill = converted)) +
+geom_col(position = "fill") +
+scale_y_continuous(labels = scales::percent_format()) +
+labs(
+x = "Landing page",
+y = "Proportion (%)",
+fill = "Converted"
+) +
+theme_bw()
+```
+
+The stacked bar chart shows a higher proportion of converted users for the new landing page than for the old one, suggesting better conversion performance for the new design.
+
+### 5.3. Categorical bar chart
 ```{r, fig.width=12, fig.height=12}
 
 # Select non-numeric columns
@@ -168,65 +214,391 @@ for(col in non_numeric_cols){
 combined_plot <- wrap_plots(plot_list, nrow = 2, ncol = 2)
 print(combined_plot)
 
-
-
 ```
-các phần sau đây là thử nghiệm :
+
+## 6. Bootstrap test function
+### 6.1 Bootstrap test two means
+
 ```{r}
+boot_test_two_mean <- function(
+  x_treat,
+  x_control,
+  R = 5000,
+  alternative = c("two.sided", "greater", "less"),
+  seed = NULL
+) {
+  alternative <- match.arg(alternative)
+  if (!is.null(seed)) set.seed(seed)
 
-# Calculate the observed difference
-observed_diff <- landing_page_data |>
-  group_by(group) |>
-  summarize(mean_time = mean(time_spent_on_the_page, na.rm = TRUE)) |>
-  pivot_wider(names_from = group, values_from = mean_time)
+  # Remove missing values from both samples
+  x_treat   <- x_treat[!is.na(x_treat)]
+  x_control <- x_control[!is.na(x_control)]
 
-# Assuming columns are named 'treatment' and 'control'
-observed_stat <- observed_diff$treatment - observed_diff$control
-print(observed_stat)
+  # Sample sizes
+  n1 <- length(x_treat)
+  n2 <- length(x_control)
 
-# 1. Set the number of permutations
-n_permutations <- 10000
-permutation_diffs <- numeric(n_permutations) # Initialize vector to store results
+  # Observed difference in means
+  obs_diff <- mean(x_treat) - mean(x_control)
 
-# Get the original counts for splitting
-n_control <- sum(landing_page_data$group == "control")
-n_treatment <- sum(landing_page_data$group == "treatment")
-all_times <- landing_page_data$time_spent_on_the_page
+  # Center data to enforce H0: mu_treat = mu_control
+  x1_tilde <- x_treat   - mean(x_treat)
+  x2_tilde <- x_control - mean(x_control)
 
-# 2. Loop for shuffling
-for (i in 1:n_permutations) {
-  # Shuffle the time values
-  shuffled_times <- sample(all_times)
+  # Bootstrap distribution under H0
+  t_star <- sapply(
+    X   = seq_len(R),
+    FUN = function(i) {
+      boot1 <- sample(x1_tilde, size = n1, replace = TRUE)
+      boot2 <- sample(x2_tilde, size = n2, replace = TRUE)
+      mean(boot1) - mean(boot2)
+    }
+  )
 
-  # Assign the first n_control values to the simulated control group,
-  # and the rest to the simulated treatment group
-  sim_control <- shuffled_times[1:n_control]
-  sim_treatment <- shuffled_times[(n_control + 1):(n_control + n_treatment)]
+  # p-value
+  p_val <- switch(
+    alternative,
+    "two.sided" = mean(abs(t_star) >= abs(obs_diff)),
+    "greater"   = mean(t_star >= obs_diff),
+    "less"      = mean(t_star <= obs_diff)
+  )
 
-  # 3. Calculate the difference for this permutation
-  perm_diff <- mean(sim_treatment, na.rm = TRUE) - mean(sim_control, na.rm = TRUE)
-
-  # Store the result
-  permutation_diffs[i] <- perm_diff
+  # Return observed statistic, bootstrap distribution, and p-value
+  list(
+    obs_diff    = obs_diff,
+    t_star      = t_star,
+    p_value     = p_val,
+    alternative = alternative
+  )
 }
 ```
 
-```{r}
-library(ggplot2)
+### 6.2 Bootstrap percentile CI for the difference in means (no centering required)
 
-ggplot() +
-  geom_histogram(aes(x = permutation_diffs), bins = 50, fill = "lightblue", color = "white") +
-  geom_vline(aes(xintercept = observed_stat), color = "red", linetype = "dashed", linewidth = 1) +
-  theme_minimal() +
-  labs(
-    title = "Null Distribution of Mean Differences (Permutation Test)",
-    x = "Permutation Difference (Treatment - Control)",
-    y = "Frequency"
+```{r}
+boot_ci_two_mean <- function(
+  x_treat,
+  x_control,
+  R = 5000,
+  conf_level = 0.95,
+  seed = NULL
+) {
+  if (!is.null(seed)) set.seed(seed)
+
+  # Remove missing values
+  x_treat   <- x_treat[!is.na(x_treat)]
+  x_control <- x_control[!is.na(x_control)]
+
+  n1 <- length(x_treat)
+  n2 <- length(x_control)
+
+  # Bootstrap distribution of (mean_treat - mean_control)
+  diff_star <- sapply(
+    X   = seq_len(R),
+    FUN = function(i) {
+      boot1 <- sample(x_treat,   size = n1, replace = TRUE)
+      boot2 <- sample(x_control, size = n2, replace = TRUE)
+      mean(boot1) - mean(boot2)
+    }
+  )
+
+  alpha <- 1 - conf_level
+  ci<- quantile(diff_star, probs = c(alpha / 2, 1 - alpha / 2))
+
+  list(
+    diff_star  = diff_star,
+    ci_lower   = unname(ci[1]),
+    ci_upper   = unname(ci[2]),
+    conf_level = conf_level
+  )
+}
+```
+
+### 6.3. Bootstrap test for the difference in conversion rates
+
+```{r}
+landing_page_data <- landing_page_data |>
+  mutate(
+    converted_num = if_else(converted == "yes", 1, 0)
   )
 ```
+## 7 Bootstrap test result
+### 7.1. Time spent on page: new vs old
+Let $\mu_{\text{new}}$ be the mean time on page for the new landing page, and $\mu_{\text{old}}$ for the old one.
+
+- $H_0: \mu_{\text{new}} \le \mu_{\text{old}}$ (the new page does **not** increase time on page)
+
+- $H_1: \mu_{\text{new}} > \mu_{\text{old}}$ (the new page increases time on page)
+
 ```{r}
-# Calculate two-sided p-value
-p_value <- sum(abs(permutation_diffs) >= abs(observed_stat)) / n_permutations
-print(paste("P-value:", p_value < 0.05))
+time_new <- landing_page_data |>
+filter(group == "treatment") |>
+pull(time_spent_on_the_page)
+
+time_old <- landing_page_data |>
+filter(group == "control") |>
+pull(time_spent_on_the_page)
+
+length(time_new); length(time_old)
+```
+```{r}
+tibble(
+group = c("old (control)", "new (treatment)"),
+mean  = c(mean(time_old), mean(time_new)),
+sd    = c(sd(time_old),   sd(time_new)),
+n     = c(length(time_old), length(time_new))
+)
+```
+In this dataset:
+
+- $\bar{Y}_{\text{old}} \approx 4.53$
+- $\bar{Y}_{\text{new}} \approx 6.22$
+
+The observed difference in means is:
+\[
+t_{\text{obs}} = \bar{Y}_{\text{new}} - \bar{Y}_{\text{old}} \approx 1.69.
+\]
+
+
+```{r}
+#Bootstrap test (H1: μ_new > μ_old, α=0.05)
+set.seed(2025)
+res_time <- boot_test_two_mean(
+x_treat     = time_new,
+x_control   = time_old,
+R           = 10000,
+alternative = "greater"
+)
+
+res_time$obs_diff
+res_time$p_value
+```
+```{r}
+ggplot() +
+  geom_histogram(
+    aes(x = res_time$t_star),
+    bins  = 30,
+    fill  = "lightblue",
+    color = "white"
+  ) +
+  geom_vline(
+    aes(xintercept = res_time$obs_diff),
+    color     = "red",
+    linetype  = "dashed",
+    linewidth = 1
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Bootstrap Distribution of Mean Differences",
+    x     = "Bootstrap t* = mean(new*) - mean(old*) under H0",
+    y     = "Frequency"
+  )
 ```
 
+- Interpretation:
+  - `res_time$obs_diff ≈ 1.69`: on average, users in the treatment group (new landing page) stay about 1.7 time units longer on the page than users in the control group (old page).
+  - `res_time$p_value` is very small (≪ 0.05), so we reject the null hypothesis that the mean time on the new page is less than or equal to that on the old page.
+
+```{r}
+#Bootstrap percentile CI for the difference in mean time
+set.seed(2025)
+ci_time <- boot_ci_two_mean(
+x_treat     = time_new,
+x_control   = time_old,
+R           = 10000,
+conf_level  = 0.95
+)
+
+ci_time_summary <- tibble(
+  endpoint = c("Lower 95% CI", "Upper 95% CI"),
+  value    = c(ci_time$ci_lower, ci_time$ci_upper)
+)
+
+ci_time_summary
+```
+
+### 7.2. Conversion rates: new vs old
+Let $p_{\text{new}}$ be the conversion rate on the new landing page, and $p_{\text{old}}$ on the old one.
+
+- $H_0: p_{\text{new}} \le p_{\text{old}}$ (the new page does **not** improve conversion rate)
+
+- $H_1: p_{\text{new}} > p_{\text{old}}$ (the new page has a higher conversion rate)
+```{r}
+conv_new <- landing_page_data |>
+filter(group == "treatment") |>
+pull(converted_num)
+
+conv_old <- landing_page_data |>
+filter(group == "control") |>
+pull(converted_num)
+
+tibble(
+group = c("old (control)", "new (treatment)"),
+mean_conv = c(mean(conv_old), mean(conv_new)),
+n = c(length(conv_old), length(conv_new))
+)
+```
+From the data:
+
+- $p_{\text{old}} = \bar{X}_{\text{old}} \approx 0.42$ (42% conversion).
+- $p_{\text{new}} \approx 0.66$ (66% conversion).
+
+The observed difference is:
+\[
+t_{\text{obs}} = p_{\text{new}} - p_{\text{old}} \approx 0.24
+\]
+(an increase of 24 percentage points).
+
+```{r}
+# Bootstrap test (H1: p_new > p_old, α = 0.05)
+set.seed(2025)
+res_conv <- boot_test_two_mean(
+x_treat     = conv_new,
+x_control   = conv_old,
+R           = 10000,
+alternative = "greater"
+)
+
+res_conv$obs_diff
+res_conv$p_value
+```
+```{r}
+ggplot() +
+  geom_histogram(
+    aes(x = res_conv$t_star),
+    bins  = 30,
+    fill  = "lightblue",
+    color = "white"
+  ) +
+  geom_vline(
+    aes(xintercept = res_conv$obs_diff),
+    color     = "red",
+    linetype  = "dashed",
+    linewidth = 1
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Bootstrap Distribution of Differences in Conversion Rates",
+    x     = "Bootstrap t* = p_new* - p_old* under H0",
+    y     = "Frequency"
+  )
+```
+
+- Interpretation:
+  - `res_conv$obs_diff ≈ 0.24` → the new landing page has a conversion rate about 24 percentage points higher than the old page.
+  - `res_conv$p_value ≈ 0.0035 < 0.05` → we reject H₀: $p_{\text{new}} ≤ p_{\text{old}}$ and conclude that the new landing page has a higher conversion rate than the existing one.
+
+```{r}
+# Bootstrap percentile CI for the difference in conversion rates
+set.seed(2025)
+ci_conv <- boot_ci_two_mean(
+x_treat     = conv_new,
+x_control   = conv_old,
+R           = 10000,
+conf_level  = 0.95
+)
+
+ci_conv_summary <- tibble(
+  quantity = "p_new - p_old",
+  endpoint = c("Lower 95% CI", "Upper 95% CI"),
+  value    = c(ci_conv$ci_lower, ci_conv$ci_upper)
+)
+
+ci_conv_summary
+
+```
+
+### 8. Discussion of results and potential limitations
+
+**Discussion of results**
+**1. Do the users spend more time on the new landing page than on the existing landing page?**
+
+Users on the old landing page spend on average about **4.53** time units on the page, while users on the new landing page spend about **6.22** time units.
+
+So the observed difference in means is:
+\[
+\hat{\mu}_{\text{new}} - \hat{\mu}_{\text{old}} 
+= 6.22 - 4.53 \approx 1.69,
+\]
+which means the new page keeps users about **1.7 time units longer** on average.
+
+In relative terms:
+\[
+\frac{1.69}{4.53} \approx 0.37,
+\]
+so this is roughly a **37\% increase** compared to the old page.
+
+The bootstrap hypothesis test is:
+\[
+H_0: \mu_{\text{new}} \le \mu_{\text{old}}, 
+\quad
+H_1: \mu_{\text{new}} > \mu_{\text{old}}.
+\]
+
+The resulting p-value is very small \((p < 0.05)\), so at the 5\% significance level we **reject \(H_0\)**. It is unlikely that a difference as large as 1.69 time units would occur by chance if the two pages had the same true mean.
+
+The 95\% bootstrap percentile confidence interval for \(\mu_{\text{new}} - \mu_{\text{old}}\) is:
+\[
+\text{CI}_{95\%}(\mu_{\text{new}} - \mu_{\text{old}}) = (0.83,\ 2.56),
+\]
+which is entirely above 0. This indicates that, in the population, the new page increases average time on page by **between 0.83 and 2.56 time units**.
+
+**Answer to Question 1:**  
+Yes. At the 5\% significance level, users spend **significantly more time** on the new landing page than on the existing one. The average increase is about **1.7 time units**, with a 95\% confidence interval of \((0.83,\ 2.56)\).
+
+**2. Is the conversion rate (the proportion of users who visit the landing page and get converted) for the new page greater than the conversion rate for the old page?**
+
+On the old landing page, **21 out of 50** users convert, which gives:
+\[
+\hat{p}_{\text{old}} = \frac{21}{50} = 0.42 \quad (\text{42\% conversion}).
+\]
+
+On the new landing page, **33 out of 50** users convert, giving:
+\[
+\hat{p}_{\text{new}} = \frac{33}{50} = 0.66 \quad (\text{66\% conversion}).
+\]
+
+The observed difference in conversion rates is:
+\[
+\hat{p}_{\text{new}} - \hat{p}_{\text{old}} 
+= 0.66 - 0.42 = 0.24,
+\]
+so the new page improves conversion by **24 percentage points** (from 42% to 66%).  
+In relative terms:
+\[
+\frac{0.24}{0.42} \approx 0.57,
+\]
+which is about a **57\% relative increase** in conversion.
+
+The bootstrap hypothesis test for conversion is:
+\[
+H_0: p_{\text{new}} \le p_{\text{old}}, 
+\quad
+H_1: p_{\text{new}} > p_{\text{old}}.
+\]
+
+The test produces a p-value of approximately **0.0035**, which is much smaller than **0.05**.  
+At the 5\% significance level, we **reject \(H_0\)**, indicating strong evidence that the higher conversion rate on the new page is not just due to random fluctuation.
+
+The 95\% bootstrap percentile confidence interval for \((p_{\text{new}} - p_{\text{old}})\) is:
+\[
+\text{CI}_{95\%}(p_{\text{new}} - p_{\text{old}}) = [0.06,\ 0.42],
+\]
+which is entirely positive. This suggests that the **true increase in conversion** lies between **6** and **42 percentage points**.
+
+**Answer to Question 2:**  
+Yes. The conversion rate for the new landing page is **significantly higher** than for the old page (from 42\% to 66\%), with a 95\% bootstrap confidence interval for the improvement of **[0.06,\ 0.42]**.
+
+**Potential limitations**
+
+- **Representativeness of the sample**
+The bootstrap assumes our 100 users are representative of all website traffic. If this sample is biased (e.g., one country, one time period, synthetic data), the bootstrap results may not generalize well.
+
+- **Small sample size per group**
+With only 50 users in each group, the bootstrap distribution and percentile CIs can be unstable. Another sample of 100 users might give noticeably different p-values and intervals.
+
+- **Independence assumption**
+We treat all rows as independent users. If the same user appears multiple times, or users are clustered by campaign or time, the standard bootstrap may underestimate uncertainty.
+
+- **Simple method, no covariates**
+We use a basic percentile CI and test only the raw difference between groups, without adjusting for other factors (device, language, etc.). More advanced bootstrap methods or regression-based approaches could give more accurate or richer insight.
