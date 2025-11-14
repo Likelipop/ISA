@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.11.10)  14 NOV 2025 02:13
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.11.10)  14 NOV 2025 14:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -715,7 +715,7 @@ Package hyperref Info: Link coloring OFF on input line 98.
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
- [1] (./sections/Bai1.tex) (./sections/Bai3.tex) (./sections/Bai4.tex
+ [1] (./sections/Bai1.tex
 LaTeX Font Info:    Trying to load font information for U+msa on input line 2.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -723,12 +723,29 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 LaTeX Font Info:    Trying to load font information for U+msb on input line 2.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
+) [2]) (./sections/Bai3.tex
+Overfull \hbox (0.95586pt too wide) in paragraph at lines 10--12
+[]\TU/lmr/m/n/12 Gọi $\OML/cmm/m/it/12 Y \OT1/cmr/m/n/12 = \OMS/cmsy/m/n/12 f\OML/cmm/m/it/12 y[]; y[]; [] ; y[]\OMS/cmsy/m/n/12 g$ \TU/lmr/m/n/12 là tập hợp dữ liệu gốc. Gọi $\OML/cmm/m/it/12 Z \OT1/cmr/m/n/12 = \OMS/cmsy/m/n/12 f\OML/cmm/m/it/12 f\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 y[]\OT1/cmr/m/n/12 )\OML/cmm/m/it/12 ; f\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 y[]\OT1/cmr/m/n/12 )\OML/cmm/m/it/12 ; [] ; f\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 y[]\OT1/cmr/m/n/12 )\OMS/cmsy/m/n/12 g$
+ []
+
+[3] [4]
+Missing character: There is no à ("E0) in font cmmi12!
+Missing character: There is no í ("ED) in font cmmi12!
+Missing character: There is no ư ("1B0) in font cmmi12!
+Missing character: There is no ớ ("1EDB) in font cmmi12!
+Missing character: There is no ẫ ("1EAB) in font cmmi12!
+[5]
+Missing character: There is no à ("E0) in font cmmi12!
+Missing character: There is no í ("ED) in font cmmi12!
+Missing character: There is no ư ("1B0) in font cmmi12!
+Missing character: There is no ớ ("1EDB) in font cmmi12!
+Missing character: There is no ẫ ("1EAB) in font cmmi12!
+) (./sections/Bai4.tex [6]
 Overfull \hbox (0.81825pt too wide) in paragraph at lines 28--28
 \TU/lmr/bx/n/12 (b) \TU/lmr/m/n/12 Chứng minh hoặc đưa ra phản chứng rằng: $\OML/cmm/m/it/12 m[] \OT1/cmr/m/n/12 + \OML/cmm/m/it/12 m[]$ \TU/lmr/m/n/12 là trung vị của $\OML/cmm/m/it/12 w[]; w[]; [] ; w[]$ 
  []
 
-[2]) (./sections/Bai5.tex [3]) [4] (./main.aux)
+) (./sections/Bai5.tex [7] [8]) [9] (./main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -737,12 +754,12 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 49B2E1B2BF81A4975CFCD8B883180C58;300.
  ) 
 Here is how much of TeX's memory you used:
- 25049 strings out of 476423
- 516354 string characters out of 5793061
- 1929627 words of memory out of 5000000
- 46570 multiletter control sequences out of 15000+600000
+ 25053 strings out of 476423
+ 516474 string characters out of 5793061
+ 1932627 words of memory out of 5000000
+ 46574 multiletter control sequences out of 15000+600000
  563162 words of font info for 66 fonts, out of 8000000 for 9000
  264 hyphenation exceptions out of 8191
- 102i,11n,107p,569b,460s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 102i,11n,107p,569b,462s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.xdv (5 pages, 30532 bytes).
+Output written on main.xdv (10 pages, 81288 bytes).

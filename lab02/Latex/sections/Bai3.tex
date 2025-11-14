@@ -1,10 +1,149 @@
 \begin{question}{3}
     Đặt $\bar{y}$ và $m$ lần lượt là trung bình và trung vị của mẫu $y_1 < y_2 < \dots < y_n$. Xét $f$ là một hàm số thực.
-    \begin{enumerate}[label=(\alph*)]
-    \item Có phải $f(\bar{y})$ là trung bình mẫu của dữ liệu $f(y_1), f(y_2), \dots, f(y_n)$?
-    \item Có phải $f(m)$ là trung vị của dữ liệu $f(y_1), f(y_2), \dots, f(y_n)$?
-    \item Có hay không bất kỳ điều kiện gì để chắc chắn rằng $f(\bar{y})$ là trung bình mẫu của dữ liệu đã biến đổi?
-    \item Có hay không bất kỳ điều kiện gì để chắc chắn rằng $f(m)$ là trung vị của dữ liệu đã biến đổi?
+    \begin{enumerate}
+    \item a. Có phải $f(\bar{y})$ là trung bình mẫu của dữ liệu $f(y_1), f(y_2), \dots, f(y_n)$?
+    \item b. Có phải $f(m)$ là trung vị của dữ liệu $f(y_1), f(y_2), \dots, f(y_n)$?
+    \item c. Có hay không bất kỳ điều kiện gì để chắc chắn rằng $f(\bar{y})$ là trung bình mẫu của dữ liệu đã biến đổi?
+    \item d. Có hay không bất kỳ điều kiện gì để chắc chắn rằng $f(m)$ là trung vị của dữ liệu đã biến đổi?
     \end{enumerate}
-    
+
+    Gọi $Y = \{y_1, y_2, \dots, y_n\}$ là tập hợp dữ liệu gốc.
+    Gọi $Z = \{f(y_1), f(y_2), \dots, f(y_n)\}$ là tập hợp dữ liệu đã qua phép biến đổi $f$.
+
+ %---- 6.a ----
+    \begin{subquestion}{a.Có phải $f(\bar{y})$ là trung bình mẫu của dữ liệu $f(y_1), f(y_2), \dots, f(y_n)$?}
+        \begin{answer}
+            Ta có: $\bar{y} = \frac{1}{n} \sum_{i=1}^{n} y_i$.
+            Trung bình mẫu của dữ liệu đã biến đổi $Z$ là $\bar{z} = \frac{1}{n} \sum_{i=1}^{n} f(y_i)$.
+            Câu hỏi yêu cầu chúng ta kiểm tra liệu: $f(\bar{y}) = \bar{z}$?
+            Nói cách khác: $f\left( \frac{1}{n} \sum_{i=1}^{n} y_i \right) = \frac{1}{n} \sum_{i=1}^{n} f(y_i)$
+
+            Chứng minh (Phản ví dụ):
+            Chọn $f(x) = x^2$
+            Giả sử: Mẫu $Y = \{1, 3\}$
+
+            \begin{itemize}
+            \item $\bar{y} = \frac{1+3}{2} = 2$
+            \item $f(\bar{y}) = f(2) = 2^2 = 4$
+            \item Xét $Z = \{f(1), f(3)\} = \{1^2, 3^2\} = \{1, 9\}$.
+            \item Trung bình mẫu của $Z$: $\bar{z} = \frac{1+9}{2} = 5$
+            \end{itemize}
+
+            Vì $f(\bar{y}) = 4 \neq 5 = \bar{z}$.
+            Nên ta có kết luận: (a): $f(\bar{y})$ không phải là trung bình mẫu của dữ liệu $f(y_1), f(y_2), \dots, f(y_n)$. 
+        \end{answer}
+    \end{subquestion}
+
+%---- 6.b ----
+       \begin{subquestion}{b. Có phải $f(m)$ là trung vị của dữ liệu $f(y_1), f(y_2), \dots, f(y_n)$?
+                              hay $f(m) = m_Z$ luôn đúng với mọi hàm $f$ hay không}
+        \begin{answer}
+            Chứng minh (Phản ví dụ):
+            
+            TH1: Hàm không đơn điệu, n lẻ (n là kích cỡ mẫu $Y$ và $Z$)
+            Chọn $f(x) = (x-5)^2$
+            Giả sử: mẫu $Y = \{1, 2, 10\}$ và $f(m) = m_Z$ là đúng
+            Khi đó: Mẫu đã được sắp xếp $y_1=1, y_2=2, y_3=10$.
+            \begin{itemize}
+                \item $m = y_2 = 2$ 
+                \item $f(m) = f(2) = (2-5)^2 = 9$
+                \item Xét $Z = \{f(1), f(2), f(10)\}$:
+                \begin{itemize}
+                    \item $f(1) = (1-5)^2 = 16$
+                    \item $f(2) = (2-5)^2 = 9$
+                    \item $f(10) = (10-5)^2 = 25$
+                \end{itemize}
+                \item Mẫu $Z = \{16, 9, 25\}$. Chúng ta phải sắp xếp lại mẫu này: $Z_{(ordered)} = \{9, 16, 25\}$.
+                \item Trung vị của $Z$: $m_Z = 16$  
+            \end{itemize}
+            Vì $f(m) = 9 \neq 16 = m_Z$
+            Nên $f(m) \neq m_Z$ trong hàm không đơn điệu
+
+            TH2: Hàm đơn điệu, n chẵn (n là kích cỡ mẫu $Y$ và $Z$)
+            Chọn $f(x) = x^3$ và $f(m) = m_Z$ là đúng
+            Giả sử: $Y = \{1, 3\}$
+            \begin{itemize}
+                \item $m = \frac{1+3}{2} = 2$ 
+                \item $f(m) = f(2) = 2^3 = 8$
+                \item Xét $Z = \{f(1), f(3)\} = \{1^3, 3^3\} = \{1, 27\}$. Vì $f$ đơn điệu tăng, $Z$ đã được sắp xếp.
+                \item Trung vị của $Z$: $m_Z = \frac{1+27}{2} = 14$
+            \end{itemize}
+            Vì $f(m) = 8 \neq 14 = m_Z$
+            Nên $f(m) \neq m_Z$ trong hàm đơn điệu
+
+        Từ TH1 và TH2, ta có kết luận (b): $f(m)$ không phải là trung vị của dữ liệu $f(y_1), f(y_2), \dots, f(y_n)$.
+        \end{answer}
+    \end{subquestion}
+
+%---- 6.c ----
+    \begin{subquestion}{c. Có hay không bất kỳ điều kiện gì để chắc chắn rằng $f(\bar{y})$ là trung bình mẫu 
+                    ủa dữ liệu đã biến đổi?}
+        \begin{answer}
+            Có. Chúng ta cần tìm điều kiện để $f(\bar{y}) = \bar{z}$, tức là:
+            $$f\left( \frac{1}{n} \sum_{i=1}^{n} y_i \right) = \frac{1}{n} \sum_{i=1}^{n} f(y_i)$$
+ 
+            Theo Bất đẳng thức Jensen, đẳng thức xảy ra khi và chỉ khi $f$ là một hàm affine.
+            Hay $f(x) = a\cdot x + b$ với $a, b \in \mathbb{R}$ là các hằng số.
+
+            Ta sẽ chứng minh điều kiện này:
+            \begin{itemize}
+                \item Vế trái (LHS):
+                \begin{align*} 
+                    f(\bar{y}) &= f\left( \frac{1}{n} \sum_{i=1}^{n} y_i \right) \\ 
+                               &= a \left( \frac{1}{n} \sum_{i=1}^{n} y_i \right) + b 
+                \end{align*}
+                \item Vế phải (RHS):
+                \begin{align*} 
+                    \bar{z} &= \frac{1}{n} \sum_{i=1}^{n} f(y_i) \\
+                     &= \frac{1}{n} \sum_{i=1}^{n} (ay_i + b) \\ 
+                     &= \frac{1}{n} \left( \sum_{i=1}^{n} (ay_i) + \sum_{i=1}^{n} b \right) \\ 
+                     &= \frac{1}{n} \left( a \sum_{i=1}^{n} y_i + nb \right) \\  
+                     &= a \left( \frac{1}{n} \sum_{i=1}^{n} y_i \right) + b 
+                \end{align*}
+            \end{itemize}
+            Vì LHS = RHS, nên điều kiện được thỏa mãn.
+
+         Kết luận (c): Có, điều kiện là $f$ phải là một hàm affine.
+        \end{answer}
+    \end{subquestion}
+
+%---- 6.d ----
+    \begin{subquestion}{d. Có hay không bất kỳ điều kiện gì để chắc chắn rằng $f(m)$ là trung vị của dữ liệu đã biến đổi?}
+        \begin{answer}
+            Chứng minh:
+            
+            TH1:Trường hợp tổng quát, đúng cho mọi $n$ ($n là kích thước mẫu$)
+            Điều kiện để $f(m) = m_Z$ đúng cho mọi $n$ (cả chẵn và lẻ) là $f$ phải là một hàm affine ($f(x) = ax+b$).
+
+            Khi đó, ta có: $f(m) = f\left(\frac{y_k + y_{k+1}}{2}\right) = a\left(\frac{y_k + y_{k+1}}{2}\right) + b$.
+            \begin{itemize}
+                \item Nếu $a \ge 0$, $f$ không giảm, mẫu $Z$ được sắp xếp là $f(y_1), \dots, f(y_n)$.
+                $m_Z = \frac{f(y_k) + f(y_{k+1})}{2} = \frac{(ay_k+b) + (ay_{k+1}+b)}{2} = a\left(\frac{y_k + y_{k+1}}{2}\right) + b$.
+                \item Nếu $a < 0$, $f$ không tăng, mẫu $Z$ được sắp xếp ngược lại: $f(y_n) \le \dots \le f(y_1)$. Các phần tử giữa là $f(y_{k+1})$ và $f(y_k)$.
+                $m_Z = \frac{f(y_{k+1}) + f(y_k)}{2} = \frac{(ay_{k+1}+b) + (ay_k+b)}{2} = a\left(\frac{y_k + y_{k+1}}{2}\right) + b$.
+            \end{itemize}
+            Trong mọi trường hợp, $f(m) = m_Z$ khi $f$ là affine.
+
+            TH2: Trường hợp đặc biệt, $n$ lẻ ($n là kích thước mẫu$)
+            Nếu chúng ta được đảm bảo rằng kích thước mẫu $n$ là lẻ ($n=2k+1$), thì một điều kiện yếu hơn (ít nghiêm ngặt hơn) là đủ:
+            $f$ chỉ cần là một hàm đơn điệu (monotonic).
+            
+            Nếu $n=2k+1$, thì $m = y_{k+1}$. Do đó $f(m) = f(y_{k+1})$.
+            \begin{itemize}
+            \item Trường hợp 1: $f$ đơn điệu không giảm.
+            Vì $y_1 \le \dots \le y_n$, chúng ta có $f(y_1) \le \dots \le f(y_n)$.
+            Mẫu $Z$ đã được sắp xếp. Trung vị $m_Z$ là phần tử thứ $(k+1)$ của $Z$, tức là $m_Z = f(y_{k+1})$.
+            Vậy $f(m) = m_Z$.
+
+            \item Trường hợp 2: $f$ đơn điệu không tăng.
+            Vì $y_1 \le \dots \le y_n$, chúng ta có $f(y_1) \ge \dots \ge f(y_n)$.
+            Mẫu $Z$ được sắp xếp theo thứ tự ngược lại: $f(y_n) \le \dots \le f(y_{k+1}) \le \dots \le f(y_1)$.
+            Trung vị $m_Z$ vẫn là phần tử chính giữa (thứ $k+1$ trong dãy đã sắp xếp), tức là $m_Z = f(y_{k+1})$.
+            Vậy $f(m) = m_Z$.
+            \end{itemize}
+        
+        Từ TH1 và TH2: Kết luận (d): Có điều kiện để chắc chắn rằng $f(m)$ là trung vị của dữ liệu đã biến đổi.
+        \end{answer}
+    \end{subquestion}
+
 \end{question}
