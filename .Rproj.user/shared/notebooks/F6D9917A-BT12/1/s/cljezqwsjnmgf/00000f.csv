@@ -1,5 +1,0 @@
-"0","ggplot(data_enviroment |> filter(!is.na(Chlorine)),"
-"0","       aes(y = Chlorine)) +"
-"0","  geom_boxplot() +"
-"0","  labs(title = ""Boxplot hàm lượng Chlorine"")"
-"0",""

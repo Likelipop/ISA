@@ -1,3 +1,0 @@
-"0","# Count how many observations we have in each combination of group and landing page"
-"0","landing_page_data |>"
-"0","count(group, landing_page)"
