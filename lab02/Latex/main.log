@@ -1,10 +1,10 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.11.10)  14 NOV 2025 02:13
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.11.8)  14 NOV 2025 19:57
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/home/pot17/ISA/lab02/Latex/main.tex
-(/home/pot17/ISA/lab02/Latex/main.tex
+**/home/dat/School/how_to_handle_data/ISA/lab02/Latex/main.tex
+(/home/dat/School/how_to_handle_data/ISA/lab02/Latex/main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
 (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
@@ -715,7 +715,7 @@ Package hyperref Info: Link coloring OFF on input line 98.
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
- [1] (./sections/Bai1.tex) (./sections/Bai3.tex) (./sections/Bai4.tex
+ [1] (./sections/Bai3.tex
 LaTeX Font Info:    Trying to load font information for U+msa on input line 2.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -723,7 +723,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 LaTeX Font Info:    Trying to load font information for U+msb on input line 2.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
+)) (./sections/Bai4.tex
 Overfull \hbox (0.81825pt too wide) in paragraph at lines 28--28
 \TU/lmr/bx/n/12 (b) \TU/lmr/m/n/12 Chứng minh hoặc đưa ra phản chứng rằng: $\OML/cmm/m/it/12 m[] \OT1/cmr/m/n/12 + \OML/cmm/m/it/12 m[]$ \TU/lmr/m/n/12 là trung vị của $\OML/cmm/m/it/12 w[]; w[]; [] ; w[]$ 
  []
@@ -734,15 +734,15 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 49B2E1B2BF81A4975CFCD8B883180C58;300.
+(rerunfilecheck)             Checksum: 86526573492AAD4BF5A6E928696C65E2;225.
  ) 
 Here is how much of TeX's memory you used:
- 25049 strings out of 476423
- 516354 string characters out of 5793061
- 1929627 words of memory out of 5000000
- 46570 multiletter control sequences out of 15000+600000
+ 25045 strings out of 476423
+ 516372 string characters out of 5793062
+ 1930627 words of memory out of 5000000
+ 46569 multiletter control sequences out of 15000+600000
  563162 words of font info for 66 fonts, out of 8000000 for 9000
  264 hyphenation exceptions out of 8191
- 102i,11n,107p,569b,460s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 102i,11n,107p,593b,458s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.xdv (5 pages, 30532 bytes).
+Output written on main.xdv (5 pages, 33924 bytes).
