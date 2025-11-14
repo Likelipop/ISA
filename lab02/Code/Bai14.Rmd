@@ -1,0 +1,324 @@
+---
+title: "Bài 14"
+author: "Nguyễn Thị Ngọc Anh"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)  
+library(janitor)    
+library(ggplot2)    
+library(patchwork)  
+```
+
+Một nhà nghiên cứu thị trường đã thực hiện ghi chép về tổng số phút dành cho quảng cáo trong một khoảng thời gian nửa giờ (30 phút)
+
+---
+
+## a:
+Tiến hành một số phân tích khám phá dữ liệu về thời gian quảng cáo (phát sóng thương mại) trên các kênh truyền hình cáp cơ bản và mở rộng (phân tích riêng cho từng loại kênh truyền hình).
+
+
+### Đọc và làm sạch dữ liệu
+
+```{r}
+tv <- read_csv(
+  "TV.csv",
+  na = c("", "NA", "N/A")
+) |>
+  clean_names()
+
+glimpse(tv)
+```
+
+### Thống kê mô tả theo từng kênh
+
+```{r}
+tv_summary <- tv |>
+  group_by(cable) |>
+  summarise(
+    n            = n(),
+    mean_times   = mean(times, na.rm = TRUE),
+    sd_times     = sd(times, na.rm = TRUE),
+    min_times    = min(times, na.rm = TRUE),
+    q1_times     = quantile(times, 0.25, na.rm = TRUE),
+    median_times = median(times, na.rm = TRUE),
+    q3_times     = quantile(times, 0.75, na.rm = TRUE),
+    max_times    = max(times, na.rm = TRUE)
+  )
+
+tv_summary
+```
+
+Nhận xét:
+
+- Mỗi loại kênh có 10 quan sát (Basic: 10, Extended: 10).
+- Kênh Basic có thời gian quảng cáo trung bình khoảng 9,2 phút (sd ≈ 1,4), trong khi kênh Extended khoảng 6,9 phút (sd ≈ 2,1), chênh lệch ~2,3 phút.
+- Kênh Extended biến thiên nhiều hơn và có một số thời gian quảng cáo khá ngắn, còn kênh Basic tập trung quanh 9–10 phút.
+
+=> Kênh Basic có xu hướng dành nhiều thời lượng quảng cáo hơn so với kênh Extended.
+
+
+### Biểu đồ histogram theo từng loại kênh
+
+```{r}
+tv |>
+  ggplot(aes(x = times)) +
+  geom_histogram(bins = 10, color = "white", fill = "lightblue") +
+  facet_wrap(~ cable, nrow = 1) +
+  labs(
+    x = "Thời gian quảng cáo trong 30' (phút)",
+    y = "Tần số",
+    title = "Phân phối thời gian quảng cáo theo loại kênh"
+  ) +
+  theme_bw()
+```
+
+Diễn giải:
+
+- Đối với kênh Basic, thời gian quảng cáo chủ yếu tập trung trong khoảng 8–11 phút, cho thấy mức độ quảng cáo khá cao và ổn định giữa các kênh Basic.
+
+- Ngược lại, kênh Extended có thời gian quảng cáo thấp hơn, chủ yếu nằm trong khoảng 6–9 phút, và phân phối có xu hướng lệch về phía các giá trị nhỏ hơn.
+
+=> Củng cố nhận định rằng kênh Basic dành nhiều thời lượng cho quảng cáo hơn kênh Extended trong khoảng thời gian 30 phút.
+
+---
+
+## b: 
+Tạo mẫu bootstrap cho sự khác biệt trung bình thời gian quảng cáo trên hai loại kênh truyền hình. Biểu diễn hình dạng của phân phối bootstrap.
+
+Ta quan tâm đến **sự khác biệt trung bình thời gian quảng cáo** giữa hai loại kênh:
+
+\[
+\theta = \mu_{\text{Extended}} - \mu_{\text{Basic}}.
+\]
+
+### Chuẩn bị dữ liệu theo nhóm
+
+```{r}
+x_basic <- tv |>
+  filter(cable == "Basic") |>
+  pull(times)
+
+x_extended <- tv |>
+  filter(cable == "Extended") |>
+  pull(times)
+
+n_basic    <- length(x_basic)
+n_extended <- length(x_extended)
+
+# Chênh lệch trung bình quan sát được
+obs_diff <- mean(x_extended, na.rm = TRUE) - mean(x_basic, na.rm = TRUE)
+obs_diff
+```
+
+### Hàm bootstrap cho chênh lệch trung bình
+
+```{r}
+boot_diff_mean <- function(x_basic, x_extended,
+                           R = 10000,
+                           seed = NULL) {
+  # x_basic: vector thời gian quảng cáo kênh Basic
+  # x_extended: vector thời gian quảng cáo kênh Extended
+  # R: số lần lặp bootstrap
+
+  if (!is.null(seed)) set.seed(seed)
+
+  n1 <- length(x_basic)
+  n2 <- length(x_extended)
+
+  boot_diff <- numeric(R)
+
+  for (b in seq_len(R)) {
+    # Lấy mẫu lại có hoàn lại trong từng nhóm
+    xb <- sample(x_basic,    size = n1, replace = TRUE)
+    xe <- sample(x_extended, size = n2, replace = TRUE)
+
+    # Chênh lệch trung bình ở vòng lặp b
+    boot_diff[b] <- mean(xe, na.rm = TRUE) - mean(xb, na.rm = TRUE)
+  }
+
+  return(boot_diff)
+}
+```
+
+### Tạo mẫu bootstrap và biểu diễn phân phối
+
+```{r}
+set.seed(2025)
+boot_samples <- boot_diff_mean(x_basic, x_extended, R = 10000)
+
+tibble(t_star = boot_samples) |>
+  ggplot(aes(x = t_star)) +
+  geom_histogram(bins = 30, color = "white", fill = "lightblue") +
+  geom_vline(xintercept = obs_diff,color = "red", linetype = "dashed") +
+  labs(
+    x = "Bootstrap t* = mean(Extended*) - mean(Basic*)",
+    y = "Tần số",
+    title = "Phân phối bootstrap của chênh lệch trung bình"
+  ) +
+  theme_bw()
+```
+
+Diễn giải:
+
+- Phân phối bootstrap có dạng gần chuông đối xứng, cho thấy ước lượng chênh lệch trung bình khá ổn định.
+- Giá trị chênh lệch trung bình quan sát được (đường gạch đỏ) nằm khoảng −2 phút, tức là kênh Extended có thời gian quảng cáo trung bình thấp hơn Basic khoảng 2 phút.
+- Các giá trị bootstrap dao động chủ yếu trong khoảng −4 đến 0 phút, nghĩa là hầu hết các lần lặp bootstrap đều cho ra kết quả Extended < Basic.
+
+=> Củng cố kết luận rằng kênh Basic phát nhiều quảng cáo hơn kênh Extended, và chênh lệch này nhất quán khi tạo lại mẫu bằng phương pháp bootstrap.
+
+
+---
+
+## c:
+Xác định 95% khoảng tin cậy bootstrap quantile cho sự khác biệt trung bình thời gian quảng cáo trên hai loại kênh truyền hình. Diễn giải kết quả thu được.
+
+Ta sử dụng **bootstrap quantile (percentile)**: lấy các quantile của phân phối bootstrap để xây dựng khoảng tin cậy.
+
+### Hàm tính khoảng tin cậy bootstrap quantile
+
+```{r}
+boot_ci_quantile <- function(boot_samples, conf_level = 0.95) {
+  alpha <- (1 - conf_level) / 2
+  ci_lower <- quantile(boot_samples, alpha)
+  ci_upper <- quantile(boot_samples, 1 - alpha)
+
+  list(
+    ci_lower = ci_lower,
+    ci_upper = ci_upper
+  )
+}
+```
+
+### Tính và trình bày khoảng tin cậy 95%
+
+```{r}
+ci_diff <- boot_ci_quantile(boot_samples, conf_level = 0.95)
+
+ci_summary <- tibble(
+  quantity = "mu_Extended - mu_Basic",
+  endpoint = c("Lower 95% CI", "Upper 95% CI"),
+  value    = c(ci_diff$ci_lower, ci_diff$ci_upper)
+)
+
+ci_summary
+```
+
+Khoảng tin cậy bootstrap 95\% cho chênh lệch trung bình 
+\[
+\mu_{\text{Extended}} - \mu_{\text{Basic}}
+\]
+là từ \(-3.86\) đến \(-0.87\) phút.
+
+- Cả hai cận của khoảng đều âm, nghĩa là với độ tin cậy 95\%, 
+thời gian quảng cáo trung bình của kênh \textbf{Extended} nhỏ hơn kênh \textbf{Basic}.
+
+- Cụ thể hơn, ta ước lượng rằng kênh Extended ít quảng cáo hơn kênh Basic khoảng 
+\[
+0.87 \text{ đến } 3.86 \text{ phút}
+\]
+trong mỗi khoảng 30 phút.
+
+- Vì \(0\) không nằm trong khoảng tin cậy nên ta có bằng chứng thống kê khá mạnh cho thấy 
+hai loại kênh thực sự khác nhau về thời gian quảng cáo trung bình, 
+không phải do ngẫu nhiên.
+
+---
+
+## d:
+Độ chệch bootstrap là bao nhiêu? Tỷ số giữa sai số chuẩn bootstrap của trung bình mẫu và sai số chuẩn theo công thức lý thuyết là bao nhiêu? Diễn giải kết quả này.
+
+### Độ chệch bootstrap của chênh lệch trung bình
+
+Độ chệch bootstrap được định nghĩa là:
+
+\[
+\text{Bias}_{boot} = \overline{t^*} - t_{obs},
+\]
+
+trong đó \(\overline{t^*}\) là trung bình của các giá trị bootstrap,  
+còn \(t_{obs}\) là chênh lệch trung bình quan sát từ dữ liệu gốc.
+
+```{r}
+boot_mean <- mean(boot_samples)
+boot_bias <- boot_mean - obs_diff
+
+tibble(
+  quantity  = "mu_Extended - mu_Basic",
+  obs_diff  = obs_diff,
+  boot_mean = boot_mean,
+  boot_bias = boot_bias
+)
+```
+
+Diễn giải:
+
+- Chênh lệch quan sát được:
+\[
+t_{\text{obs}} \approx -2.34 \text{ phút}.
+\]
+
+- Trung bình của các mẫu bootstrap:
+\[
+\overline{t^{*}} \approx -2.34 \text{ phút}.
+\]
+
+- Độ chệch bootstrap:
+\[
+\text{bias} = \overline{t^{*}} - t_{\text{obs}} \approx 0.003.
+\]
+
+Điều này cho thấy ước lượng chênh lệch trung bình từ dữ liệu gốc gần như không bị chệc}; Extended ít quảng cáo hơn Basic khoảng 2.3 phút một cách ổn định.
+
+### 2. Tỷ số giữa sai số chuẩn bootstrap và sai số chuẩn lý thuyết
+
+- **Sai số chuẩn bootstrap**: độ lệch chuẩn của các giá trị bootstrap:
+  \( SE_{boot} = sd(t^*) \).
+- **Sai số chuẩn lý thuyết** (giả sử hai mẫu độc lập):
+
+\[
+SE_{theory} = \sqrt{ \frac{s_{Basic}^2}{n_{Basic}} + \frac{s_{Extended}^2}{n_{Extended}} },
+\]
+
+trong đó \(s_{Basic}, s_{Extended}\) là độ lệch chuẩn mẫu của từng nhóm.
+
+```{r}
+se_boot <- sd(boot_samples)
+
+s_basic    <- sd(x_basic,    na.rm = TRUE)
+s_extended <- sd(x_extended, na.rm = TRUE)
+
+se_theory <- sqrt(s_basic^2 / n_basic +
+                  s_extended^2 / n_extended)
+
+ratio_se <- se_boot / se_theory  # tỷ số SE_boot / SE_theory
+
+tibble(
+  se_boot   = se_boot,
+  se_theory = se_theory,
+  ratio_se  = ratio_se
+)
+```
+
+Diễn giải:
+
+- Sai số chuẩn bootstrap:
+\[
+SE_{\text{boot}} \approx 0.7649.
+\]
+
+- Sai số chuẩn theo công thức lý thuyết:
+\[
+SE_{\text{theory}} \approx 0.7981.
+\]
+
+- Tỷ số giữa hai sai số chuẩn:
+\[
+\frac{SE_{\text{boot}}}{SE_{\text{theory}}} \approx 0.96.
+\]
+
+Điều này cho thấy hai cách ước lượng sai số chuẩn cho kết quả gần như tương đương; bootstrap và công thức lý thuyết đều mô tả mức độ biến thiên của ước lượng một cách nhất quán. Do đó, giả định lý thuyết được sử dụng là phù hợp với dữ liệu, và kết luận về chênh lệch thời gian quảng cáo giữa hai loại kênh là ổn định và đáng tin cậy.
