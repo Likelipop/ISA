@@ -20,6 +20,13 @@
 *.fdb_latexmk
 *.synctex.gz
 
+*.log
+*.nav
+*.snm
+*.vrb
+*.xdv
+
+
 # Output files
 *.pdf
 *.dvi
