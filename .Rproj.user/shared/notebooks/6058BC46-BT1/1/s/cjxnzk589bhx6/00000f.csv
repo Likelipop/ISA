@@ -1,0 +1,27 @@
+"0","landing_page_data |>                          # dataframe_A"
+"0","  select(where(is.numeric)) |>                # take out the numeric_columns"
+"0","  summarize(across(everything(), list("
+"0","    mean = mean,"
+"0","    median = median,"
+"0","    sd = sd,"
+"0","    min = min,"
+"0","    max = max"
+"0","  ), na.rm = TRUE, .names = ""{.col}.{.fn}"")) |>  "
+"0","  pivot_longer(cols = everything(),"
+"0","               names_to = ""name"","
+"0","               values_to = ""value"") |>"
+"0","  separate(name, into = c(""variable"", ""stat""), sep = ""\\."") |>"
+"0","  pivot_wider( names_from = variable, values_from = value)"
+"2","Warning: [38;5;232mThere was 1 warning in `summarize()`.[39m
+[38;5;232m[36mℹ[38;5;232m In argument: `across(...)`.[39m
+Caused by warning:
+[38;5;232m[33m![38;5;232m The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+Supply arguments directly to `.fns` through an anonymous function instead.
+
+  # Previously
+  across(a:b, mean, na.rm = TRUE)
+
+  # Now
+  across(a:b, \(x) mean(x, na.rm = TRUE))
+[90mThis warning is displayed once every 8 hours.[38;5;232m
+[90mCall `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.[38;5;232m[39m"

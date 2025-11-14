@@ -1,0 +1,7 @@
+"0","knitr::opts_chunk$set(echo = TRUE)"
+"0","library(tidyverse)"
+"0","library(dplyr)"
+"0","library(ggplot2)"
+"0","library(reshape2)  # for melt()"
+"2","Error in library(reshape2) : there is no package called ‘reshape2’
+"

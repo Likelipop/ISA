@@ -1,0 +1,4 @@
+"0","ggplot(data_enviroment |> filter(!is.na(Chlorine)),"
+"0","       aes(x = Chlorine)) +"
+"0","  geom_histogram(bins = 30) +"
+"0","  labs(title = ""Phân bố hàm lượng Chlorine"")"

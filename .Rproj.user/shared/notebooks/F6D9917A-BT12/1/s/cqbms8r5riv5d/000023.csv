@@ -1,0 +1,8 @@
+"0","ggplot() +"
+"0","  geom_histogram(aes(x = res_boot$boot_means), bins = 30, fill = ""lightblue"", color = ""white"") +"
+"0","  geom_vline(xintercept = res_boot$obs_mean, color = ""red"", linetype = ""dashed"", linewidth = 1) +"
+"0","  theme_minimal() +"
+"0","  labs(title = ""Bootstrap Distribution of Mean Chlorine (p-value shaded)"","
+"0","       x = ""Bootstrap sample means"","
+"0","       y = ""Frequency"")"
+"0",""

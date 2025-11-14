@@ -1,0 +1,4 @@
+"0","landing_page_data <- landing_page_data |>"
+"0","  mutate("
+"0","    converted_num = if_else(converted == ""yes"", 1, 0)"
+"0","  )"

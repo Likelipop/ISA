@@ -1,0 +1,7 @@
+"0","# Bootstrap bias"
+"0","bias_boot <- mean(res_boot$boot_means) - res_boot$obs_mean"
+"0","bias_boot"
+"1","[1]"
+"1"," -78.08806"
+"1","
+"
