@@ -1,4 +1,81 @@
 \begin{question}{1}
-    hahaha
-    hahaaha
+    Tính trung bình mẫu $\bar{y}$ của dữ liệu sau: 3, 5, 8, 15, 20, 21, 24.
+    Áp dụng biến đổi logarithm cho dữ liệu này, sau đó tính trung bình mẫu $\bar{y'}$ và trung vị $m'$ của dữ liệu đã biến đổi.
+    Có phải $\log(\bar{y}) = \bar{y'}$ và $\log(m) = m'$ hay không?
+
+    \begin{itemize}
+    \item Dữ liệu gốc $Y = \{3, 5, 8, 15, 20, 21, 24\}$.
+    \item Kích thước mẫu $n = 7$.
+    \item Dữ liệu đã được sắp xếp: $y_1 = 3, y_2 = 5, \dots, y_7 = 24$.
+    \end{itemize}
+
+%--------------Tính trung bình mẫu
+    \begin{subquestion}{Tính trung bình mẫu $\bar{y}$ của dữ liệu sau: 3, 5, 8, 15, 20, 21, 24.}
+        \begin{answer}
+            Ta có: 
+            \begin{align*}
+            \bar{y} &= \frac{1}{n} \sum_{i=1}^{n} y_i  \\
+                    &= \frac{1}{7} \sum_{i=1}^{7} y_i \\
+                    &= \frac{1}{7} (3 + 5 + 8 + 15 + 20 + 21 + 24) \\
+                    &= \frac{1}{7} \cdot 96 \\
+                    &= \frac{96}{7} \approx 13.7143
+        \end{align*}
+        \end{answer}
+    \end{subquestion}
+
+%----------------Trung bình mẫu của lograimth
+    \begin{subquestion}{Tính trung bình mẫu $\bar{y}'$ và trung vị $m'$ của dữ liệu sau khi biến đổi logarithm}
+        \begin{answer}
+            Chúng ta áp dụng phép biến đổi $f(x) = \log(x)$. 
+            Tập dữ liệu mới là $Y' = \{ \log(y_i) \}_{i=1}^{n}$  = $\{ \log(3), \log(5), \log(8), 
+            \log(15), \log(20), \log(21), \log(24) \}$
+            
+            Các giá trị xấp xỉ (làm tròn đến 4 chữ số thập phân):
+            \begin{itemize}
+                \item $\log(3) \approx 0.4771$
+                \item $\log(5) \approx 0.699$
+                \item $\log(8) \approx 0.9031$
+                \item $\log(15) \approx 1.1761$
+                \item $\log(20) \approx 1.301$
+                \item $\log(21) \approx 1.3222$
+                \item $\log(24) \approx 1.3802$
+            \end{itemize}
+            
+            Tính trung bình mẫu $\bar{y}'$: 
+            \begin{align*}
+            \bar{y}'&= \frac{1}{n} \sum_{i=1}^{n} y'_i  \\
+                    &= \frac{1}{7} \sum_{i=1}^{7} y'_i \\
+                    &= \frac{1}{7} (log(3) + \log(5) + \log(8) + \log(15) + \log(20) + \log(21) + \log(24)) \\
+                    &= \frac{1}{7} \cdot 7.2587 \\
+                    &= \frac{7.2587}{7} \approx 1.037
+            \end{align*}
+
+            Tính trung vị $m'$:
+            Vì $n=7$ (lẻ), trung vị $m'$ của $Y'$ là giá trị ở vị trí thứ $(7+1)/2 = 4$.
+            $$m' = \log(y_4) = \log(15)$$
+            Giá trị xấp xỉ là:
+            $m' \approx 1.176$
+
+        \end{answer}
+    \end{subquestion}
+
+%--------------Chứng minh
+    \begin{subquestion}{Có phải $\log(\bar{y}) = \bar{y'}$ và $\log(m) = m'$ hay không?}
+        \begin{answer}
+
+            Tính trung vị $m$:
+            Vì $n=7$ (lẻ), trung vị $m$ của $Y$ là giá trị ở vị trí thứ $(7+1)/2 = 4$.
+            $$m = y_4 = 15$$
+           
+            Xét: $\log(\bar{y}) = \bar{y'}$
+            $\Rightarrow$ $\log(13.7143) = 1.037$
+            $\Rightarrow$ $1.1371 = 1.037$ (Sai)
+            Vậy $\log(\bar{y}) \neq \bar{y'}$
+
+            Xét: $\log(m) = m'$
+            $\Rightarrow$ $\log(15) = 1.176$
+            $\Rightarrow$ $1.176 = 1.176$ (Đúng)
+            Vậy $\log(m) = m'$
+        \end{answer}
+    \end{subquestion}
 \end{question}
