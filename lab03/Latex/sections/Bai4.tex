@@ -1,0 +1,65 @@
+\begin{question}{4}
+Xét hai bộ dữ liệu $x_1 < x_2 < x_3< ... < x_n $ và $y_1 < y_2 < y_3< ... < y_n $, 
+có trung bình mẫu tương ứng là $\bar{x}$, $\bar{y}$ và trung
+vị lần lượt là $m_x$ và $m_y$. Đặt $w_i = x_i + y_i$. 
+
+
+ %---- 6.a ----
+    \begin{subquestion}{Chứng minh hoặc đưa ra phản chứng rằng:
+        $\bar{x} + \bar{y}$ là trung bình mẫu của $w_1, w_2,...,w_n$}
+        \begin{answer}
+            Trước hết, ta xét trung bình mẫu của $w_1, w_2,...,w_n$ :
+
+        \begin{align*}
+        \bar{w} 
+            &= \frac{1}{n} \sum_{i=1}^{n} w_i  \\
+            &= \frac{1}{n} \sum_{i=1}^{n} (x_i + y_i) \\
+            &= \frac{1}{n} \left( \sum_{i=1}^{n} x_i + \sum_{i=1}^{n} y_i \right) \\
+            &= \frac{1}{n} \sum_{i=1}^{n} x_i + \frac{1}{n} \sum_{i=1}^{n} y_i \\
+            &= \bar{x} + \bar{y}
+        \end{align*}
+
+        Vậy suy ra $\bar{w}  = \bar{x} + \bar{y}$ là trung bình mẫu của $w_1, w_2,...,w_n$.
+        \end{answer}
+    \end{subquestion}
+
+ %---- 6.b ----
+    \begin{subquestion}{Chứng minh hoặc đưa ra phản chứng rằng:
+        $m_x + m_y$ là trung vị của $w_1, w_2,\ldots,w_n$}
+    \begin{answer}
+        Ta sẽ chứng minh mệnh đề trên là đúng, trước hết ta sẽ xét với trường hợp n là số lẻ,
+        tức rằng ta có trung vị của $\{x\}_n$ và $\{y\}_n$  lần lượt là:
+        \[ m_x = x_{\frac{n+1}{2}} \]
+        \[ m_y = y_{\frac{n+1}{2}} \]
+
+        Khi đó với dãy $w$ ta có:
+
+        \begin{align}
+        m_w
+            &= w_{\frac{n+1}{2}}  \notag\\
+            &= x_{\frac{n+1}{2}} + y_{\frac{n+1}{2}} \notag\\
+            &= m_x + m_y \label{eq:odd}
+        \end{align}
+
+        Với trường hợp n là số chẵn, ta có trung vị của $\{x\}_n$ và $\{y\}_n$ lần lượt là:
+        \[ m_x = \frac{1}{2}(x_{\frac{n}{2}} + x_{\frac{n}{2} + 1}) \]
+        \[ m_y = \frac{1}{2}(y_{\frac{n}{2}} + y_{\frac{n}{2} + 1})  \]
+
+        Khi đó với dãy $w$ ta có:
+
+        \begin{align}
+        m_w
+            &= \frac{1}{2}(w_{\frac{n}{2}} + w_{\frac{n}{2} + 1})  \notag\\
+            &= \frac{1}{2}((x_{\frac{n}{2}} + y_{\frac{n}{2}}) + (x_{\frac{n}{2} + 1} + y_{\frac{n}{2} + 1} )  ) \notag\\
+            &= \frac{1}{2}(x_{\frac{n}{2}} + x_{\frac{n}{2} + 1}) + \frac{1}{2}(y_{\frac{n}{2}} + y_{\frac{n}{2} + 1}) \notag \\
+            &= m_x + m_y \label{eq:even}
+        \end{align}
+
+        Từ \eqref{eq:even} và \eqref{eq:odd} ta suy ra  
+        $m_x + m_y$ là trung vị của $w_1, w_2,\ldots,w_n$ với mọi n.
+
+    \end{answer}
+  \end{subquestion}
+
+\end{question}
+
