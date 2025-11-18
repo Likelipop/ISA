@@ -1,6 +1,6 @@
 ---
 title: "Bài 14"
-author: "Nguyễn Thị Ngọc Anh"
+author: "Nguyễn Thái Hưng Thịnh"
 date: "`r Sys.Date()`"
 output: html_document
 ---
