@@ -1,0 +1,43 @@
+\begin{question}{2}
+    Trong một trò chơi dự đoán phân phối màu sắc của bi chứa trong một chiếc bình lớn, người quản trò nói rằng 
+    bên trong có $9999$ viên bi xanhvà $1$ viên bi đỏ. Bạn (người chơi) rút ngẫu nhiên một viên bi và thấy nó màu đỏ.
+
+    \begin{enumerate}
+    \item a. Liệu bạn có sẵn lòng nói với người quản trò rằng bạn nghĩ người ấy đã sai về sự phân bố màu sắc không?
+    Tại sao có hoặc tại sao không?
+    \item b. Bạn đang giả định điều gì khi đưa ra quyết định của mình?
+    \item c. Còn nếu thay vào đó, người quản trò nói rằng có $9$ viên bi xanh và $1$ viên bi đỏ (và bạn rút ra một viên bi đỏ) thì sao?
+    \end{enumerate}
+
+ %---- a) ----
+    \begin{subquestion}{a.Liệu bạn có sẵn lòng nói với người quản trò rằng bạn nghĩ người ấy đã sai về sự phân bố màu sắc không?
+    Tại sao có hoặc tại sao không?}
+        \begin{answer}
+        Theo định nghĩa, p-value được cho bởi: $p-value = \Pr_{H_0}(T \ge T_{\text{obs}})$, nên giá trị p-value càng nhỏ thì bằng chứng chống lại $H_0$ càng mạnh.
+        
+        Xét hai p-value: $0.03$ và $0.006$.
+        Vì $0.006 < 0.03$
+        Nên theo quy ước thống kê, p-value $0.006$ cung cấp bằng chứng mạnh hơn chống lại $H_0$ và ủng hộ đối thuyết $H_1 : \mu_1 > \mu_2$.
+
+        Vậy: p-value = $0.006$ cung cấp bằng chứng mạnh mẽ hơn cho $H_1$.
+
+        \end{answer}
+    \end{subquestion}
+
+%---- 6.b ----
+       \begin{subquestion}{b. Giá trị p-value nào sau đây, $0.095$ và $0.04$ là cung cấp bằng chứng mạnh mẽ hơn rằng chỉ có sự
+ngẫu nhiên mới có thể giải thích cho kết quả quan sát được?}
+        \begin{answer}
+        Theo định nghĩa, p-value được cho bởi: $p-value = \Pr_{H_0}(T \ge T_{\text{obs}})$, nên p-value lớn $\;\Longrightarrow\;$ Kết quả quan sát có khả năng cao xuất hiện do ngẫu nhiên.
+            
+        Ta xét hai giá trị: $0.095$ và $0.04$.
+        Vì p-value càng lớn thì dữ liệu càng phù hợp với $H_0$, và càng có nhiều khả năng rằng kết quả quan sát chỉ do biến thiên ngẫu nhiên.
+        Ta thấy: $0.095 > 0.04$
+        Do đó p-value $0.095$ hàm ý rằng kết quả quan sát được dễ dàng xảy ra dưới $H_0$ và không đủ mạnh để bác bỏ giả thuyết.
+
+        Vậy: p-value = $0.095$ cho thấy bằng chứng mạnh hơn rằng kết quả có thể do ngẫu nhiên.
+
+        \end{answer}
+        \end{subquestion}
+
+\end{question}
