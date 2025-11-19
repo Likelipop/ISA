@@ -1,6 +1,6 @@
-\begin{question}{2}
+s\begin{question}{2}
     Trong một trò chơi dự đoán phân phối màu sắc của bi chứa trong một chiếc bình lớn, người quản trò nói rằng 
-    bên trong có $9999$ viên bi xanhvà $1$ viên bi đỏ. Bạn (người chơi) rút ngẫu nhiên một viên bi và thấy nó màu đỏ.
+    bên trong có $9999$ viên bi xanh và $1$ viên bi đỏ. Bạn (người chơi) rút ngẫu nhiên một viên bi và thấy nó màu đỏ.
 
     \begin{enumerate}
     \item a. Liệu bạn có sẵn lòng nói với người quản trò rằng bạn nghĩ người ấy đã sai về sự phân bố màu sắc không?
@@ -13,31 +13,43 @@
     \begin{subquestion}{a.Liệu bạn có sẵn lòng nói với người quản trò rằng bạn nghĩ người ấy đã sai về sự phân bố màu sắc không?
     Tại sao có hoặc tại sao không?}
         \begin{answer}
-        Theo định nghĩa, p-value được cho bởi: $p-value = \Pr_{H_0}(T \ge T_{\text{obs}})$, nên giá trị p-value càng nhỏ thì bằng chứng chống lại $H_0$ càng mạnh.
-        
-        Xét hai p-value: $0.03$ và $0.006$.
-        Vì $0.006 < 0.03$
-        Nên theo quy ước thống kê, p-value $0.006$ cung cấp bằng chứng mạnh hơn chống lại $H_0$ và ủng hộ đối thuyết $H_1 : \mu_1 > \mu_2$.
+        Giả thuyết gốc ($H_0$) là $P(\text{Đỏ}) = 1/10000$.
+        $$p\text{-value} = P(\text{Đỏ} \mid H_0) = \frac{1}{9999 + 1} = \mathbf{0.0001}$$
 
-        Vậy: p-value = $0.006$ cung cấp bằng chứng mạnh mẽ hơn cho $H_1$.
+        Kết luận: bạn nên thách thức giả định này.
+
+        Lý do: Giá trị $p\text{-value} = 0.0001$ là cực kỳ nhỏ, thấp hơn rất nhiều so với mọi mức ý nghĩa tiêu chuẩn
+        ($\alpha = 0.05$). Việc quan sát được bi Đỏ là một sự kiện vô cùng hiếm hoi nếu $H_0$ là đúng. Theo nguyên tắc thống kê,
+        một sự kiện hiếm hoi xảy ra cung cấp bằng chứng mạnh mẽ chống lại giả thuyết gốc. Chúng ta bác bỏ $H_0$.
 
         \end{answer}
     \end{subquestion}
 
-%---- 6.b ----
-       \begin{subquestion}{b. Giá trị p-value nào sau đây, $0.095$ và $0.04$ là cung cấp bằng chứng mạnh mẽ hơn rằng chỉ có sự
-ngẫu nhiên mới có thể giải thích cho kết quả quan sát được?}
+%---- b) ----
+       \begin{subquestion}{b. Bạn đang giả định điều gì khi đưa ra quyết định của mình?}
         \begin{answer}
-        Theo định nghĩa, p-value được cho bởi: $p-value = \Pr_{H_0}(T \ge T_{\text{obs}})$, nên p-value lớn $\;\Longrightarrow\;$ Kết quả quan sát có khả năng cao xuất hiện do ngẫu nhiên.
-            
-        Ta xét hai giá trị: $0.095$ và $0.04$.
-        Vì p-value càng lớn thì dữ liệu càng phù hợp với $H_0$, và càng có nhiều khả năng rằng kết quả quan sát chỉ do biến thiên ngẫu nhiên.
-        Ta thấy: $0.095 > 0.04$
-        Do đó p-value $0.095$ hàm ý rằng kết quả quan sát được dễ dàng xảy ra dưới $H_0$ và không đủ mạnh để bác bỏ giả thuyết.
-
-        Vậy: p-value = $0.095$ cho thấy bằng chứng mạnh hơn rằng kết quả có thể do ngẫu nhiên.
+        Khi đưa ra quyết định thách thức $H_0$ dựa trên xác suất, người chơi đang dựa trên giả định nền tảng của mọi thí nghiệm thống kê:
+        Giả định Nền tảng: Việc rút viên bi là một mẫu ngẫu nhiên độc lập ($i.i.d.$ observation) từ quần thể.
+        Quá trình rút bi là Truly Random và mọi viên bi có cơ hội được rút ra như nhau.
+        Giải thích: Nếu quá trình rút bi bị thiên vị (không ngẫu nhiên), thì kết luận bác bỏ $H_0$ 
+        của bạn sẽ bị sai lệch, vì lỗi nằm ở thiết kế thí nghiệm chứ không phải lỗi ở phân bố quần thể.
 
         \end{answer}
         \end{subquestion}
 
+%---- c) ----
+       \begin{subquestion}{c. Còn nếu thay vào đó, người quản trò nói rằng có $9$ viên bi xanh và $1$ viên bi đỏ (và bạn rút ra một viên bi đỏ) thì sao?
+        \begin{answer}
+        Giả thuyết gốc mới là $H_0': P(\text{Đỏ}) = 1/10$.
+        $$p\text{-value}' = P(\text{Đỏ} \mid H_0') = \frac{1}{10} = \mathbf{0.1}$$
+
+        Kết luận: Bạn không nên thách thức người quản trò.
+
+        Lý do: Giá trị $p\text{-value}' = 0.1$ là lớn hơn mức ý nghĩa tiêu chuẩn $\alpha = 0.05$. 
+        Vì $0.1 > 0.05$, chúng ta không bác bỏ giả thuyết gốc $H_0'$. Việc rút được bi đỏ là 
+        một kết quả hợp lý và có thể được giải thích là do sự ngẫu nhiên trong phân bố $9:1$. 
+        Chúng ta chấp nhận rằng tuyên bố của người quản trò là có thể chấp nhận được (plausible).
+
+        \end{answer}
+        \end{subquestion}
 \end{question}
