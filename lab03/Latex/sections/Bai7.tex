@@ -1,0 +1,48 @@
+\begin{question}{7}
+Xây dựng hai kịch bản với 2 mẫu độc lập sao cho phù hợp cho kiểm định $H_0 : \mu_1 = \mu_2$ so với $H_1 : \mu_1 \neq \mu_2$.
+Trong đó:
+
+    \begin{itemize}
+    \item Mẫu 1: 4 nam ($n_1=4$), trung bình $\bar{y}_1 = 5$.
+    \item Mẫu 2: 4 nữ ($n_2=4$), trung bình $\bar{y}_2 = 10$.
+    \item Dự liệu quan sát $y$: ``số giờ dành cho Internet trong tuần qua''.
+    \end{itemize}
+    Sự biến thiên của dữ liệu trong mỗi nhóm khác nhau như thế nào trong hai trường hợp của p-value: (a) $p\text{-value} < 0.05$ và (b) $p\text{-value} > 0.05$?
+
+%---- 7.a ----
+    \begin{subquestion}{$p\text{-value} < 0.05$ (Bác bỏ $H_0$)}
+    \begin{answer}
+    Để đạt được kết quả có ý nghĩa thống kê ($p < 0.05$) với kích thước mẫu nhỏ ($n=4$) và chênh lệch trung bình cố định ($\Delta = |5 - 10| = 5$), dữ liệu trong mỗi nhóm phải có \textbf{sự biến thiên (phương sai) rất nhỏ}.
+
+    \textbf{Kịch bản dữ liệu (Phương sai thấp):}
+    \begin{itemize}
+    \item Nam: $Y_1 = \{4.8, 5.0, 5.0, 5.2\}$ $\Rightarrow \bar{y}_1 = 5, s_1 \approx 0.16$
+    \item Nữ: $Y_2 = \{9.8, 10.0, 10.0, 10.2\}$ $\Rightarrow \bar{y}_2 = 10, s_2 \approx 0.16$
+    \end{itemize}
+
+    \textbf{Giải thích:} 
+    Thống kê kiểm định $t$ được tính bởi tỷ số Tín hiệu trên Nhiễu (Signal-to-Noise Ratio):
+    $$ t = \frac{\bar{y}_1 - \bar{y}_2}{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}} $$
+    Khi phương sai ($s^2$) nhỏ, mẫu số (Sai số chuẩn - SE) trở nên nhỏ. Điều này làm giá trị $|t|$ tăng lên rất lớn, dẫn đến $p\text{-value}$ nhỏ. Các nhóm tách biệt rõ ràng, không có sự chồng lấn (overlap).
+    \end{answer}
+\end{subquestion}
+
+%---- 7.b ----
+    \begin{subquestion}{$p\text{-value} > 0.05$ (Không bác bỏ $H_0$)}
+    \begin{answer}
+    Để không tìm thấy sự khác biệt có ý nghĩa thống kê ($p > 0.05$) mặc dù chênh lệch trung bình vẫn là 5 đơn vị, dữ liệu trong mỗi nhóm phải có \textbf{sự biến thiên (phương sai) rất lớn}.
+
+    \textbf{Kịch bản dữ liệu (Phương sai cao):}
+    \begin{itemize}
+    \item Nam: $Y_1 = \{0, 0, 10, 10\}$ $\Rightarrow \bar{y}_1 = 5, s_1 \approx 5.77$
+    \item Nữ: $Y_2 = \{0, 5, 15, 20\}$ $\Rightarrow \bar{y}_2 = 10, s_2 \approx 9.13$
+    \end{itemize}
+
+    \textbf{Giải thích:} 
+    Khi phương sai ($s^2$) lớn, Sai số chuẩn (SE) ở mẫu số sẽ rất lớn. 
+    $$ SE = \sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}} \text{ (tăng cao)} \Rightarrow |t| \text{ (giảm thấp)} $$
+    Giá trị $t$ nhỏ dẫn đến $p\text{-value}$ lớn. Dữ liệu giữa hai nhóm bị chồng lấn (overlap) đáng kể, khiến tín hiệu khác biệt trung bình bị che lấp bởi nhiễu (noise).
+    \end{answer}
+    \end{subquestion}
+
+\end{question}
