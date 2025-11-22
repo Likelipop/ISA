@@ -1,0 +1,18 @@
+\begin{question}{6}
+Giải thích tại sao thuật ngữ ``không bác bỏ $H_0$'' là thích hợp hơn ``chấp nhận $H_0$''.
+
+    \begin{answer}
+    Trong kiểm định giả thuyết thống kê, thuật ngữ ``không bác bỏ $H_0$'' (fail to reject $H_0$) được xem là chuẩn mực học thuật so với ``chấp nhận $H_0$'' (accept $H_0$) dựa trên các nguyên lý sau:
+
+    \begin{enumerate}
+    \item \textbf{Bản chất chứng minh bằng phản chứng:} 
+    Quy trình kiểm định được thiết kế để tìm kiếm bằng chứng chống lại $H_0$. Chúng ta chỉ tính toán xác suất của dữ liệu dưới giả định $H_0$ đúng ($P(\text{Data}|H_0)$). Chúng ta không bao giờ tính toán xác suất để $H_0$ đúng.
+
+    \item \textbf{Sự thiếu vắng bằng chứng (Absence of Evidence):} 
+    Việc $p\text{-value} > \alpha$ chỉ ra rằng dữ liệu không đủ mạnh để lật đổ giả định ban đầu. Điều này không đồng nghĩa với việc giả định ban đầu là chân lý. 
+    \textit{Ví dụ tương đồng:} Trong tòa án, bồi thẩm đoàn tuyên bố bị cáo ``Không có tội'' (Not Guilty - bằng chứng không đủ để kết tội) chứ không tuyên bố ``Vô tội'' (Innocent - chứng minh được sự trong sạch tuyệt đối).
+    \end{enumerate}
+ 
+    Do đó, ``không bác bỏ $H_0$'' phản ánh chính xác giới hạn của tri thức thu được từ mẫu dữ liệu.
+    \end{answer}
+\end{question}
