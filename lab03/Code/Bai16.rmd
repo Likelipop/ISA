@@ -4,6 +4,7 @@ author: "Tran Tien Dat"
 date: "2025-11-20"
 output: html_document
 ---
+
 # About MobileAds dataset
 
 ```{r setup, include=FALSE}
@@ -61,6 +62,7 @@ data_b <- mobile_ads |> select(- mult.change & -error.cpr_pre & -error.cpr_post)
 
 head(data_b)
 ```
+
 ```{r}
 data_b <- data_b |>
   pivot_longer(
@@ -100,9 +102,11 @@ cpc_d <- data_b |>
   filter(time == "post", platform == "d") 
 cpc_m_zero
 ```
+
 ```{r}
 nrow(cpc_m)
 ```
+
 ## 2.1 Question
 
 > Is there any *statistical* difference between mobile and desktop in term of cpc ?
@@ -117,7 +121,7 @@ prop.test(
 )
 ```
 
-The zero-CPC rate is higher on mobile (7.18%) than on desktop (4.27%). With a p-value of 0.02385 (< 0.05), the difference is statistically significant. This indicates that mobile and desktop platforms do not share the same zero-CPC rate.
+The zero-CPC rate is higher on mobile (7.18%) than on desktop (4.27%). With a p-value of 0.02385 (\< 0.05), the difference is statistically significant. This indicates that mobile and desktop platforms do not share the same zero-CPC rate.
 
 ## 3.1 Question
 
@@ -144,6 +148,7 @@ m_stats <- data_b |>
 
 m_stats
 ```
+
 ```{r}
 data_b |>
   filter(platform == "m", time %in% c("pre", "post")) |>
@@ -177,9 +182,7 @@ data_b |>
 
 ```
 
-For better visualization, we applied a log transformation to the **conv** values. The pre-experiment distribution is wider at higher values (at approximately 14 conversion count), while the conversion count during the experiments reached only 11 unít,  suggesting that less users achieved higher conversion rates before the experiment. The post-experiment values are more evenly spread, with the median slightly lower than in the pre-experiment group, indicating an overall negative shift in conversion performance after the advertising experiment. Additionally, the post-treatment distribution shows slightly higher variability compared to the pre-experiment distribution. more importance, thís plot suggét that these samples are not follơw by the Gaussian distribution
-In conclusion,these figures indicates the experimental change had a negative impact on the average conversion success but stabilized the performance outcomes.
-
+For better visualization, we applied a log transformation to the **conv** values. The pre-experiment distribution is wider at higher values (at approximately 14 conversion count), while the conversion count during the experiments reached only 11 unít, suggesting that less users achieved higher conversion rates before the experiment. The post-experiment values are more evenly spread, with the median slightly lower than in the pre-experiment group, indicating an overall negative shift in conversion performance after the advertising experiment. Additionally, the post-treatment distribution shows slightly higher variability compared to the pre-experiment distribution. more importance, thís plot suggét that these samples are not follơw by the Gaussian distribution In conclusion,these figures indicates the experimental change had a negative impact on the average conversion success but stabilized the performance outcomes.
 
 ## 4.1 Question
 
@@ -191,14 +194,14 @@ As what announce above, the familliar t-test wont be use directly, Let's try a d
 
 We state our hypothesis:
 
-\[
+$$
 \begin{aligned}
 H_0: \ \mu_{\text{platform A}} &= \mu_{\text{platform B}} \\
 H_1: \ \mu_{\text{platform A}} &\neq \mu_{\text{platform B}}
 \end{aligned}
-\]
+$$
 
-where \( \mu_{\text{platform A}} \) and \( \mu_{\text{platform B}} \) represent the true mean conversion rates of each platform.
+where $\mu_{\text{platform A}}$ and $\mu_{\text{platform B}}$ represent the true mean conversion rates of each platform.
 
 ```{r}
 set.seed(42)
@@ -218,6 +221,7 @@ cat(sprintf("Sự khác biệt Quan sát (B - A): %.4f\n\n", observed_diff))
 
 
 ```
+
 Vòng lặp Bootstrap
 
 ```{r}
@@ -253,8 +257,8 @@ for (i in 1:num_bootstraps) {
 
 cat("Done.\n\n")
 ```
-Tính P-Value và Kết luận ---
 
+Tính P-Value và Kết luận ---
 
 ```{r}
 
@@ -274,10 +278,12 @@ if (p_value < 0.05) {
   cat("\nKết luận: P-value >= 0.05. Không bác bỏ H0. Không có đủ bằng chứng về sự khác biệt.\n")
 }
 ```
+
 ```{r}
 abs(T_obs)
 max(abs(diffs_simulated))
 ```
+
 ## 5.1 Question
 
 > Utilize the data in terms of ROI. Do the Exploratory Data Anaysis.
@@ -307,6 +313,7 @@ m_stats <- data_b |>
 
 m_stats
 ```
+
 ```{r}
 data_b |>
   filter(platform == "m", time %in% c("pre", "post")) |>
@@ -342,8 +349,8 @@ data_b |>
 
 This violin plot compares conversion performance **'pre'** and **'post'** an experiment. Given that conversion ($\text{conv}$) drives **ROI**, the key insight is about performance stability and magnitude.
 
-* **Median Decline:** The median $\text{log1p}(\text{conv})$ **dropped** from 'pre' (approx. 0.75) to 'post' (belơ 0.5). This signifies that the **typical, or average, the ROI rates decreased** following the change.
-* **Increased Volatility (Risk):** The **'post'** distribution shows **higher variability** and a pronounced, thin upper tail. This indicates the change introduced **greater performance volatility** and a **higher concentration of low/zero-conversion events** alongside a few extreme high performers.
+-   **Median Decline:** The median $\text{log1p}(\text{conv})$ **dropped** from 'pre' (approx. 0.75) to 'post' (belơ 0.5). This signifies that the **typical, or average, the ROI rates decreased** following the change.
+-   **Increased Volatility (Risk):** The **'post'** distribution shows **higher variability** and a pronounced, thin upper tail. This indicates the change introduced **greater performance volatility** and a **higher concentration of low/zero-conversion events** alongside a few extreme high performers.
 
 In conclusion The experiment **negatively impacted the consistency and average performance**, leading to **lower generalized ROI** and introducing **higher risk** (volatility) in the conversion outcomes across the platform(s).
 
@@ -357,14 +364,14 @@ As what announce above, the familliar t-test wont be use directly, Let's try a d
 
 We state our hypothesis:
 
-\[
+$$
 \begin{aligned}
 H_0: \ \mu_{\text{ROI A}} &= \mu_{\text{ROI B}} \\
 H_1: \ \mu_{\text{ROI A}} &\neq \mu_{\text{ROI B}}
 \end{aligned}
-\]
+$$
 
-where \( \mu_{\text{ROI A}} \) and \( \mu_{\text{ROI B}} \) represent the true mean conversion rates of each platform.
+where $\mu_{\text{ROI A}}$ and $\mu_{\text{ROI B}}$ represent the true mean conversion rates of each platform.
 
 ```{r}
 set.seed(42)
@@ -384,11 +391,12 @@ cat(sprintf("Sự khác biệt Quan sát (B - A): %.4f\n\n", observed_diff))
 
 
 ```
+
 Vòng lặp Bootstrap
+
 ```{r}
 mean(roi_m,na.rm = TRUE)
 ```
-
 
 ```{r}
 n_m <- length(roi_m)
@@ -425,6 +433,7 @@ for (i in 1:num_bootstraps) {
 
 cat("Done.\n\n")
 ```
+
 Tính P-Value và Kết luận ---
 
 ```{r}
