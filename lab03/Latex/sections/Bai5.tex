@@ -5,14 +5,16 @@ xác suất mà thống kê kiểm định bằng kết quả quan sát được
 là xác suất mà thống kê kiểm định bằng kết quả quan sát được hoặc một giá trị thậm chí còn cực
 đoan hơn theo hướng được dự đoán bởi $H_1$?
 
-\begin{subquestion}{I. Vấn đề của Biến liên tục (Continuous Data)}
+\begin{subquestion}{Vấn đề của Biến liên tục (Continuous Data)}
 \begin{answer}
 Lý do kỹ thuật đầu tiên khiến việc định nghĩa $p\text{-value}$ là $P(T = t_{obs})$ trở nên phi lý là do bản chất của các phân phối liên tục:
+
 \begin{itemize}
     \item Hầu hết các thống kê kiểm định tiêu chuẩn ($Z$, $t$, $\chi^2$, $F$) đều tuân theo các phân phối xác suất liên tục (Continuous Probability Distributions).
     \item Đối với bất kỳ biến ngẫu nhiên liên tục nào ($T$), xác suất để biến đó nhận giá trị chính xác bằng một điểm cụ thể là bằng không (zero).
     $$P(T = t_{obs}) = 0$$
 \end{itemize}
+
 Nếu $p\text{-value}$ luôn bằng 0, thì phương pháp kiểm định sẽ trở nên vô dụng.
 \end{answer}
 \end{subquestion}
@@ -20,11 +22,13 @@ Nếu $p\text{-value}$ luôn bằng 0, thì phương pháp kiểm định sẽ t
 \begin{subquestion}{II. Nguyên tắc Thu thập Bằng chứng Lũy tích (Cumulative Evidence)}
 \begin{answer}
 Lý do khái niệm là để đo lường tổng thể sức mạnh của bằng chứng chống lại $H_0$.
+
 \begin{itemize}
     \item Tính Bất thường (Surprise Factor): $p\text{-value}$ phải đo mức độ bất thường của dữ liệu quan sát được.
     \item Lập luận: Bất kỳ giá trị nào cực đoan hơn $t_{obs}$ (tức là xa hơn khỏi giá trị kỳ vọng của $H_0$) đều cung cấp bằng chứng mạnh hơn chống lại $H_0$.
     \item Định nghĩa Bắt buộc: Do đó, $p\text{-value}$ phải bao gồm tất cả các kết quả có thể xảy ra mà cung cấp bằng chứng ít nhất là mạnh bằng $t_{obs}$ hoặc mạnh hơn nữa. Việc cộng dồn xác suất trên toàn bộ khu vực đuôi là cách duy nhất để đo lường tổng thể bằng chứng tích lũy này.
 \end{itemize}
+
 \textit{Ví dụ:} Nếu $H_1: \mu > \mu_0$, $p\text{-value}$ được tính là diện tích đuôi:
 $$p\text{-value} = P(T \ge t_{obs})$$
 \end{answer}
