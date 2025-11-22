@@ -2,18 +2,18 @@
 Giả sử bạn tiến hành một thí nghiệm và tiêm một loại thuốc vào ba con chuột. 
 Thời gian chạy mê cung của chúng là $8, 10, 15$ giây, và thời gian của hai con chuột đối chứng là $5, 9$ giây.
 
-    \begin{enumerate}
-    \item a. Tính chênh lệch thời gian trung bình giữa nhóm điều trị và nhóm đối chứng.
-    \item b. Viết ra tất cả các hoán vị có thể có của những thời gian này cho hai nhóm và tính chênh lệch
+    \begin{enumerate} [label=\alph*]
+    \item Tính chênh lệch thời gian trung bình giữa nhóm điều trị và nhóm đối chứng.
+    \item Viết ra tất cả các hoán vị có thể có của những thời gian này cho hai nhóm và tính chênh lệch
 về giá trị trung bình.
-    \item c. Tỷ lệ chênh lệch nào lớn hơn hoặc bằng chênh lệch thời gian trung bình quan sát được?
-    \item d. Với mỗi hoán vị, hãy chỉ tính giá trị trung bình của nhóm điều trị. Tỷ lệ nào trong số các giá
+    \item Tỷ lệ chênh lệch nào lớn hơn hoặc bằng chênh lệch thời gian trung bình quan sát được?
+    \item Với mỗi hoán vị, hãy chỉ tính giá trị trung bình của nhóm điều trị. Tỷ lệ nào trong số các giá
 trị trung bình này lớn hơn hoặc bằng chênh lệch thời gian trung bình quan sát được của nhóm
 điều trị?
     \end{enumerate}
 
 %-----------------a)---------------------
-   \begin{subquestion}{a. Tính chênh lệch thời gian trung bình giữa nhóm điều trị và nhóm đối chứng.}
+   \begin{subquestion}{Tính chênh lệch thời gian trung bình giữa nhóm điều trị và nhóm đối chứng.}
     \begin{answer}
 
         Gọi:
@@ -21,35 +21,49 @@ trị trung bình này lớn hơn hoặc bằng chênh lệch thời gian trung 
             \item T là thời gian chạy mê cung của nhóm chuột điều trị:
             \begin{itemize}
                 \item Nhóm điều trị gồm 3 con chuột: $n_T = 3$
-                \item T = {8,10,15}
+                \item T = \{8,10,15\} 
             \end{itemize}
             \item C là thời gian chạy mê cung của nhóm chuột đối chứng:
             \begin{itemize}
                 \item Nhóm đối chứng gồm 2 con chuột: $n_C = 2$
-                \item C = {5,9}
+                \item C = \{5,9\} 
             \end{itemize}
         \end{itemize}
+    Thời gian trung bình của nhóm điều trị: \\
+        \begin{align*}
+        \bar{y}_T &= \frac{\sum T_i}{n_T} \\
+                  &= \frac{8 + 10 + 15}{3} \\
+                  &= \frac{33}{3} \\
+                  &= 11 \quad \text{(giây)}
+        \end{align*}
 
-    Thời gian trung bình của nhóm điều trị: 
-    $\bar{y}_T = \bar{T} = \frac{\sum T_i}{n_T} = \frac{8 + 10 + 15}{3} = \frac{33}{3} = 11.$ (giây)
+    Thời gian trung bình của nhóm đối chứng: \\
+        \begin{align*}
+        \bar{y}_C &= \frac{\sum C_i}{n_C} \\
+                  &= \frac{5 + 9}{2} \\
+                  &= \frac{14}{2} \\
+                  &= 7 \quad \text{(giây)}
+        \end{align*}
 
-    Thời gian trung bình của nhóm đối chứng:
-    $\bar{y}_C = \frac{\sum C_i}{n_C} = \frac{5 + 9}{2} = \frac{14}{2} = \mathbf{7.0}$  (giây)
-
-    Chênh lệch trung bình quan sát được:
-    $\bar{d}_{obs} = \bar{T} - \bar{C} = 11.0 - 7.0 = \mathbf{4.0}$ (giây)
+    Chênh lệch trung bình quan sát được: \\
+        \begin{align*}
+        \bar{d}_{obs} &= \bar{T} - \bar{C} \\
+                      &= 11 - 7 \\
+                      &= 4 \quad \text{(giây)}
+        \end{align*}
 
     Vậy chênh lệch thời gian trung bình giữa nhóm điều trị và nhóm đối chứng:
-    $\bar{d}_{obs} = \mathbf{4.0}$ (giây)
+    $\bar{d}_{obs} = \mathbf{4}$ (giây)
     \end{answer}
     \end{subquestion}
 
 %-----------------b)---------------------
-    \begin{subquestion}{b. Viết ra tất cả các hoán vị có thể có của những thời gian này cho hai nhóm và tính chênh lệch
+    \begin{subquestion}{Viết ra tất cả các hoán vị có thể có của những thời gian này cho hai nhóm và tính chênh lệch
 về giá trị trung bình.}
     \newpage
     \begin{answer}
-    Tổng số quan sát là $N= n_T + n_C = 3 + 2 = 5$. Số cách chia thành hai nhóm $n_T=3$ và $n_C=2$ là:
+    Tổng số quan sát là $N= n_T + n_C = 3 + 2 = 5$. Số cách chia thành hai nhóm $n_T=3$ và $n_C=2$ là (hoán vị): \\
+    $$K = \binom{5}{3} = \frac{5!}{3!2!} = \mathbf{10}$$ 
     
     \begin{align}
         K 
@@ -83,23 +97,25 @@ về giá trị trung bình.}
     \end{subquestion}
 
 %-----------------c)---------------------
-    \begin{subquestion}{c.Tỷ lệ chênh lệch nào lớn hơn hoặc bằng chênh lệch thời gian trung bình quan sát được?.}
+    \begin{subquestion}{Tỷ lệ chênh lệch nào lớn hơn hoặc bằng chênh lệch thời gian trung bình quan sát được?.}
     \begin{answer}
     Chênh lệch quan sát được: $\bar{d}_{obs} = 4.$ (giây)
  
     Từ bảng trên, các hoán vị có $\bar{d}_{obs} \ge 4$:
-
-    - Thứ tự 9: $4.00$ (giây)
-    - Thứ tự 10: $5.33$ (giây)
+        
+        \begin{itemize}
+            \item Thứ tự 9: $4.00$ (giây)
+            \item Thứ tự 10: $5.33$ (giây)
+        \end{itemize}
 
     Có \(2\) hoán vị thoả điều kiện trên tổng \(10\) hoán vị: $p-value = \frac{2}{10} = 0.2.$
 
     Vậy tỷ lệ của phép thử hoán vị thỏa điều kiện trên là p-value = 0.2.
     \end{answer}
     \end{subquestion}
-% --------------------------------------------------------
+% -----------------d)--------------------------------------
 
-    \begin{subquestion}{d. Với mỗi hoán vị, hãy chỉ tính giá trị trung bình của nhóm điều trị. Tỷ lệ nào trong số các giá
+    \begin{subquestion}{Với mỗi hoán vị, hãy chỉ tính giá trị trung bình của nhóm điều trị. Tỷ lệ nào trong số các giá
 trị trung bình này lớn hơn hoặc bằng chênh lệch thời gian trung bình quan sát được của nhóm
 điều trị?.}
     \begin{answer}
@@ -107,12 +123,14 @@ trị trung bình này lớn hơn hoặc bằng chênh lệch thời gian trung 
     Trung bình nhóm điều trị quan sát được: $\bar{y}_T = 11.$
     Từ bảng (cột $\bar{y}_T$), các giá trị $\ge 11$ là:
 
-    - Thứ tự 9: 11.00
-    - Thứ tự 10: 11.33
+        \begin{itemize}
+            \item Thứ tự 9: $11.00$ (giây)
+            \item Thứ tự 10: $11.33$ (giây)
+        \end{itemize}
 
-    Có \(2\) hoán vị trong tổng số 10: $p_T = \frac{2}{10} = 0.2.$
+    Có \(2\) hoán vị trong tổng số 10: $p_T = \frac{2}{10} = 0.2.$ 
 
-    Vậy xác suất trung bình nhóm điều trị trong các hoán vị $\ge 11$ là 0.2 
+    Vậy xác suất trung bình nhóm điều trị trong các hoán vị $\ge 11$ là 0.2 \\
 
     Lưu ý học thuật: Kết quả của câu (d) bằng với câu (c). Điều này chứng minh rằng đối với Phép thử Hoán vị hai mẫu 
     (two-sample permutation test), việc sử dụng \textbf{chênh lệch trung bình} ($\bar{T}-\bar{C}$) 
