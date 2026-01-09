@@ -1,0 +1,183 @@
+---
+title: "Project"
+author: "Ngọc Anh"
+date: "2025-11-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(reshape2)  # for melt()
+library(patchwork)
+```
+
+## 0.Load data
+
+```{r}
+data <- read_csv("diabetes_012_health_indicators_BRFSS2015.csv")
+
+glimpse(data)
+```
+
+
+## 1. Data Cleaning
+### 1.1. Duplicate Data Assessment
+
+```{r}
+# Number of fully duplicated rows
+num_duplicates <- sum(duplicated(data))
+num_duplicates
+
+# Percentage of duplicated rows (%)
+duplicate_rate <- num_duplicates / nrow(data) * 100
+duplicate_rate
+```
+
+**Conclusion**
+The analysis indicates that the dataset contains 23,899 fully duplicated observations, accounting for 9.42% of the total number of records.
+
+However, duplicated observations in terms of values do not necessarily imply repeated measurements of the same individual. Instead, they may represent different individuals sharing identical demographic characteristics, lifestyle factors, and health conditions. Removing these observations would unnecessarily reduce the sample size and could potentially distort the true population distribution, particularly for common health-related profiles.
+
+Therefore, duplicated observations are retained to preserve the original distributional structure of the data, ensure the representativeness of the survey sample, and maintain the reliability of subsequent analyses.
+
+### 1.2. Missing value
+
+Missing rate by variable
+
+```{r}
+missing_summary <- data.frame(
+  MissingCount = colSums(is.na(data)),
+  MissingRate  = colMeans(is.na(data)) * 100
+)
+
+missing_summary
+```
+
+**Conclusion**
+
+The dataset contains no missing values across all 22 variables. Therefore, no missing data handling or imputation methods are required.
+
+### 1.3. Outliers Assessment
+
+Outlier detection was applied only to BMI, MentHlth, and PhysHlth because these variables are continuous and have a wide range of values, making extreme observations meaningful. The remaining variables are binary or ordinal with limited levels, for which outlier detection is not appropriate.
+
+```{r}
+outlier_vars <- c("BMI", "MentHlth", "PhysHlth")
+data[outlier_vars] %>% glimpse()
+```
+#### Boxplot
+
+```{r}
+data %>%
+  select(BMI, MentHlth, PhysHlth) %>%
+  pivot_longer(cols = everything(),
+               names_to = "variable",
+               values_to = "value") %>%
+  ggplot(aes(x = variable, y = value, fill = variable)) +
+  geom_boxplot(alpha = 0.8, width = 0.4, outlier.alpha = 0.4) +
+  labs(
+    x = "Variable",
+    y = "Value",
+    title = "Boxplot for Outlier Detection"
+  ) +
+  theme_bw()
+```
+
+The boxplot shows that **BMI**, **MentHlth**, and **PhysHlth** all exhibit **right-skewed** distributions with numerous observations beyond the upper whiskers, indicating the presence of outliers. BMI displays a wider spread with extreme high values, while MentHlth and PhysHlth are concentrated at low values but show several high-value outliers corresponding to prolonged periods of poor mental or physical health.
+
+#### IQR
+```{r}
+detect_outliers_iqr <- function(x) {
+  Q1 <- quantile(x, 0.25, na.rm = TRUE)
+  Q3 <- quantile(x, 0.75, na.rm = TRUE)
+  IQR <- Q3 - Q1
+  
+  lower <- Q1 - 1.5 * IQR
+  upper <- Q3 + 1.5 * IQR
+  
+  outlier_count <- sum(x < lower | x > upper, na.rm = TRUE)
+  
+  data.frame(
+    Lower_Bound = lower,
+    Upper_Bound = upper,
+    Outlier_Count = outlier_count
+  )
+}
+
+iqr_BMI      <- detect_outliers_iqr(data$BMI)
+iqr_MentHlth <- detect_outliers_iqr(data$MentHlth)
+iqr_PhysHlth <- detect_outliers_iqr(data$PhysHlth)
+
+rbind(
+  BMI = iqr_BMI,
+  MentHlth = iqr_MentHlth,
+  PhysHlth = iqr_PhysHlth
+)
+```
+
+
+A substantial number of outliers are identified in all three variables. **BMI** has 9,847 observations outside the range of 13.5 to 41.5, indicating the presence of extremely high body mass index values. **MentHlth** and **PhysHlth** show even larger numbers of outliers beyond their upper bounds, reflecting a strong right-skewed distribution with many observations reporting prolonged periods of poor mental or physical health.
+
+#### Z-score
+```{r}
+detect_outliers_zscore <- function(x, threshold = 3) {
+  z_scores <- (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
+  outlier_count <- sum(abs(z_scores) > threshold, na.rm = TRUE)
+  
+  data.frame(
+    Threshold = threshold,
+    Outlier_Count = outlier_count
+  )
+}
+
+z_BMI      <- detect_outliers_zscore(data$BMI)
+z_MentHlth <- detect_outliers_zscore(data$MentHlth)
+z_PhysHlth <- detect_outliers_zscore(data$PhysHlth)
+
+rbind(
+  BMI = z_BMI,
+  MentHlth = z_MentHlth,
+  PhysHlth = z_PhysHlth
+)
+```
+
+BMI and MentHlth still exhibit a notable number of outliers, whereas PhysHlth shows no outliers under this criterion. This indicates that extreme values in PhysHlth are less pronounced in terms of standardized deviation, while BMI and MentHlth contain observations that deviate substantially from their respective means.
+
+**Conclusion**
+
+Although the number of outliers identified in BMI, MentHlth, and PhysHlth is relatively large, these observations represent groups of individuals with distinct health conditions that differ markedly from the majority, rather than being abnormal or erroneous data points. The presence of numerous outliers primarily results from the right-skewed distributions of these variables, particularly for variables measuring the number of days of poor health within a month.
+
+When compared with the Z-score method, the number of outliers decreases substantially or disappears in some cases, indicating that these extreme values do not constitute severe anomalies under the assumption of normality. Therefore, the identified outliers are considered to have practical significance.
+
+Consequently, all outliers are retained to avoid the loss of important information regarding individuals with distinct health profiles, who are central to the analysis of the relationship between health conditions and diabetes.
+
+### 1.4. Imbalance Data Assessment
+```{r}
+# Distribution of counts
+table(data$Diabetes_012)
+```
+```{r}
+# Percentage distribution between groups
+prop.table(table(data$Diabetes_012)) * 100
+```
+
+```{r}
+ggplot(data, aes(x = factor(Diabetes_012))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    x = "Diabetes Status",
+    y = "Count",
+    title = "Distribution Diabetes_012"
+  ) +
+  theme_minimal()
+```
+
+The distribution of the target variable shows a clear class imbalance across groups. Individuals without diabetes (Diabetes_012 = 0) account for the largest proportion, followed by those with prediabetes (Diabetes_012 = 1), while the group with diabetes (Diabetes_012 = 2) represents a substantially smaller share of the dataset.
+
+**Conclusion**
+
+Although a clear class imbalance is observed in the target variable Diabetes_012, no resampling techniques were applied at the data cleaning stage. This decision was made to preserve the original population structure and the representativeness of the survey data. Modifying the class distribution at this stage could introduce artificial bias and affect the interpretation of descriptive and exploratory analyses. Therefore, the imbalance is retained and will only be addressed, if necessary, in subsequent predictive modeling stages.
+
