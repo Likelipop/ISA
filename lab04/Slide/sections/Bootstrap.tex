@@ -1,0 +1,174 @@
+% =========================================
+%  Bootstrap Test
+% =========================================
+
+\section{Bootstrap Test for mean}
+
+\begin{frame}{Bootstrap test}
+    \begin{itemize}
+        \item Compare \textbf{old} vs \textbf{new} page for:
+        \[
+          \mu_{\text{time,new}} - \mu_{\text{time,old}}, \quad
+          p_{\text{new}} - p_{\text{old}}.
+        \]
+        \item Test statistic for both metrics:
+        \[
+          t_{\text{obs}} = \bar{x}_{\text{new}} - \bar{x}_{\text{old}}.
+        \]
+        \item Idea under \(H_0\):
+        \begin{itemize}
+            \item Make the two groups have the same mean (centering).
+            \item Resample many times to get \(t^\ast\) values.
+            \item Compare \(t_{\text{obs}}\) to the bootstrap \emph{null} distribution of \(t^\ast\).
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Null distribution (time)}
+    \begin{itemize}
+        \item Under \(H_0 : \mu_{\text{new}} = \mu_{\text{old}}\):
+        \[
+          x_{\text{new}}^{\sim} = x_{\text{new}} - \bar{x}_{\text{new}}, \quad
+          x_{\text{old}}^{\sim} = x_{\text{old}} - \bar{x}_{\text{old}}.
+        \]
+        \item For each bootstrap sample:
+        \[
+          t_b^{\ast}
+          = \bar{x}^{\ast}_{\text{new},b}
+          - \bar{x}^{\ast}_{\text{old},b}.
+        \]
+        \item The histogram of \(\{t_b^{\ast}\}\) (time data) is the \textbf{null distribution} for time.
+        \item p-value (idea):
+        \[
+        p \approx\frac{\text{number of bootstrap } t_b^{\ast} \text{ with } |t_b^{\ast}| \ge |t_{\text{obs}}|}{R}
+        \]
+        (or one tail for a one-sided test).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\linewidth]{images/bootstrap_time_hist.png}
+        \caption{\footnotesize Time: bootstrap $t^\ast$ with dashed line at $t_{\text{obs}}$.}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Null distribution (conversion)}
+    \begin{itemize}
+        \item Encode conversion as \(x \in \{0,1\}\),  
+              so \(\bar{x} =\) conversion proportion.
+        \item Apply the same bootstrap algorithm to:
+        \[
+          x_{\text{new}} = \text{conversion on new page}, \quad
+          x_{\text{old}} = \text{conversion on old page}.
+        \]
+        \item For each bootstrap sample:
+        \[
+          t_b^{\ast}
+          = \bar{x}^{\ast}_{\text{new},b}
+          - \bar{x}^{\ast}_{\text{old},b}.
+        \]
+        \item The histogram of \(\{t_b^{\ast}\}\) gives the \textbf{null distribution} for
+              the difference in conversion rates.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\linewidth]{images/bootstrap_conv_hist.png}
+        \caption{\footnotesize Conversion: bootstrap $t^\ast$ for new − old.}
+    \end{figure}
+\end{frame}
+
+% =========================================
+%  Bootstrap CI
+% =========================================
+
+\section{Bootstrap for Confidence Intervals}
+
+\begin{frame}{Bootstrap CI idea}
+    \begin{itemize}
+        \item For confidence intervals, we \textbf{do not} enforce \(H_0\).
+        \item Resample with replacement from the \textbf{original} data in each group.
+        \item For each bootstrap sample:
+        \[
+          \Delta_b^{\ast}
+          = \bar{x}^{\ast}_{\text{new},b}
+          - \bar{x}^{\ast}_{\text{old},b}.
+        \]
+        \item Collect many \(\Delta_b^{\ast}\) values and sort them.
+        \item Percentile CI:
+        \begin{itemize}
+            \item lower endpoint = empirical \(\alpha/2\) quantile,
+            \item upper endpoint = empirical \(1-\alpha/2\) quantile.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{CI for time}
+    \begin{itemize}
+        \item Apply the bootstrap CI procedure to:
+        \[
+          \mu_{\text{time,new}} - \mu_{\text{time,old}}.
+        \]
+        \item 95\% percentile CI for the difference in mean time (new − old)
+              is obtained from the sorted \(\Delta_b^{\ast}\) values.
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\linewidth]{images/ci_time_table.png}
+        \caption{\footnotesize 95\% bootstrap CI for mean time difference.}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{CI for conversion}
+    \begin{itemize}
+        \item Apply the same CI procedure to:
+        \[
+          p_{\text{new}} - p_{\text{old}},
+        \]
+        where \(p\) is the conversion proportion (0/1 data).
+        \item 95\% percentile CI for the difference in conversion rate (new − old).
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\linewidth]{images/ci_conv_table.png}
+        \caption{\footnotesize 95\% bootstrap CI for conversion difference.}
+    \end{figure}
+\end{frame}
+
+% =========================================
+%  Limitations
+% =========================================
+
+\section{Limitations}
+
+\begin{frame}{Limitations}
+    \begin{itemize}
+        \item \textbf{Sample may not be representative}
+        \begin{itemize}
+            \item Only 100 users; may come from a specific period, country or device type.
+        \end{itemize}
+        \item \textbf{Small sample size in each group}
+        \begin{itemize}
+            \item 50 old, 50 new; bootstrap distributions and CIs can be noisy.
+        \end{itemize}
+        \item \textbf{Independence and simple structure}
+        \begin{itemize}
+            \item Assumes i.i.d.\ users within each group.
+            \item Ignores clusters (same user, campaign, time-of-day);
+                  more advanced bootstrap would be needed there.
+        \end{itemize}
+    \end{itemize}
+\end{frame}

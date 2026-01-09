@@ -1,0 +1,140 @@
+\documentclass[a4paper,12pt]{article}
+
+% ============================
+% ======== Packages =========
+% ============================
+\usepackage{fontspec}                        % XeLaTeX font support
+\usepackage[vietnamese,english]{babel}      % Language support
+\usepackage{fancyhdr}                        % Fancy headers/footers
+\usepackage{extramarks}                      % Extra marks for headers
+\usepackage{amsmath, amsthm, amsfonts}       % Math packages
+\usepackage{tikz}                            % Drawing & diagrams
+\usepackage[plain]{algorithm}                % Algorithm environment
+\usepackage{algpseudocode}                   % Pseudocode inside algorithms
+\usepackage{setspace}                        % Line spacing
+\usepackage{geometry}                        % Page geometry
+\usepackage{hyperref}                        % Clickable TOC and references
+
+% ============================
+% ======= Geometry ==========
+% ============================
+\geometry{
+    left=3cm,
+    right=3cm,
+    top=3cm,
+    bottom=3cm
+}
+
+% TikZ libraries
+\usetikzlibrary{automata,positioning}
+
+% ============================
+% ===== Bibliography ========
+% ============================
+\bibliographystyle{apalike}                 % Bibliography style
+% \bibliography{references}                 % Uncomment when you have references.bib
+
+% ============================
+% ===== Custom Commands =====
+% ============================
+\newcommand{\hmwkTitle}{Assignment 1}
+\newcommand{\hmwkClass}{Xử lý số liệu thống kê}
+\newcommand{\hmwkAuthors}{
+    Trần Tiến Đạt \\
+    Nguyễn Thị Ngọc Anh \\
+    Nguyễn Thái Hưng Thịnh
+}
+\newcommand{\hmwkDate}{\today}
+
+% ============================
+% ===== Title Page Setup =====
+% ============================
+\title{
+    \vspace{2in}
+    \textbf{\Large \hmwkClass} \\[1em]
+    \textmd{\LARGE \hmwkTitle} \\[2em]
+    \vspace{2in}
+}
+\author{\hmwkAuthors}
+\date{\hmwkDate}
+
+% ============================
+% ===== Countẻr fỏr sections =
+% ============================
+\newcounter{question}
+\newcounter{subquestion}[question]
+\newcounter{answer}[subquestion]
+
+\renewcommand{\thequestion}{\arabic{question}}
+\renewcommand{\thesubquestion}{\alph{subquestion}}
+\renewcommand{\theanswer}{\thequestion.\arabic{answer}}
+
+% --- Custom Environments ---
+\newenvironment{question}[1]
+{%
+  \refstepcounter{question}%
+  \section*{Bài #1}%
+  \addcontentsline{toc}{section}{Bài #1}%
+}
+{}
+
+\newenvironment{subquestion}[1]
+{%
+  \refstepcounter{subquestion}%
+  \noindent\textbf{(\thesubquestion)} #1  \par
+}
+{\vspace{0.5em}}
+
+\newenvironment{answer}
+{%
+  \refstepcounter{answer}%
+  \noindent\textbf{Lời giải :}\par
+}
+{\vspace{1em}}
+
+% ============================
+% ===== Document Start =======
+% ============================
+\begin{document}
+
+% ----- Title Page -----
+\begin{titlepage}
+    \centering
+    \vspace*{3cm}
+    {\Huge \textbf{\hmwkClass}}\\[1.5cm]
+    {\LARGE \textbf{\hmwkTitle}}\\[1cm]
+    \vspace{2cm}
+    {\Large
+    \textit{Nhóm E:}\\[0.5cm]
+    \hmwkAuthors
+    }\\[3cm]
+    {\Large Ngày nộp: \hmwkDate}\\
+    \vfill
+\end{titlepage}
+
+% ----- Table of Contents -----
+\tableofcontents
+\newpage
+
+
+% ============================
+% ===== Sections =============
+% ============================
+% Uncomment and create files under `sections/` directory
+\input{sections/donggop.tex}
+\input{sections/Bai1.tex}
+\input{sections/Bai3.tex}
+\input{sections/bai4.tex}
+\input{sections/Bai5.tex}
+haha
+% \input{sections/Continuous}
+% \input{sections/Others}
+
+% ============================
+% ===== Bibliography =========
+% ============================
+% \bibliography{references}
+% Nhan Ctrl + s de luu file + dich bai
+% Tap thoi quen mot commit thuong xuyen
+% Fetch roi moi commit -> push
+\end{document}

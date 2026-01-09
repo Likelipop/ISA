@@ -1,0 +1,98 @@
+\documentclass[12pt]{beamer}
+
+% ============================
+% ======== Packages =========
+% ============================
+\usepackage{fontspec}      
+\usepackage{graphicx}                  % XeLaTeX font support
+\usepackage[vietnamese,english]{babel}      % Language support
+\usepackage{amsmath, amsthm, amsfonts}      % Math packages
+\usepackage{tikz}                            % Drawing & diagrams
+\usepackage[plain]{algorithm}                % Algorithm environment
+\usepackage{algpseudocode}                   % Pseudocode inside algorithms
+\usepackage{hyperref}                        % Clickable TOC and references
+\usepackage{setspace}                        % Line spacing
+
+% TikZ libraries
+\usetikzlibrary{automata,positioning}
+
+% ============================
+% ===== Theme & Colors =======
+% ============================
+\usetheme{Madrid}
+\usecolortheme{beaver}
+
+% ============================
+% ===== Custom Commands =====
+% ============================
+\newcommand{\hmwkTitle}{Assignment 1}
+\newcommand{\hmwkClass}{Xử lý số liệu thống kê}
+\newcommand{\hmwkAuthors}{
+    Trần Tiến Đạt \\
+    Nguyễn Thị Ngọc Anh \\
+    Nguyễn Thái Hưng Thịnh
+}
+\newcommand{\hmwkDate}{\today}
+
+% ============================
+% ===== Title Page Setup =====
+% ============================
+\title[Xử lý số liệu thống kê]{\hmwkClass \\[0.5em] \hmwkTitle}
+\author[Nhóm E]{\hmwkAuthors}
+\date{\hmwkDate}
+
+% ============================
+% ===== Document Start =======
+% ============================
+\begin{document}
+
+% ----- Title Page -----
+\begin{frame}[plain]
+    % Title and subtitle
+    \title{\textbf{MINI PROJECT}\\[6pt]
+           \Large A/B Testing Application in Data Science}
+    \subtitle{Controlled Experiment on Landing Page Optimization}
+
+    % Author block
+    \author[Nhóm E]{
+        Trần Tiến Đạt -- 22110039 \\[3pt]
+        Nguyễn Thị Ngọc Anh -- 23280037 \\[3pt]
+        Nguyễn Thái Hưng Thịnh -- 23110209
+    }
+
+    % Institute / Course
+    \institute{%
+        \textbf{Môn: Xử lý số liệu thống kê} \\[3pt]
+        Khoa Toán - Tin, VNUHCM-US
+    }
+
+    % Date
+    \date{\today}
+
+    % Title page
+    \titlepage
+\end{frame}
+
+
+
+% ----- Table of Contents -----
+\begin{frame}{Nội Dung}
+    \tableofcontents
+\end{frame}
+what the fuck
+% ============================
+% ===== Sections / Slides ====
+% ============================
+\input{sections/intro.tex}
+\input{sections/case_study.tex}
+\input{sections/EDA.tex}
+\input{sections/Bootstrap.tex}
+\input{sections/permutation.tex}
+
+% ----- Ending Slide -----
+\begin{frame}{Kết Thúc}
+    \centering
+    Cảm ơn các bạn đã lắng nghe!
+\end{frame}
+
+\end{document}
