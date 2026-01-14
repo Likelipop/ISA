@@ -21,6 +21,11 @@ data <- read_csv("diabetes_012_health_indicators_BRFSS2015.csv")
 
 glimpse(data)
 ```
+```{r}
+head(data)
+```
+
+
 
 
 ## 1. Data Cleaning
@@ -180,4 +185,41 @@ The distribution of the target variable shows a clear class imbalance across gro
 **Conclusion**
 
 Although a clear class imbalance is observed in the target variable Diabetes_012, no resampling techniques were applied at the data cleaning stage. This decision was made to preserve the original population structure and the representativeness of the survey data. Modifying the class distribution at this stage could introduce artificial bias and affect the interpretation of descriptive and exploratory analyses. Therefore, the imbalance is retained and will only be addressed, if necessary, in subsequent predictive modeling stages.
+
+```{r}
+# demographic data
+list_demo_personal <- c("Sex", "Age", "Education", "Income", "AnyHealthcare", "NoDocbcCost")
+
+# life style variables
+list_lifestyle <- c("Smoker", "PhysActivity", "Fruits", "Veggies", "HvyAlcoholConsump")
+
+# health indicator
+list_health <- c("Diabetes_012", "HighBP", "HighChol", "CholCheck", "BMI", 
+                 "Stroke", "HeartDiseaseorAttack", "GenHlth", "MentHlth", 
+                 "PhysHlth", "DiffWalk")
+
+data$ID <- 1: nrow(data)
+data[, c("ID", setdiff(names(data), "ID"))]
+
+# Dataframe 1: Thông tin nhân khẩu học, cá nhân
+df_demographics <- data[, c("ID", list_demo_personal)]
+
+# Dataframe 2: Thông tin lối sống
+df_lifestyle <- data[, c("ID", list_lifestyle)]
+
+# Dataframe 3: Chỉ số sức khỏe
+df_health <- data[, c("ID", list_health)]
+```
+
+```{r}
+head(df_demographics)
+```
+
+```{r}
+head(df_lifestyle)
+```
+
+```{r}
+head(df_health)
+```
 
