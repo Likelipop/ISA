@@ -1,10 +1,28 @@
 ---
-title: "Project"
-author: "Ngọc Anh"
-date: "2025-11-14"
+title: "Clean Data"
+author: Ngọc Anh
+date: "`r Sys.Date()`"
 output: html_document
 ---
 
+## 2. Objective
+The objective of this analysis is to explore the relationships between lifestyle factors, demographic characteristics, and health indicators, with a particular focus on diabetes status. Specifically, the study aims to understand the overall structure and key characteristics of the dataset, ensure data reliability through appropriate cleaning procedures, and identify meaningful patterns and trends associated with diabetes. The findings are intended to provide insights into how lifestyle and demographic factors relate to health outcomes.
+
+---
+
+## 3. Background / Context
+
+Building upon previous public health studies that rely on large-scale survey data, this research makes use of the 2015 Behavioral Risk Factor Surveillance System (BRFSS), an annual health monitoring program conducted by the Centers for Disease Control and Prevention (CDC) in the United States. The BRFSS is designed to capture information on health-related behaviors, chronic disease prevalence, and access to preventive health services among adults aged 18 years and older across all U.S. states and selected territories.
+
+Data are collected through standardized telephone-based surveys, including both landline and mobile phones, and are administered by state health departments following protocols developed by the CDC. The collected responses are subsequently aggregated, cleaned, and standardized to support population-level analyses in public health and epidemiology.
+
+The variables in the dataset are primarily based on self-reported information provided by survey participants. In particular, variables related to disease status reflect whether respondents had previously been diagnosed by a physician or other health care professional, rather than being derived from direct clinical measurements. Additionally, certain composite indicators, such as body mass index (BMI), are calculated from self-reported personal information, including height and weight.
+
+The original BRFSS 2015 dataset is publicly available and can be accessed at:
+https://www.cdc.gov/brfss/annual_data/annual_2015.html
+
+## 4. Data Preparation
+### 4.1 Data ingestion
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -13,9 +31,32 @@ library(ggplot2)
 library(reshape2)  # for melt()
 library(patchwork)
 ```
+The dataset has 22 variables, including:
 
-## 0.Load data
+- **Diabetes_012**: diabetes status (no diabetes / prediabetes / diabetes)
+- **HighBP**: whether the individual has high blood pressure
+- **HighChol**: whether the individual has high cholesterol
+- **CholCheck**: cholesterol check within the past 5 years
+- **BMI**: body mass index calculated from height and weight
+- **Smoker**: smoking status of the individual
+- **Stroke**: history of stroke
+- **HeartDiseaseorAttack**: history of heart disease or heart attack
+- **PhysActivity**: whether the individual engages in physical activity
+- **Fruits**: fruit consumption behavior
+- **Veggies**: vegetable consumption behavior
+- **HvyAlcoholConsump**: heavy alcohol consumption indicator
+- **AnyHealthcare**: access to health care services
+- **NoDocbcCost**: inability to see a doctor due to cost
+- **GenHlth**: self-reported general health status
+- **MentHlth**: number of days of poor mental health
+- **PhysHlth**: number of days of poor physical health
+- **DiffWalk**: difficulty in walking or climbing stairs
+- **Sex**: gender of the individual
+- **Age**: age group category
+- **Education**: highest education level
+- **Income**: income level category
 
+First, we load the data and take a quick look at its overview.
 ```{r}
 data <- read_csv("diabetes_012_health_indicators_BRFSS2015.csv")
 
@@ -27,9 +68,97 @@ head(data)
 
 
 
+### 4.2 Summarization
 
-## 1. Data Cleaning
-### 1.1. Duplicate Data Assessment
+**Numeric Vars**
+```{r}
+numeric_vars <- data %>%
+  select(where(is.numeric)) %>%
+  select(where(~ n_distinct(., na.rm = TRUE) > 20)) %>% 
+  names()
+
+numeric_vars
+```
+
+Although the Age variable in the BRFSS dataset is numerically coded, it represents ordinal age categories rather than exact age measured in years. As a result, the numerical codes do not correspond to a continuous scale with equal intervals, which is a key requirement for variables treated as numeric. Therefore, Age is not included among numeric variables and is instead analyzed as a categorical variable to ensure appropriate statistical interpretation.
+
+**Descriptive Statistics for Numeric Variables**
+
+```{r}
+num_stats <- data %>%
+  summarise(across(
+    all_of(numeric_vars),
+    list(
+      n = ~ sum(!is.na(.)),
+      missing = ~ sum(is.na(.)),
+      mean = ~ mean(., na.rm = TRUE),
+      sd = ~ sd(., na.rm = TRUE),
+      median = ~ median(., na.rm = TRUE),
+      IQR = ~ IQR(., na.rm = TRUE),
+      min = ~ min(., na.rm = TRUE),
+      max = ~ max(., na.rm = TRUE)
+    ),
+    .names = "{.col}__{.fn}"
+  )) %>%
+  pivot_longer(everything(),
+               names_to = c("Variable", "Statistic"),
+               names_sep = "__",
+               values_to = "Value") %>%
+  pivot_wider(names_from = Statistic, values_from = Value)
+
+num_stats
+```
+
+Overall, BMI shows substantial variability and extreme values, while MentHlth and PhysHlth are highly right-skewed, with most respondents reporting zero unhealthy days and a small group driving the higher means.
+
+**Categorical Vars**
+```{r}
+categorical_vars <- data %>%
+  select(1:22) %>%                      
+  select(where(is.factor) | where(is.character) |
+           where(~ is.numeric(.) && n_distinct(., na.rm = TRUE) <= 20)) %>%
+  names()
+
+categorical_vars <- setdiff(categorical_vars, numeric_vars)
+categorical_vars
+```
+
+**Descriptive Statistics for Categorical Variables**
+
+```{r}
+cat_stats <- data %>%
+  select(all_of(categorical_vars)) %>%
+  pivot_longer(everything(), names_to = "Variable", values_to = "Value") %>%
+  group_by(Variable) %>%
+  summarise(
+    n = n(),
+    n_missing = sum(is.na(Value)),
+    n_levels = n_distinct(Value, na.rm = TRUE),
+
+    mode = {
+      tb <- sort(table(Value, useNA = "no"), decreasing = TRUE)
+      if (length(tb) == 0) NA else names(tb)[1]
+    },
+
+    mode_count = {
+      tb <- sort(table(Value, useNA = "no"), decreasing = TRUE)
+      if (length(tb) == 0) NA_integer_ else as.integer(tb[1])
+    },
+
+    mode_pct = round(100 * mode_count / (n - n_missing), 2),
+    .groups = "drop"
+  )
+
+cat_stats
+```
+
+Overall, most categorical variables are highly imbalanced, with one dominant mode accounting for a large majority of observations (often > 80–90%). Age and socioeconomic variables show more spread across levels, while many health behavior and condition indicators are concentrated in a single category.
+
+## 6. Data Preprocessing
+
+Data preprocessing is a critical step to improve data quality and ensure reliable analysis. In this study, the preprocessing stage addresses duplicate records, missing values, outliers, and class imbalance to reduce noise, limit bias, and prepare the dataset for effective modeling.
+
+### 6.1. Duplicate Data Assessment
 
 ```{r}
 # Number of fully duplicated rows
@@ -48,9 +177,7 @@ However, duplicated observations in terms of values do not necessarily imply rep
 
 Therefore, duplicated observations are retained to preserve the original distributional structure of the data, ensure the representativeness of the survey sample, and maintain the reliability of subsequent analyses.
 
-### 1.2. Missing value
-
-Missing rate by variable
+### 6.2. Missing value
 
 ```{r}
 missing_summary <- data.frame(
@@ -65,126 +192,495 @@ missing_summary
 
 The dataset contains no missing values across all 22 variables. Therefore, no missing data handling or imputation methods are required.
 
-### 1.3. Outliers Assessment
+### 6.3. Outliers Assessment
 
-Outlier detection was applied only to BMI, MentHlth, and PhysHlth because these variables are continuous and have a wide range of values, making extreme observations meaningful. The remaining variables are binary or ordinal with limited levels, for which outlier detection is not appropriate.
+#### BMI
 
-```{r}
-outlier_vars <- c("BMI", "MentHlth", "PhysHlth")
-data[outlier_vars] %>% glimpse()
-```
-#### Boxplot
+**Density**
 
 ```{r}
-data %>%
-  select(BMI, MentHlth, PhysHlth) %>%
-  pivot_longer(cols = everything(),
-               names_to = "variable",
-               values_to = "value") %>%
-  ggplot(aes(x = variable, y = value, fill = variable)) +
-  geom_boxplot(alpha = 0.8, width = 0.4, outlier.alpha = 0.4) +
+ggplot(data, aes(x = BMI)) +
+  geom_density(fill = "lightblue", alpha = 0.6) +
   labs(
-    x = "Variable",
-    y = "Value",
-    title = "Boxplot for Outlier Detection"
+    title = "Density plot of BMI",
+    x = "BMI",
+    y = "Density"
   ) +
   theme_bw()
 ```
 
-The boxplot shows that **BMI**, **MentHlth**, and **PhysHlth** all exhibit **right-skewed** distributions with numerous observations beyond the upper whiskers, indicating the presence of outliers. BMI displays a wider spread with extreme high values, while MentHlth and PhysHlth are concentrated at low values but show several high-value outliers corresponding to prolonged periods of poor mental or physical health.
+The density plot of BMI shows a right-skewed distribution, with most observations concentrated around moderate BMI values and a long right tail indicating the presence of extremely high BMI cases.
 
-#### IQR
+**Boxplot**
+
 ```{r}
-detect_outliers_iqr <- function(x) {
-  Q1 <- quantile(x, 0.25, na.rm = TRUE)
-  Q3 <- quantile(x, 0.75, na.rm = TRUE)
-  IQR <- Q3 - Q1
-  
-  lower <- Q1 - 1.5 * IQR
-  upper <- Q3 + 1.5 * IQR
-  
-  outlier_count <- sum(x < lower | x > upper, na.rm = TRUE)
-  
-  data.frame(
-    Lower_Bound = lower,
-    Upper_Bound = upper,
-    Outlier_Count = outlier_count
-  )
-}
-
-iqr_BMI      <- detect_outliers_iqr(data$BMI)
-iqr_MentHlth <- detect_outliers_iqr(data$MentHlth)
-iqr_PhysHlth <- detect_outliers_iqr(data$PhysHlth)
-
-rbind(
-  BMI = iqr_BMI,
-  MentHlth = iqr_MentHlth,
-  PhysHlth = iqr_PhysHlth
-)
+ggplot(data, aes(y = BMI)) +
+  geom_boxplot(fill = "lightblue", outlier.color = "red", alpha = 0.7) +
+  labs(
+    title = "Boxplot of BMI",
+    y = "BMI"
+  ) +
+  theme_bw()
 ```
 
+The boxplot shows a narrow central distribution of BMI with numerous upper-end outliers, indicating cases of extremely high BMI.
 
-A substantial number of outliers are identified in all three variables. **BMI** has 9,847 observations outside the range of 13.5 to 41.5, indicating the presence of extremely high body mass index values. **MentHlth** and **PhysHlth** show even larger numbers of outliers beyond their upper bounds, reflecting a strong right-skewed distribution with many observations reporting prolonged periods of poor mental or physical health.
+**BMI Groups**
 
-#### Z-score
 ```{r}
-detect_outliers_zscore <- function(x, threshold = 3) {
-  z_scores <- (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
-  outlier_count <- sum(abs(z_scores) > threshold, na.rm = TRUE)
-  
-  data.frame(
-    Threshold = threshold,
-    Outlier_Count = outlier_count
+data <- data %>%
+  mutate(
+    BMI_group = case_when(
+      BMI < 18.5 ~ "Underweight",
+      BMI < 25   ~ "Normal",
+      BMI < 30   ~ "Overweight",
+      BMI >= 30  ~ "Obese",
+      TRUE ~ NA_character_
+    )
   )
-}
 
-z_BMI      <- detect_outliers_zscore(data$BMI)
-z_MentHlth <- detect_outliers_zscore(data$MentHlth)
-z_PhysHlth <- detect_outliers_zscore(data$PhysHlth)
-
-rbind(
-  BMI = z_BMI,
-  MentHlth = z_MentHlth,
-  PhysHlth = z_PhysHlth
-)
+ggplot(data, aes(x = BMI_group)) +
+  geom_bar(fill = "lightblue") +
+  labs(
+    title = "BMI categories based on WHO classification",
+    x = "BMI category",
+    y = "Count"
+  ) +
+  theme_bw()
 ```
 
-BMI and MentHlth still exhibit a notable number of outliers, whereas PhysHlth shows no outliers under this criterion. This indicates that extreme values in PhysHlth are less pronounced in terms of standardized deviation, while BMI and MentHlth contain observations that deviate substantially from their respective means.
+The BMI distribution is dominated by the overweight and obese categories, while underweight individuals represent a very small proportion of the sample.
 
 **Conclusion**
 
-Although the number of outliers identified in BMI, MentHlth, and PhysHlth is relatively large, these observations represent groups of individuals with distinct health conditions that differ markedly from the majority, rather than being abnormal or erroneous data points. The presence of numerous outliers primarily results from the right-skewed distributions of these variables, particularly for variables measuring the number of days of poor health within a month.
+Outliers were not removed from the dataset. Case-based inspection combined with boxplot analysis indicated that extreme values represent severe obesity rather than data errors. These observations are meaningful and may substantially influence health-related analyses; therefore, they were retained in the study.
 
-When compared with the Z-score method, the number of outliers decreases substantially or disappears in some cases, indicating that these extreme values do not constitute severe anomalies under the assumption of normality. Therefore, the identified outliers are considered to have practical significance.
+#### PhysHlth
 
-Consequently, all outliers are retained to avoid the loss of important information regarding individuals with distinct health profiles, who are central to the analysis of the relationship between health conditions and diabetes.
-
-### 1.4. Imbalance Data Assessment
+**Density**
 ```{r}
-# Distribution of counts
-table(data$Diabetes_012)
+ggplot(data, aes(x = PhysHlth)) +
+  geom_density(fill = "lightgreen", alpha = 0.6) +
+  labs(
+    title = "Density plot of PhysHlth",
+    x = "Number of poor physical health days",
+    y = "Density"
+  ) +
+  theme_bw()
 ```
+
+The density plot of PhysHlth shows a strongly right-skewed distribution with a sharp peak at zero, indicating that most individuals reported no days of poor physical health, while a small proportion experienced extended periods of physical health problems.
+
+**Boxplot**
+
 ```{r}
-# Percentage distribution between groups
-prop.table(table(data$Diabetes_012)) * 100
+ggplot(data, aes(y = PhysHlth)) +
+  geom_boxplot(fill = "lightgreen", outlier.color = "red", alpha = 0.7) +
+  labs(
+    title = "Boxplot of PhysHlth",
+    y = "PhysHlth"
+  ) +
+  theme_bw()
+```
+
+The boxplot reveals a highly right-skewed distribution with numerous upper-end outliers. These extreme values correspond to individuals reporting many days of poor physical health.
+
+**PhysHlth Groups**
+
+```{r}
+data <- data %>%
+  mutate(
+    PhysHlth_group = case_when(
+      PhysHlth == 0 ~ "0 days",
+      PhysHlth <= 7 ~ "1–7 days",
+      PhysHlth <= 14 ~ "8–14 days",
+      PhysHlth <= 30 ~ "15–30 days",
+      TRUE ~ NA_character_
+    )
+  )
+
+ggplot(data, aes(x = PhysHlth_group)) +
+  geom_bar(fill = "lightgreen") +
+  labs(
+    title = "Physical health status by number of poor-health days",
+    x = "PhysHlth category",
+    y = "Count"
+  ) +
+  theme_bw()
+```
+
+- **0 days**: No poor physical health
+- **1--7 days**: Mild
+- **8--14 days**: Moderate
+- **15--30 days**: Severe
+
+The categorical distribution shows that the majority of respondents reported zero days of poor physical health, while progressively fewer individuals fall into higher-duration categories, indicating that severe physical health issues affect a relatively small subset of the population.
+
+**Conclusion**
+
+Taken together, the density plot, boxplot, and categorical distribution of PhysHlth indicate that extreme values are rare but meaningful. These observations reflect prolonged periods of poor physical health rather than data errors. Consequently, removing such values could underestimate the burden of physical health problems, and the outliers were therefore retained in the analysis.
+
+#### MentHlth
+
+**Density**
+
+```{r}
+ggplot(data, aes(x = MentHlth)) +
+  geom_density(fill = "lightcoral", alpha = 0.6) +
+  labs(
+    title = "Density plot of MentHlth",
+    x = "Number of poor mental health days",
+    y = "Density"
+  ) +
+  theme_bw()
+```
+
+The density plot of PhysHlth shows a strong right-skewed distribution with a sharp peak at zero, indicating that most individuals reported no days of poor physical health. A long right tail suggests the presence of a small group experiencing prolonged physical health issues.
+
+**Boxplot**
+
+```{r}
+ggplot(data, aes(y = MentHlth)) +
+  geom_boxplot(fill = "lightcoral", outlier.color = "red", alpha = 0.7) +
+  labs(
+    title = "Boxplot of MentHlth",
+    y = "MentHlth"
+  ) +
+  theme_bw()
+```
+
+The boxplot of MentHlth reveals a highly right-skewed distribution with numerous high-end outliers. While most observations are concentrated near zero, the outliers represent individuals reporting extended periods of poor mental health.
+
+**MentHlth Groups**
+```{r}
+data <- data %>%
+  mutate(
+    MentHlth_group = case_when(
+      MentHlth == 0 ~ "0 days",
+      MentHlth <= 7 ~ "1–7 days",
+      MentHlth <= 14 ~ "8–14 days",
+      MentHlth <= 30 ~ "15–30 days",
+      TRUE ~ NA_character_
+    )
+  )
+
+ggplot(data, aes(x = MentHlth_group)) +
+  geom_bar(fill = "lightcoral") +
+  labs(
+    title = "Mental health status by number of poor-health days",
+    x = "MentHlth category",
+    y = "Count"
+  ) +
+  theme_bw()
+```
+
+- **0 days**: No poor mental health
+- **1--7 days**: Mild
+- **8--14 days**: Moderate
+- **15--30 days**: Severe
+
+The categorical distribution shows that the majority of individuals reported zero days of poor mental health, while progressively fewer individuals fall into higher-duration categories, indicating that severe mental health issues affect a smaller subset of the population.
+
+**Conclusion**
+
+Taken together, the density plot, boxplot, and categorical distribution of MentHlth show that extreme values are rare but meaningful. These observations represent individuals experiencing prolonged periods of poor mental health rather than data errors. Consequently, removing such values could underestimate mental health burden, and the outliers were therefore retained in the analysis.
+
+### 6.4. Imbalance Data Assessment
+
+Class imbalance was examined to assess the distribution across outcome categories. The analysis focused on the variable Diabetes_012 and selected binary health indicators.
+
+```{r}
+imbalance_report <- function(df, var_name, var_label = var_name) {
+  # ---- Count Table  ----
+  tab <- df %>%
+    count(.data[[var_name]], name = "Count") %>%
+    mutate(
+      Percentage = round(Count / sum(Count) * 100, 2)
+    ) %>%
+    arrange(desc(Count)) %>%
+    mutate(
+      CumCount = cumsum(Count),
+      CumPct = round(cumsum(Percentage), 2)
+    )
+
+# ---- Plot Count ----
+p_count <- ggplot(tab, aes(x = factor(.data[[var_name]]), y = Count)) +
+  geom_col(fill = "lightblue") +
+  labs(
+    title = paste("Class distribution (Count) -", var_label),
+    x = var_label,
+    y = "Count"
+  ) +
+  theme_bw()
+
+# ---- Plot Percentage ----
+p_pct <- ggplot(tab, aes(x = factor(.data[[var_name]]), y = Percentage)) +
+  geom_col(fill = "lightblue") +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(
+    title = paste("Class distribution (Percentage) -", var_label),
+    x = var_label,
+    y = "Percentage (%)"
+  ) +
+  theme_bw()
+
+  # Result
+  list(table = tab, plot_count = p_count, plot_pct = p_pct)
+}
+```
+
+#### Diabetes_012
+```{r}
+res_diabetes <- imbalance_report(
+  df = data,
+  var_name = "Diabetes_012",
+  var_label = "Diabetes status"
+)
+
+res_diabetes$table
+res_diabetes$plot_count
+res_diabetes$plot_pct
+```
+
+Overall, the Diabetes_012 variable is highly imbalanced: the majority of individuals report no diabetes (84.24%), while prediabetes (1.83%) and diabetes (13.93%) account for much smaller proportions of the dataset.
+
+#### HighBP
+```{r}
+res_highbp <- imbalance_report(
+  df = data,
+  var_name = "HighBP",
+  var_label = "High Blood Pressure"
+)
+
+res_highbp$table
+res_highbp$plot_count
+res_highbp$plot_pct
+```
+
+Overall, the HighBP variable shows a relatively balanced distribution, with 57.1% of individuals reporting no high blood pressure and 42.9% reporting high blood pressure.
+
+#### HighChol
+```{r}
+res_highchol <- imbalance_report(
+  df = data,
+  var_name = "HighChol",
+  var_label = "High Cholesterol"
+)
+
+res_highchol$table
+res_highchol$plot_count
+res_highchol$plot_pct
+```
+
+Overall, the HighChol variable is fairly balanced, with 57.6% of individuals reporting no high cholesterol and 42.4% reporting high cholesterol.
+
+**Conclusion**
+
+The dataset shows a clear class imbalance, particularly in diabetes status, where the majority class dominates. This imbalance may bias models toward the majority class and reduce predictive performance for clinically important minority groups. Therefore, class imbalance uses class-weighted algorithms rather than resampling methods such as oversampling, undersampling, or SMOTE. Model performance should be interpreted using metrics such as recall, F1-score, or ROC-AUC instead of accuracy alone.
+
+### 7. EDA
+#### 7.1. Grouping of variables
+
+Variables were conceptually grouped into three categories.
+
+- **Demographic characteristics included:**
+  - Sex
+  - Age
+  - Education
+  - Income
+
+- **Behavioral factors comprised:**
+  - Smoker
+  - PhysActivity
+  - Fruits
+  - Veggies
+  - HvyAlcoholConsump
+
+- **Health status indicators included:**
+  - Diabetes_012
+  - HighBP
+  - HighChol
+  - CholCheck
+  - BMI
+  - Stroke
+  - HeartDiseaseorAttack
+  - GenHlth
+  - MentHlth
+  - PhysHlth
+  - DiffWalk
+  - AnyHealthcare
+  - NoDocbcCost
+
+```{r}
+demographic_vars <- c("Sex", "Age", "Education", "Income")
+
+behavioral_vars <- c(
+  "Smoker", "PhysActivity", "Fruits", "Veggies", "HvyAlcoholConsump"
+)
+
+health_vars <- c(
+  "Diabetes_012", "HighBP", "HighChol", "CholCheck", "BMI",
+  "Stroke", "HeartDiseaseorAttack", "GenHlth", "MentHlth",
+  "PhysHlth", "DiffWalk", "AnyHealthcare", "NoDocbcCost"
+)
+```
+
+#### 7.2. Univariate Analysis
+
+**Distribution of Age, BMI, and Income**
+
+This section examines the univariate distributions of **Age, BMI, and Income** to describe their basic patterns and variability.
+
+```{r}
+for (v in c("Age", "BMI", "Income")) {
+  print(
+    ggplot(data, aes(x = .data[[v]])) +
+      geom_histogram(bins = 30, fill = "lightblue", color = "black") +
+      theme_bw() +
+      labs(
+        title = paste("Distribution of", v),
+        x = v,
+        y = "Count"
+      )
+  )
+}
+```
+
+Overall, the age distribution is concentrated in middle to older groups, BMI shows a right-skewed pattern with most values in the overweight range, and income is unevenly distributed across categories, with higher income levels being more frequent.
+
+**Diabetes prevalence rate**
+
+```{r}
+data %>%
+  count(Diabetes_012) %>%
+  mutate(Percentage = round(n / sum(n) * 100, 2))
 ```
 
 ```{r}
 ggplot(data, aes(x = factor(Diabetes_012))) +
-  geom_bar(fill = "steelblue") +
+  geom_bar(fill = "lightblue", color = "black") +
+  theme_bw() +
   labs(
-    x = "Diabetes Status",
-    y = "Count",
-    title = "Distribution Diabetes_012"
-  ) +
-  theme_minimal()
+    title = "Distribution of Diabetes Status",
+    x = "Diabetes Status (0: No, 1: Prediabetes, 2: Diabetes)",
+    y = "Count"
+  )
 ```
 
-The distribution of the target variable shows a clear class imbalance across groups. Individuals without diabetes (Diabetes_012 = 0) account for the largest proportion, followed by those with prediabetes (Diabetes_012 = 1), while the group with diabetes (Diabetes_012 = 2) represents a substantially smaller share of the dataset.
+Overall, the distribution shows that most individuals do not have diabetes, while a much smaller proportion is diagnosed with diabetes, and only a very small fraction falls into the prediabetes category, indicating a clear class imbalance.
 
-**Conclusion**
+#### 7.3. Bivariate Analysis
 
-Although a clear class imbalance is observed in the target variable Diabetes_012, no resampling techniques were applied at the data cleaning stage. This decision was made to preserve the original population structure and the representativeness of the survey data. Modifying the class distribution at this stage could introduce artificial bias and affect the interpretation of descriptive and exploratory analyses. Therefore, the imbalance is retained and will only be addressed, if necessary, in subsequent predictive modeling stages.
+Bivariate analysis is conducted to explore the relationships between diabetes status and demographic, lifestyle, and health-related variables. The objective of this step is to identify patterns and differences across groups, thereby providing a foundation for more in-depth analyses in subsequent sections.
+
+**Sex**
+
+```{r}
+data %>%
+  group_by(Sex, Diabetes_012) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(Sex) %>%
+  mutate(Percentage = round(n / sum(n) * 100, 2))
+```
+
+```{r}
+ggplot(data, aes(x = factor(Sex), fill = factor(Diabetes_012))) +
+  geom_bar(position = "fill") +
+  theme_bw() +
+  labs(
+    title = "Diabetes Status by Sex",
+    x = "Sex",
+    y = "Proportion",
+    fill = "Diabetes Status"
+  )
+```
+
+Overall, the distribution of diabetes status is broadly similar across sexes, with non-diabetic individuals comprising the majority in both groups. However, the proportion of diabetes appears slightly higher in one sex, suggesting a modest association between sex and diabetes status that warrants further investigation in subsequent analyses.
+
+**Diabetes by Age Group**
+
+```{r}
+age_table <- data %>%
+  mutate(
+    AgeGroup = factor(
+      case_when(
+        Age %in% c(1, 2) ~ "<30",
+        Age %in% c(3, 4, 5) ~ "30-44",
+        Age %in% c(6, 7, 8) ~ "45-59",
+        Age >= 9 ~ "60+"
+      ),
+      levels = c("<30", "30-44", "45-59", "60+")
+    )
+  ) %>%
+  group_by(AgeGroup, Diabetes_012) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(AgeGroup) %>%
+  mutate(Percentage = round(n / sum(n) * 100, 2)) %>%
+  ungroup()
+
+age_table
+```
+
+```{r}
+ggplot(age_table,
+       aes(x = AgeGroup, y = Percentage, fill = factor(Diabetes_012))) +
+  geom_col(position = "fill") +
+  theme_bw() +
+  labs(
+    title = "Diabetes Status by Age Group",
+    x = "Age Group",
+    y = "Proportion",
+    fill = "Diabetes Status"
+  )
+```
+
+Overall, the prevalence of diabetes increases markedly with age. Younger age groups are predominantly non-diabetic, while the proportions of prediabetes and diabetes rise steadily in middle-aged and older groups, with the highest prevalence observed among individuals aged 60 and above.
+
+**Diabetes by BMI**
+
+```{r}
+bmi_table <- data %>%
+  mutate(
+    BMI_Group = factor(
+      case_when(
+        BMI < 18.5 ~ "Underweight",
+        BMI < 25   ~ "Normal",
+        BMI < 30   ~ "Overweight",
+        TRUE       ~ "Obese"
+      ),
+      levels = c("Underweight", "Normal", "Overweight", "Obese")
+    )
+  ) %>%
+  group_by(BMI_Group, Diabetes_012) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(BMI_Group) %>%
+  mutate(Percentage = round(n / sum(n) * 100, 2)) %>%
+  ungroup()
+
+bmi_table
+```
+
+```{r}
+ggplot(bmi_table, aes(x = BMI_Group, y = n, fill = factor(Diabetes_012))) +
+  geom_col(position = "fill") +
+  theme_bw() +
+  labs(
+    title = "Diabetes Status by BMI Group",
+    x = "BMI Group",
+    y = "Proportion",
+    fill = "Diabetes Status"
+  )
+```
+
+Overall, the prevalence of diabetes increases with higher BMI categories. Underweight and normal-weight groups are largely non-diabetic, while overweight and especially obese individuals show substantially higher proportions of diabetes and prediabetes, indicating a strong positive association between BMI and diabetes status.
+
+**Comparison across sex, age group, and BMI**
+
+- **Sex:** The prevalence of diabetes is relatively similar between males and females.
+- **Age group:** Diabetes prevalence increases across age groups, with the highest proportion among individuals aged 60 and above.
+- **BMI group:** Diabetes prevalence increases markedly from normal BMI to overweight and obese groups.
+
+Overall, age and BMI show a stronger association with diabetes status than sex.
 
 ```{r}
 # demographic data
