@@ -1,0 +1,129 @@
+\begin{question}{5}
+<<<<<<< HEAD
+Ta biết rằng $p-value$ nhỏ cho thấy bằng chứng mạnh mẽ chống lại giả thuyết gốc $H_0$,
+vì dữ liệu sẽ trở nên bất thường nếu $H_0$ đúng. Tại sao lại không hợp lý khi định nghĩa $p-value$ là
+xác suất mà thống kê kiểm định bằng kết quả quan sát được (dưới giả định rằng $H_0$ đúng) thay vì
+là xác suất mà thống kê kiểm định bằng kết quả quan sát được hoặc một giá trị thậm chí còn cực
+đoan hơn theo hướng được dự đoán bởi $H_1$?
+
+\begin{subquestion}{Vấn đề của Biến liên tục (Continuous Data)}
+\begin{answer}
+Lý do kỹ thuật đầu tiên khiến việc định nghĩa $p\text{-value}$ là $P(T = t_{obs})$ trở nên phi lý là do bản chất của các phân phối liên tục:
+
+\begin{itemize}
+    \item Hầu hết các thống kê kiểm định tiêu chuẩn ($Z$, $t$, $\chi^2$, $F$) đều tuân theo các phân phối xác suất liên tục (Continuous Probability Distributions).
+    \item Đối với bất kỳ biến ngẫu nhiên liên tục nào ($T$), xác suất để biến đó nhận giá trị chính xác bằng một điểm cụ thể là bằng không (zero).
+    $$P(T = t_{obs}) = 0$$
+\end{itemize}
+
+Nếu $p\text{-value}$ luôn bằng 0, thì phương pháp kiểm định sẽ trở nên vô dụng.
+\end{answer}
+\end{subquestion}
+
+\begin{subquestion}{Nguyên tắc Thu thập Bằng chứng Lũy tích (Cumulative Evidence)}
+\begin{answer}
+Lý do khái niệm là để đo lường tổng thể sức mạnh của bằng chứng chống lại $H_0$.
+
+\begin{itemize}
+    \item Tính Bất thường (Surprise Factor): $p\text{-value}$ phải đo mức độ bất thường của dữ liệu quan sát được.
+    \item Lập luận: Bất kỳ giá trị nào cực đoan hơn $t_{obs}$ (tức là xa hơn khỏi giá trị kỳ vọng của $H_0$) đều cung cấp bằng chứng mạnh hơn chống lại $H_0$.
+    \item Định nghĩa Bắt buộc: Do đó, $p\text{-value}$ phải bao gồm tất cả các kết quả có thể xảy ra mà cung cấp bằng chứng ít nhất là mạnh bằng $t_{obs}$ hoặc mạnh hơn nữa. Việc cộng dồn xác suất trên toàn bộ khu vực đuôi là cách duy nhất để đo lường tổng thể bằng chứng tích lũy này.
+\end{itemize}
+
+\textit{Ví dụ:} Nếu $H_1: \mu > \mu_0$, $p\text{-value}$ được tính là diện tích đuôi:
+$$p\text{-value} = P(T \ge t_{obs})$$
+\end{answer}
+\end{subquestion}
+
+\begin{subquestion}{Vai trò của $H_1$ trong việc Xác định Hướng}
+\begin{answer}
+Việc bao gồm "theo hướng được dự đoán bởi $H_1$" là cần thiết vì $H_1$ xác định Vùng bác bỏ (Rejection Region). $H_1$ cho biết hướng mà chúng ta tin rằng tham số đã di chuyển, từ đó xác định đuôi nào của phân phối chúng ta cần tích hợp (ví dụ: một đuôi hoặc hai đuôi).
+=======
+Giả sử rằng ta có dữ liệu ngẫu nhiên $X_1, X_2, \ldots, X_n$ là độc lập cùng phân phối Poisson $P(\lambda)$. 
+Ta biết rằng $\bar{X}$ là ước lượng không chệch của $\lambda$.
+
+%---- 5.a ----
+\begin{subquestion}{Sử dụng định lý giới hạn trung tâm, hãy xác định công thức cho khoảng tin cậy 95\% cho $\lambda$.}
+\begin{answer}
+Với $X_i \sim \text{Poisson}(\lambda)$, ta có
+\[
+\mathbb{E}[X_i] = \lambda, \qquad \mathrm{Var}(X_i) = \lambda.
+\]
+Khi đó, trung bình mẫu 
+\[
+\bar{X} = \frac{1}{n}\sum_{i=1}^{n} X_i
+\]
+là ước lượng không chệch của $\lambda$.
+
+Từ định lý giới hạn trung tâm, ta có:
+\[
+\frac{\bar{X} - \lambda}{\sqrt{\lambda / n}} \xrightarrow{d} \mathcal{N}(0,1),
+\]
+tức là khi $n$ đủ lớn, phân phối của $\bar{X}$ xấp xỉ chuẩn với trung bình $\lambda$ và phương sai $\dfrac{\lambda}{n}$:
+\[
+\bar{X} \approx \mathcal{N}\!\left(\lambda,\ \frac{\lambda}{n}\right).
+\]
+
+Do đó,
+\[
+P\!\left(-1.96 \le \frac{\bar{X} - \lambda}{\sqrt{\lambda / n}} \le 1.96\right) \approx 0.95,
+\]
+hay tương đương,
+\[
+P\!\left(\bar{X} - 1.96 \sqrt{\frac{\lambda}{n}} \le \lambda \le \bar{X} + 1.96 \sqrt{\frac{\lambda}{n}}\right) \approx 0.95.
+\]
+
+Do tham số $\lambda$ chưa biết nên trong thực tế ta không thể tính chính xác sai số chuẩn $\sqrt{\lambda/n}$. 
+Vì $\bar{X}$ là ước lượng hợp lý và không chệch của $\lambda$, ta có thể thay $\lambda$ bằng $\bar{X}$ trong biểu thức này để thu được ước lượng xấp xỉ của sai số chuẩn. 
+Khi đó, khoảng tin cậy $95\%$ (theo xấp xỉ Wald) cho $\lambda$ được viết là:
+\[
+\boxed{\lambda \in 
+\left[
+\bar{X} - 1.96 \sqrt{\frac{\bar{X}}{n}},\ 
+\bar{X} + 1.96 \sqrt{\frac{\bar{X}}{n}}
+\right]}.
+\]
+\end{answer}
+\end{subquestion}
+
+%---- 5.b ----
+\begin{subquestion}{Áp dụng công thức trong ý (a), hãy xác định khoảng tin cậy cho $\lambda$ theo dữ liệu $4, 6, 7, 9, 10, 13$.}
+\begin{answer}
+Với dữ liệu đã cho, ta có $n = 6$ và
+\[
+\bar{x} = \frac{4 + 6 + 7 + 9 + 10 + 13}{6} = \frac{49}{6}\approx 8.167.
+\]
+
+Độ tin cậy:
+\[
+1-\alpha=0.95 \;\Rightarrow\; \alpha=0.05 
+\;\Rightarrow\; 1-\frac{\alpha}{2}=0.975 
+\;\Rightarrow\; z_{1-\alpha/2}=z_{0.975}=1.96.
+\]
+
+Biên độ tin cậy:
+\[
+\Delta \;=\; z_{0.975}\sqrt{\frac{\bar{x}}{n}}
+= 1.96\,\sqrt{\frac{49/6}{6}}
+= 1.96\,\sqrt{\frac{49}{36}}
+= 1.96\cdot\frac{7}{6}
+= \frac{343}{150}
+\approx 2.287.
+\]
+
+Khi đó, khoảng tin cậy 95\% cho $\lambda$ là
+\[
+\lambda \in [\,8.167 - 2.287,\ 8.167 + 2.287\,] = [\,5.880,\ 10.454\,].
+\]
+
+\bigskip
+\textbf{Kết luận:}
+Khoảng tin cậy 95\% cho tham số $\lambda$ của phân phối Poisson dựa trên mẫu đã cho là
+\[
+\boxed{\lambda \in (5.880,\ 10.454)}.
+\]
+>>>>>>> a14343c (Khởi tạo lại repo sạch)
+\end{answer}
+\end{subquestion}
+
+\end{question}

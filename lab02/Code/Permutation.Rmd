@@ -1,0 +1,612 @@
+---
+title: "Permutation"
+author: "Thịnh"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+landing_page_data <- read_csv(file="../datasets/ab_data.csv")
+landing_page_data
+glimpse(landing_page_data)
+```
+```{r}
+landing_page_data |>                          # dataframe_A
+  select(where(is.numeric)) |>                # take out the numeric_columns
+  summarize(across(everything(), list(
+    mean = mean,
+    median = median,
+    sd = sd,
+    min = min,
+    max = max
+  ), na.rm = TRUE, .names = "{.col}.{.fn}")) |>  
+  pivot_longer(cols = everything(),
+               names_to = "name",
+               values_to = "value") |>
+  separate(name, into = c("variable", "stat"), sep = "\\.") |>
+  pivot_wider( names_from = variable, values_from = value)
+
+```
+```{r}
+# Count how many observations we have in each combination of group and landing page
+landing_page_data |>
+count(group, landing_page)
+
+# Create a summary table for time spent on the page
+summary_time <- landing_page_data |>
+group_by(group, landing_page) |>
+summarise(
+n = n(),
+mean_time = mean(time_spent_on_the_page, na.rm = TRUE),
+sd_time   = sd(time_spent_on_the_page, na.rm = TRUE),
+.groups   = "drop"
+)
+
+summary_time
+
+# Create a summary table for conversion rate
+summary_conv <- landing_page_data |>
+group_by(group, landing_page, converted) |>
+summarise(n = n(), .groups = "drop") |>
+group_by(group, landing_page) |>
+mutate(prop = n / sum(n)) 
+
+summary_conv
+```
+## 9. Permutation test function
+### 9.1. Permutation test two means
+
+```{r}
+perm_test_two_mean <- function(.data, x, g, sign_grp = c(1, -1), R = 10000, alternative = c("two_sided", "greater", "less")) {
+  alternative <- match.arg(alternative)
+  
+  # Calculate the observed statistic
+  info_x <- .data |> group_by({{g}}) |> summarise(n = n(), mean_x = mean({{x}}), .groups = "drop")
+  n <- sum(info_x$n)
+  nA <- info_x$n[1]
+  score <- .data |> pull({{x}})
+  mean_diff <- sum(sign_grp * info_x$mean_x)
+  
+  # Generate the permutation distribution
+  mean_diff_perm <- sapply(1:R, function(i) {
+    idx_a <- sample(1:n, size = nA, replace = FALSE)
+    idx_b <- setdiff(1:n, idx_a)
+    res <- sum(sign_grp * c(mean(score[idx_a]), mean(score[idx_b])))
+  })
+  
+  # Calculate p-value based on the alternative hypothesis
+  p_val <- switch(alternative,
+    "two_sided" = mean(abs(mean_diff_perm) >= abs(mean_diff)),
+    "greater"   = mean(mean_diff_perm > mean_diff),
+    "less"      = mean(mean_diff_perm < mean_diff)
+  )
+  
+  return(list(
+    mean_diff = mean_diff,
+    mean_diff_perm = tibble(out_perm = mean_diff_perm),
+    p_val = p_val,
+    alternative = alternative
+  ))
+}
+```
+
+### 9.2. variance ratio permutation test
+
+```{r}
+perm_test_var_ratio <- function(.data, x, g, R = 10000, alternative = c("two_sided", "greater", "less")) {
+  alternative <- match.arg(alternative)
+  
+  # Calculate observed statistic
+  info <- .data |> group_by({{g}}) |> summarise(var_x = var({{x}}), .groups = "drop")
+  var_ratio_obs <- info$var_x[2] / info$var_x[1] 
+  
+  # Generate permutation distribution
+  score <- .data |> pull({{x}})
+  group <- .data |> pull({{g}})
+  n <- length(score)
+  nA <- sum(group == unique(group)[1]) 
+  
+  var_ratio_perm <- replicate(R, {
+    perm_idx <- sample(1:n)
+    group_perm <- rep(NA, n)
+    group_perm[perm_idx[1:nA]] <- "A"    
+    group_perm[perm_idx[(nA+1):n]] <- "B" 
+    
+    df <- tibble(x = score, g = group_perm)
+    vars <- df |> group_by(g) |> summarise(var_x = var(x), .groups = "drop") 
+    vars$var_x[2] / vars$var_x[1] 
+  })
+  
+  # Calculate p-value
+  p_val <- switch(alternative,
+    "two_sided" = mean(var_ratio_perm >= var_ratio_obs | var_ratio_perm <= 1 / var_ratio_obs),
+    "greater"   = mean(var_ratio_perm > var_ratio_obs), 
+    "less"      = mean(var_ratio_perm < var_ratio_obs)  
+  )
+  
+  return(list(
+    var_ratio = var_ratio_obs, 
+    var_ratio_perm = tibble(ratio = var_ratio_perm),
+    p_val = p_val,
+    alternative = alternative
+  ))
+}
+```
+
+## 10. Permutation test result
+### 10.1. Time spent on page: new vs old
+#### Permutation test two means
+Let $\mu_{\text{new}}$ be the mean time on page for the new landing page, and $\mu_{\text{old}}$ for the old one.
+
+- $H_0: \mu_{\text{new}} \le \mu_{\text{old}}$ (the new page does **not** increase time on page)
+
+- $H_1: \mu_{\text{new}} > \mu_{\text{old}}$ (the new page increases time on page)
+
+Similar to bootstrap:
+
+```{r}
+time_new <- landing_page_data |>
+filter(group == "treatment") |>
+pull(time_spent_on_the_page)
+
+time_old <- landing_page_data |>
+filter(group == "control") |>
+pull(time_spent_on_the_page)
+
+n2 = length(time_new); n1 = length(time_old)
+
+tibble(
+group = c("old (control)", "new (treatment)"),
+mean  = c(mean(time_old), mean(time_new)),
+)
+```
+
+We have the following results:
+
+- $\bar{Y}_{\text{old}} \approx 4.53$
+- $\bar{Y}_{\text{new}} \approx 6.22$
+
+The observed difference in means is:
+$t_{\text{obs}} = \bar{Y}_{\text{new}} - \bar{Y}_{\text{old}} \approx 1.69$
+
+```{r}
+# Permutation test (H1: μ_new > μ_old, α=0.05)
+set.seed(123)  
+R <- 10000     
+
+# Pool the data
+combined <- c(time_new, time_old)
+n_total <- length(combined)
+n_new <- length(time_new)
+n_old <- length(time_old)
+
+# Calculate the observed statistic
+diff_obs <- mean(time_new) - mean(time_old)
+
+# Generate the permutation distribution
+perm_diff <- replicate(R, {
+  idx <- sample(n_total)
+  new_idx <- idx[1:n_new]
+  old_idx <- idx[(n_new + 1):n_total]
+  mean(combined[new_idx]) - mean(combined[old_idx])
+})
+
+# Calculate p-value for the one-sided hypothesis (new > old)
+p_val <- mean(perm_diff > diff_obs)
+
+# Results
+tibble(
+  observed_diff = diff_obs,
+  p_value = p_val
+)
+```
+```{r}
+set.seed(123)
+result <- perm_test_two_mean(
+  .data = landing_page_data,
+  x = time_spent_on_the_page,
+  g = group,
+  sign_grp = c(-1, 1),         
+  R = 10000,
+  alternative = "greater"      
+)
+
+result$mean_diff       
+result$p_val           
+```
+```{r}
+perm_results <- tibble(perm_diff = perm_diff)
+
+ggplot(perm_results, aes(x = perm_diff)) +
+  geom_histogram(bins = 40, fill = "lightblue", color = "white", alpha = 0.8) +
+  
+  geom_vline(
+    aes(xintercept = diff_obs), 
+    color = "red",
+    linetype = "dashed",
+    linewidth = 1
+  ) +
+  
+  theme_minimal() +
+  labs(
+    title = "Permutation Distribution of the Mean Difference (Time Spent)",
+    subtitle = paste("Observed value (red line) =", round(diff_obs, 4)),
+    x = "Permuted mean difference (perm_diff) under H0",
+    y = "Frequency (Count)"
+  )
+```
+- Interpretation:
+  + observed_diff $\approx$ 1.69`: on average, users in the treatment group (new landing page) stay about 1.7 minutes longer on the page than users in the control group (old page).
+  +  p_value = 0 so we reject the null hypothesis that the mean time on the new page is less than or equal to that on the old page.
+
+#### variance ratio permutation test
+
+Let $\sigma_{\text{new}}^2$ be the variance time on page for the new landing page, and $\sigma_{\text{old}}^2$ for the old one.
+
+- $H_0: \sigma_{\text{new}}^2 \leq \sigma_{\text{old}}^2$ (the time variation on the new page is not greater than that on the old page.)
+
+- $H_1: \sigma_{\text{new}}^2 > \sigma_{\text{old}}^2$ (the time variation on the new page is greater than the old page.)
+
+```{r}
+time_new <- landing_page_data |>
+filter(group == "treatment") |>
+pull(time_spent_on_the_page)
+
+time_old <- landing_page_data |>
+filter(group == "control") |>
+pull(time_spent_on_the_page)
+
+length(time_new); length(time_old)
+
+tibble(
+group = c("old (control)", "new (treatment)"),
+var  = c(var(time_old), var(time_new)),
+)
+
+```
+We have the following results:
+
+- $\bar{Y}_{\text{old}} \approx 6.667$
+- $\bar{Y}_{\text{new}} \approx 3.302$
+
+The observed difference in variation is:
+$t_{\text{obs}} =\frac{\bar{var}_{\text{new}}}{\bar{var}_{\text{old}}} \approx 0.49495.$
+
+```{r}
+set.seed(123)
+R <- 10000     
+obs_var_ratio <- var(time_new) / var(time_old)
+
+# Pool the data
+combined <- c(time_new, time_old)
+n_total <- length(combined)
+n_new <- length(time_new)
+n_old <- length(time_old) 
+
+# Generate the permutation distribution
+perm_ratios <- replicate(R, {
+  idx <- sample(n_total)
+  perm_new <- combined[idx[1:n_new]]
+  perm_old <- combined[idx[(n_new + 1):n_total]]
+  var(perm_new) / var(perm_old)
+})
+
+# Calculate p-value for H1: ratio > 1
+p_val <- mean(perm_ratios > obs_var_ratio)
+
+tibble(
+  observed_var_ratio = obs_var_ratio,
+  p_value = p_val
+)
+```
+```{r}
+set.seed(123)
+result <- perm_test_var_ratio(
+  .data = landing_page_data,
+  x = time_spent_on_the_page,
+  g = group,
+  R = 10000,
+  alternative = "greater"
+)
+
+result$var_ratio
+result$p_val
+```
+
+```{r}
+results_df <- tibble(perm_ratios = perm_ratios)
+
+ggplot(results_df, aes(x = perm_ratios)) +
+  
+  geom_histogram(bins = 40, fill = "lightblue", color = "white", alpha = 0.8) +
+  
+  geom_vline(
+    aes(xintercept = obs_var_ratio),
+    color = "red",
+    linetype = "dashed",
+    linewidth = 1
+  ) +
+  
+  theme_minimal() +
+  labs(
+    title = "Permutation Distribution of the Variance Ratio",
+    subtitle = paste("Observed ratio (red line) =", round(obs_var_ratio, 3)),
+    x = "Permuted variance ratio (perm_ratios) under H0",
+    y = "Frequency (Count)"
+  )
+```
+- Interpretation:
+  + observed_var_ratio $\approx$ 0.495: Since this ratio is less than 1, it means that the variance of the new page (time_new) is actually significantly smaller (only about 49.5%) than the variance of the old page (time_old). The time data on the new page is more consistent (less scattered/volatile) than the old page.
+  +  p_value = 0.995 is a very large value (larger than any significance level $\alpha$, e.g. 0.05), we have no evidence to reject the null hypothesis $H_0$
+
+### 10.2. Conversion rates: new vs old
+We convert the converted variable from "yes"/"no" into a numeric indicator converted_num equal to 1 for converted users and 0 for non-converted users.
+
+```{r}
+landing_page_data <- landing_page_data |>
+  mutate(
+    converted_num = if_else(converted == "yes", 1, 0)
+  )
+```
+
+#### Permutation test two means
+
+Let $p_{\text{new}}$ be the conversion rate on the new landing page, and $p_{\text{old}}$ on the old one.
+
+- $H_0: p_{\text{new}} \le p_{\text{old}}$ (the new page does **not** improve conversion rate)
+
+- $H_1: p_{\text{new}} > p_{\text{old}}$ (the new page has a higher conversion rate)
+
+Similar to bootstrap:
+
+```{r}
+cvs_new <- landing_page_data |>
+filter(group == "treatment") |>
+pull(converted_num)
+
+cvs_old <- landing_page_data |>
+filter(group == "control") |>
+pull(converted_num)
+
+tibble(
+group = c("old (control)", "new (treatment)"),
+mean_conv = c(mean(cvs_old), mean(cvs_new)),
+)
+```
+We have the following results:
+
+- $p_{\text{old}} = \bar{X}_{\text{old}} \approx 0.42$ (42% conversion).
+- $p_{\text{new}} \approx 0.66$ (66% conversion).
+
+The observed difference is:
+$t_{\text{obs}} = p_{\text{new}} - p_{\text{old}} \approx 0.24$
+
+```{r}
+# Permutation test (H1: p_new > p_old, α=0.05)
+set.seed(123)  
+R <- 10000     
+
+# Pool the data
+combined <- c(cvs_new, cvs_old)
+n_total <- length(combined)
+n_new <- length(cvs_new)
+n_old <- length(cvs_old)
+
+# Calculate the observed statistic
+diff_obs <- mean(cvs_new) - mean(cvs_old)
+
+# Generate the permutation distribution
+perm_diff <- replicate(R, {
+  idx <- sample(n_total)
+  new_idx <- idx[1:n_new]
+  old_idx <- idx[(n_new + 1):n_total]
+  mean(combined[new_idx]) - mean(combined[old_idx])
+})
+
+# Calculate p-value for the one-sided hypothesis (new > old)
+p_val <- mean(perm_diff > diff_obs)
+
+
+# Results
+tibble(
+  observed_diff = diff_obs,
+  p_value = p_val
+)
+```
+```{r}
+set.seed(123)
+result <- perm_test_two_mean(
+  .data = landing_page_data,
+  x = converted_num,
+  g = group,
+  sign_grp = c(-1, 1),         
+  R = 10000,
+  alternative = "greater"      
+)
+
+result$mean_diff       
+result$p_val  
+```
+```{r}
+perm_results <- tibble(perm_diff = perm_diff)
+
+ggplot(perm_results, aes(x = perm_diff)) +
+  geom_histogram(
+    bins  = 30,
+    fill  = "lightblue",
+    color = "white"
+  ) +
+  
+  geom_vline(
+    aes(xintercept = diff_obs), 
+    color     = "red",
+    linetype  = "dashed",
+    linewidth = 1
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Permutation Distribution of Differences in Conversion Rates",
+    subtitle = paste("Observed difference (red line) =", round(diff_obs, 4)),
+    x     = "Permuted difference = p_new* - p_old* under H0",
+    y     = "Frequency"
+  )
+```
+- Interpretation:
+  + `observed_diff ≈ 0.24` → the new landing page has a conversion rate about 24 percentage points higher than the old page.
+  + `p_value ≈ 0.00420042 < 0.05` → we reject H₀: $p_{\text{new}} ≤ p_{\text{old}}$ and conclude that the new landing page has a higher conversion rate than the existing one.
+
+#### variance ratio permutation test
+
+Let $\sigma^2_{\text{new}}$ be the variance of the conversion rate for the new landing page, and $\sigma^2_{\text{old}}$ for the old one.
+
+- $H_0: \sigma^2_{\text{new}} \le \sigma^2_{\text{old}}$ (The variation of the conversion rate on the new page is not greater than that on the old page.)
+
+- $H_1: \sigma^2_{\text{new}} > \sigma^2_{\text{old}}$ (The variation of the conversion rate on the new page is greater than the old page.)
+
+```{r}
+conv_new <- landing_page_data |>
+  filter(group == "treatment") |>
+  pull(converted_num)
+
+conv_old <- landing_page_data |>
+  filter(group == "control") |>
+  pull(converted_num)
+
+length(conv_new); length(conv_old)
+
+tibble(
+  group = c("old (control)", "new (treatment)"),
+  var   = c(var(conv_old), var(conv_new)),
+)
+```
+We have the following sample variance results:
+
+- $s^2_{\text{old}} \approx 0.248$
+
+- $s^2_{\text{new}} \approx 0.228$
+
+The observed variance ratio is:$t_{\text{obs}} =\frac{s^2_{\text{new}}}{s^2_{\text{old}}} \approx 0.92.$
+
+```{r}
+# Permutation test for Conversion Rates
+set.seed(123)
+R <- 10000     
+obs_var_ratio <- var(conv_new) / var(conv_old)
+
+# Pool the data
+combined <- c(conv_new, conv_old) 
+n_total <- length(combined)
+n_new <- length(conv_new) 
+n_old <- length(conv_old) 
+
+# Generate the permutation distribution (Logic inside remains the same)
+perm_ratios <- replicate(R, {
+  idx <- sample(n_total)
+  perm_new <- combined[idx[1:n_new]]
+  perm_old <- combined[idx[(n_new + 1):n_total]]
+  var(perm_new) / var(perm_old)
+})
+
+# Calculate p-value for H1: ratio > 1
+p_val <- mean(perm_ratios > obs_var_ratio)
+
+tibble(
+  observed_var_ratio = obs_var_ratio,
+  p_value = p_val
+)
+```
+```{r}
+# Rerun the function with the 'converted_num' variable
+set.seed(123)
+result <- perm_test_var_ratio(
+  .data = landing_page_data,
+  x = converted_num, # <--- Changed
+  g = group,
+  R = 10000,
+  alternative = "greater"
+)
+
+result$var_ratio
+result$p_val
+```
+```{r}
+results_df <- tibble(perm_ratios = perm_ratios)
+
+ggplot(results_df, aes(x = perm_ratios)) +
+  
+  geom_histogram(bins = 40, fill = "lightblue", color = "white", alpha = 0.8) +
+  
+  geom_vline(
+    aes(xintercept = obs_var_ratio),
+    color = "red",
+    linetype = "dashed",
+    linewidth = 1
+  ) +
+  
+  theme_minimal() +
+  labs(
+    title = "Permutation Distribution of the Variance Ratio (Conversion Rates)", # <--- Changed
+    subtitle = paste("Observed ratio (red line) =", round(obs_var_ratio, 3)),
+    x = "Permuted variance ratio (perm_ratios) under H0",
+    y = "Frequency (Count)"
+  )
+```
+- Interpretation:
+  + observed_var_ratio $\approx$ 0.92: Since this ratio is less than 1, it means the variance of the conversion rate on the new page (conv_new) is actually slightly smaller (about 92%) than the variance of the old page (conv_old). The conversion data on the new page also appears to be slightly more consistent (less volatile).
+  + p_value $\approx$ 0.701 (or a similarly large value): Since the p-value is very large (greater than 0.05), we do not have evidence to reject the null hypothesis 
+  
+### 11. Discussion of results and potential limitations
+**Discussion of Results**
+Discussion of ResultsThe permutation tests performed provide strong evidence to reject the null hypothesis ($H_0$) for the difference in means, but they do not provide evidence to reject $H_0$ for the variance ratios.
+
+**1. Time Spent on PageRegarding the Mean:** 
+- The permutation test yielded an extremely high statistical significance ($p \approx 0$). The observed difference is 1.69 minutes.
+=> Conclusion: We reject $H_0$ and conclude that the new page significantly increases the average time users spend on the page.
+
+- Regarding Variance: The observed variance ratio is $\approx 0.495$ (less than 1). The test yielded $p \approx 0.995$.
+=> Conclusion: We have no evidence to conclude that the new page increases volatility. The data strongly suggests the new page actually decreases the variation in time spent.
+
+**2. Conversion RatesRegarding the Mean:** 
+- The permutation test yielded $p \approx 0.0042$. The observed difference is 0.24 percentage points.
+=> Conclusion: We reject $H_0$ and conclude that the new page has a significantly higher conversion rate.
+
+- Regarding Variance: The observed variance ratio is $\approx 0.92$ (close to 1). The test yielded $p \approx 0.701$.
+=> Conclusion: We have no evidence to suggest that the new page changes the variability of the conversion rate.
+
+**Potential Limitations (Permutation Test Only)**
+- Unequal Variance Assumption Violation (The Behrens-Fisher Problem):The permutation test for the mean assumes that, under $H_0$, the two distributions are identical. However, our variance analysis showed unequal variances for time spent ($s^2_{\text{old}} \approx 6.67$ vs $s^2_{\text{new}} \approx 3.30$). When testing for the mean difference in the presence of unequal variances, the p-value from the standard permutation test may be slightly inexact.
+
+- Lack of Confidence Intervals (CI): The permutation test fundamentally focuses on calculating the p-value (answering: "Was this observed result due to chance?"). It does not inherently provide Confidence Intervals, which are required to estimate the plausible range of the true population effect.
+
+- Specificity of the Hypothesis: The permutation test technically checks the hypothesis that the entire distributions are identical. Although we found a significant difference in the mean, the p-value could theoretically be influenced by differences in variance or distribution shape.
+
+## Refenrence
+- Good, P. (2005). Permutation, Parametric, and Bootstrap Tests of Hypotheses. Springer.
+- Efron, B., & Tibshirani, R. J. (1993). An Introduction to the Bootstrap. Chapman & Hall.
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

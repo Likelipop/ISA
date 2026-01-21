@@ -1,0 +1,49 @@
+# LaTeX intermediate files
+*.aux
+*.bbl
+*.blg
+*.brf
+*.idx
+*.ind
+*.lof
+*.lot
+*.out
+*.toc
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+*.log
+*.nav
+*.snm
+*.vrb
+*.xdv
+
+
+# Output files
+*.pdf
+*.dvi
+*.ps
+*.eps
+
+# Editor/IDE files
+*.swp
+*~
+*.tmp
+*.bak
+*.backup
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# MacOS files
+.DS_Store
+.Rproj.user

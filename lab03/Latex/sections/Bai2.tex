@@ -1,0 +1,55 @@
+\begin{question}{2}
+    Trong một thống kê kiểm định so sánh hai trung bình, với giả thuyết gốc $H_0: \mu_1 \le \mu_2$ và đối thuyết $H_1: \mu_1 > \mu_2$
+
+    \begin{enumerate} [label=\alph*)]
+    \item Giá trị p-value nào sau đây, $0.03$ và $0.006$ là cung cấp bằng chứng mạnh mẽ hơn cho đối thuyết
+$H_1$?
+    \item Giá trị p-value nào sau đây, $0.095$ và $0.04$ là cung cấp bằng chứng mạnh mẽ hơn rằng chỉ có sự
+ngẫu nhiên mới có thể giải thích cho kết quả quan sát được?
+    \end{enumerate}
+
+ %---- a) ----
+    \begin{subquestion}{Giá trị p-value nào sau đây, $0.03$ và $0.006$ là cung cấp bằng chứng mạnh mẽ hơn cho đối thuyết
+$H_1$?}
+        \begin{answer}
+        Theo định nghĩa, p-value được cho bởi:
+
+        \[ p-value = \Pr_{H_0}(T \ge T_{\text{obs}}) \] 
+
+        Nên giá trị p-value càng nhỏ thì bằng chứng chống lại $H_0$ càng mạnh.
+        
+        Xét hai p-value: $0.03$ và $0.006$.
+
+        Vì $0.006 < 0.03$
+
+        Nên theo quy ước thống kê, p-value $0.006$ cung cấp bằng chứng mạnh hơn chống lại $H_0$ và ủng hộ đối thuyết $H_1 : \mu_1 > \mu_2$.
+
+        Vậy: p-value = $0.006$ cung cấp bằng chứng mạnh mẽ hơn cho $H_1$.
+
+        \end{answer}
+    \end{subquestion}
+
+%---- 6.b ----
+       \begin{subquestion}{Giá trị p-value nào sau đây, $0.095$ và $0.04$ là cung cấp bằng chứng mạnh mẽ hơn rằng chỉ có sự
+ngẫu nhiên mới có thể giải thích cho kết quả quan sát được?}
+        \begin{answer}
+        Theo định nghĩa, p-value được cho bởi: 
+
+        \[ p-value = \Pr_{H_0}(T \ge T_{\text{obs}}) \] 
+
+        Nên p-value lớn $\;\Longrightarrow\;$ Kết quả quan sát có khả năng cao xuất hiện do ngẫu nhiên.
+            
+        Ta xét hai giá trị: $0.095$ và $0.04$.
+
+        Vì p-value càng lớn thì dữ liệu càng phù hợp với $H_0$, và càng có nhiều khả năng rằng kết quả quan sát chỉ do biến thiên ngẫu nhiên.
+       
+        Ta thấy: $0.095 > 0.04$
+        
+        Do đó p-value $0.095$ hàm ý rằng kết quả quan sát được dễ dàng xảy ra dưới $H_0$ và không đủ mạnh để bác bỏ giả thuyết.
+
+        Vậy: p-value = $0.095$ cho thấy bằng chứng mạnh hơn rằng kết quả có thể do ngẫu nhiên.
+
+        \end{answer}
+        \end{subquestion}
+
+\end{question}

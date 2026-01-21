@@ -1,0 +1,457 @@
+---
+title: "Bài 16"
+author: "Tran Tien Dat"
+date: "2025-11-20"
+output: html_document
+---
+
+# About MobileAds dataset
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+
+# About MobileAds dataset
+
+## Load data
+
+```{r}
+mobile_ads = read_csv("data/MobileAds.csv")
+```
+
+```{r}
+glimpse(mobile_ads)
+```
+
+# Exploration
+
+## Re-format dataframe
+
+```{r}
+summary_table <- mobile_ads |> select(where(is.numeric)) |>                
+  summarize(across(everything(), list(
+    mean = mean,
+    median = median,
+    sd = sd,
+    min = min,
+    max = max
+  ), na.rm = TRUE, .names = "{.col}#{.fn}")) |>  
+  pivot_longer(cols = everything(),
+               names_to = "name",
+               values_to = "value") |>
+  separate(name, into = c("variable", "stat"), sep = "\\#") |>
+  pivot_wider( names_from = variable, values_from = value)
+```
+
+```{r}
+summary_table
+```
+
+```{r}
+data_a <- mobile_ads |> 
+  select(Campaign,contains("error.cpr"))
+
+head(data_a)
+```
+
+```{r}
+data_b <- mobile_ads |> select(- mult.change & -error.cpr_pre & -error.cpr_post)
+
+head(data_b)
+```
+
+```{r}
+data_b <- data_b |>
+  pivot_longer(
+    cols = -Campaign,
+    names_to = "variable",
+    values_to = "value"
+  ) |>
+  separate(
+    col = variable,
+    into = c("platform", "stat", "time"),
+    sep = "[._]"
+  ) |>
+  pivot_wider(names_from = stat)
+
+data_b
+```
+
+# Problems
+
+## 1.1 Question
+
+> What is the number of cpc equal to 0 in mobile platform during experiments ?
+
+## 1.2 Ans
+
+```{r}
+cpc_m_zero <- data_b |>
+  filter(time == "post", cpc == 0, platform == "m") 
+
+cpc_m <- data_b |>
+  filter(time == "post", platform == "m") 
+
+cpc_d_zero <- data_b |>
+  filter(time == "post", cpc == 0, platform == "d") 
+
+cpc_d <- data_b |>
+  filter(time == "post", platform == "d") 
+cpc_m_zero
+```
+
+```{r}
+nrow(cpc_m)
+```
+
+## 2.1 Question
+
+> Is there any *statistical* difference between mobile and desktop in term of cpc ?
+
+## 2.2 Ans
+
+```{r}
+prop.test(
+  x = c(nrow(cpc_m_zero), nrow(cpc_d_zero)),
+  n = c(nrow(cpc_m), nrow(cpc_d)),
+  correct = FALSE
+)
+```
+
+The zero-CPC rate is higher on mobile (7.18%) than on desktop (4.27%). With a p-value of 0.02385 (\< 0.05), the difference is statistically significant. This indicates that mobile and desktop platforms do not share the same zero-CPC rate.
+
+## 3.1 Question
+
+> Utilize the data in terms of mobile platform. Do the Exploratory Data Anaysis.
+
+## 3.2 Ans
+
+```{r}
+m_stats <- data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  group_by(time) |>
+  summarise(across(
+    conv,
+    list(
+      mean = mean,
+      median = median,
+      sd = sd,
+      min = min,
+      max = max
+    ),
+    na.rm = TRUE,
+    .names = "{.fn}"
+  ))
+
+m_stats
+```
+
+```{r}
+data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  ggplot(aes(x = time, y = conv, fill = time)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, color = "black", alpha = 0.8) +
+  scale_fill_manual(values = c("pre" = "#8C6BB1", "post" = "#9E9AC8")) +
+  labs(
+    title = "Comparison of conv Distributions (Pre vs Post)",
+    x = "",
+    y = "conv"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+```{r}
+data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  mutate(conv_log = log1p(conv)) |>
+  ggplot(aes(x = time, y = conv_log, fill = time)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, color = "black", alpha = 0.8) +
+  scale_fill_manual(values = c("pre" = "#8C6BB1", "post" = "#9E9AC8")) +
+  labs(
+    title = "Violin Plot using log1p(conv)",
+    x = "",
+    y = "log1p(conv)"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+For better visualization, we applied a log transformation to the **conv** values. The pre-experiment distribution is wider at higher values (at approximately 14 conversion count), while the conversion count during the experiments reached only 11 unít, suggesting that less users achieved higher conversion rates before the experiment. The post-experiment values are more evenly spread, with the median slightly lower than in the pre-experiment group, indicating an overall negative shift in conversion performance after the advertising experiment. Additionally, the post-treatment distribution shows slightly higher variability compared to the pre-experiment distribution. more importance, thís plot suggét that these samples are not follơw by the Gaussian distribution In conclusion,these figures indicates the experimental change had a negative impact on the average conversion success but stabilized the performance outcomes.
+
+## 4.1 Question
+
+> applied A/B testing on conversion rate
+
+## 4.2 Ans
+
+As what announce above, the familliar t-test wont be use directly, Let's try a data-driven method that i learned 4 weeks ago: Boostrap test on mean.
+
+We state our hypothesis:
+
+$$
+\begin{aligned}
+H_0: \ \mu_{\text{platform A}} &= \mu_{\text{platform B}} \\
+H_1: \ \mu_{\text{platform A}} &\neq \mu_{\text{platform B}}
+\end{aligned}
+$$
+
+where $\mu_{\text{platform A}}$ and $\mu_{\text{platform B}}$ represent the true mean conversion rates of each platform.
+
+```{r}
+set.seed(42)
+
+conv_m <- data_b |> 
+  filter(platform == "m") |>
+  select(conv) |>
+  pull()
+
+conv_d <- data_b |>
+  filter(platform == "d") |>
+  select(conv) |>
+  pull()
+
+observed_diff <- abs(mean(conv_m,na.rm = TRUE) - mean(conv_d,na.rm = TRUE))
+cat(sprintf("Sự khác biệt Quan sát (B - A): %.4f\n\n", observed_diff))
+
+
+```
+
+Vòng lặp Bootstrap
+
+```{r}
+n_m <- length(conv_m)
+n_d <- length(conv_d)
+N_total <- n_m + n_d
+
+num_bootstraps <- 10000
+diffs_simulated <- numeric(num_bootstraps)
+
+cat(sprintf("Boostraping (%d times)...\n", num_bootstraps))
+
+conv_m_til <- conv_m - mean(conv_m,na.rm = TRUE)
+conv_d_til <- conv_d -mean(conv_d,na.rm = TRUE)
+
+conv_sm <- sd(conv_m,na.rm = TRUE)
+conv_sd <- sd(conv_d,na.rm = TRUE)
+
+
+for (i in 1:num_bootstraps) {
+  sample_m <- sample(conv_m_til,
+                     size = n_m,
+                     replace = TRUE)
+  
+  sample_d <- sample(conv_d_til,
+                     size = n_d,
+                     replace = TRUE)
+  
+  
+  # Tính và lưu lại sự khác biệt của mẫu mô phỏng
+  diffs_simulated[i] <- (mean(sample_m,na.rm = TRUE) - mean(sample_d,na.rm = TRUE))/sqrt((sd(sample_m,na.rm = TRUE)^2)/n_m + (sd(sample_d,na.rm = TRUE)^2)/n_d )
+}
+
+cat("Done.\n\n")
+```
+
+Tính P-Value và Kết luận ---
+
+```{r}
+
+T_obs <- observed_diff/sqrt((conv_sm^2)/n_m + (conv_sd^2)/n_d )
+
+p_value <- sum(abs(diffs_simulated) >= abs(T_obs)) / num_bootstraps
+
+# In kết quả
+cat("--- Kết quả Kiểm tra Bootstrap Shift Method ---\n")
+cat(sprintf("Observed Statistic (Y_bar1 - Y_bar2): %.4f\n", T_obs))
+cat(sprintf("Bootstrap P-Value (Hai phía): %.4f\n", p_value))
+
+# Kiểm tra P-Value
+if (p_value < 0.05) {
+  cat("\nKết luận: P-value < 0.05. Bác bỏ H0. Có sự khác biệt có ý nghĩa thống kê giữa mu1 và mu2.\n")
+} else {
+  cat("\nKết luận: P-value >= 0.05. Không bác bỏ H0. Không có đủ bằng chứng về sự khác biệt.\n")
+}
+```
+
+```{r}
+abs(T_obs)
+max(abs(diffs_simulated))
+```
+
+## 5.1 Question
+
+> Utilize the data in terms of ROI. Do the Exploratory Data Anaysis.
+
+## 5.2 Ans
+
+```{r}
+
+data_b <- data_b|>
+  mutate(roi = value/cost)
+
+m_stats <- data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  group_by(time) |>
+  summarise(across(
+    roi,
+    list(
+      mean = mean,
+      median = median,
+      sd = sd,
+      min = min,
+      max = max
+    ),
+    na.rm = TRUE,
+    .names = "{.fn}"
+  ))
+
+m_stats
+```
+
+```{r}
+data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  ggplot(aes(x = time, y = roi, fill = time)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, color = "black", alpha = 0.8) +
+  scale_fill_manual(values = c("pre" = "#8C6BB1", "post" = "#9E9AC8")) +
+  labs(
+    title = "Comparison of conv Distributions (Pre vs Post)",
+    x = "",
+    y = "conv"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+```{r}
+data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  mutate(roi_log = log1p(roi)) |>
+  ggplot(aes(x = time, y = roi_log, fill = time)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, color = "black", alpha = 0.8) +
+  scale_fill_manual(values = c("pre" = "#8C6BB1", "post" = "#9E9AC8")) +
+  labs(
+    title = "Violin Plot using log1p(conv)",
+    x = "",
+    y = "log1p(conv)"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+This violin plot compares conversion performance **'pre'** and **'post'** an experiment. Given that conversion ($\text{conv}$) drives **ROI**, the key insight is about performance stability and magnitude.
+
+-   **Median Decline:** The median $\text{log1p}(\text{conv})$ **dropped** from 'pre' (approx. 0.75) to 'post' (belơ 0.5). This signifies that the **typical, or average, the ROI rates decreased** following the change.
+-   **Increased Volatility (Risk):** The **'post'** distribution shows **higher variability** and a pronounced, thin upper tail. This indicates the change introduced **greater performance volatility** and a **higher concentration of low/zero-conversion events** alongside a few extreme high performers.
+
+In conclusion The experiment **negatively impacted the consistency and average performance**, leading to **lower generalized ROI** and introducing **higher risk** (volatility) in the conversion outcomes across the platform(s).
+
+## 5.1 Question
+
+> applied A/B testing on conversion rate
+
+## 5.2 Ans
+
+As what announce above, the familliar t-test wont be use directly, Let's try a data-driven method that i learned 4 weeks ago: Boostrap test on mean.
+
+We state our hypothesis:
+
+$$
+\begin{aligned}
+H_0: \ \mu_{\text{ROI A}} &= \mu_{\text{ROI B}} \\
+H_1: \ \mu_{\text{ROI A}} &\neq \mu_{\text{ROI B}}
+\end{aligned}
+$$
+
+where $\mu_{\text{ROI A}}$ and $\mu_{\text{ROI B}}$ represent the true mean conversion rates of each platform.
+
+```{r}
+set.seed(42)
+
+roi_m <- data_b |> 
+  filter(platform == "m") |>
+  select(roi) |>
+  pull()
+
+roi_d <- data_b |>
+  filter(platform == "d") |>
+  select(roi) |>
+  pull()
+
+observed_diff <- abs(mean(roi_m,na.rm = TRUE) - mean(roi_d,na.rm = TRUE))
+cat(sprintf("Sự khác biệt Quan sát (B - A): %.4f\n\n", observed_diff))
+
+
+```
+
+Vòng lặp Bootstrap
+
+```{r}
+mean(roi_m,na.rm = TRUE)
+```
+
+```{r}
+n_m <- length(roi_m)
+n_d <- length(roi_d)
+N_total <- n_m + n_d
+
+num_bootstraps <- 10000
+diffs_simulated <- numeric(num_bootstraps)
+
+cat(sprintf("Boostraping (%d times)...\n", num_bootstraps))
+
+roi_sm <- sd(roi_m,na.rm = TRUE)
+roi_sd <- sd(roi_d,na.rm = TRUE)
+
+roi_m_til <- roi_m - mean(roi_m,na.rm = TRUE)
+roi_d_til <- roi_d -mean(roi_d,na.rm = TRUE)
+
+
+
+
+for (i in 1:num_bootstraps) {
+  sample_m <- sample(roi_m_til,
+                     size = n_m,
+                     replace = TRUE)
+  
+  sample_d <- sample(roi_d_til,
+                     size = n_d,
+                     replace = TRUE)
+  
+  
+  # Tính và lưu lại sự khác biệt của mẫu mô phỏng
+  diffs_simulated[i] <- (mean(sample_m,na.rm = TRUE) - mean(sample_d,na.rm = TRUE))/sqrt((sd(sample_m,na.rm = TRUE)^2)/n_m + (sd(sample_d,na.rm = TRUE)^2)/n_d )
+}
+
+cat("Done.\n\n")
+```
+
+Tính P-Value và Kết luận ---
+
+```{r}
+
+T_obs <- observed_diff/sqrt((roi_sm^2)/n_m + (roi_sd^2)/n_d )
+
+p_value <- sum(abs(diffs_simulated) >= abs(T_obs)) / num_bootstraps
+
+# In kết quả
+cat("--- Kết quả Kiểm tra Bootstrap Shift Method ---\n")
+cat(sprintf("Observed Statistic (Y_bar1 - Y_bar2): %.4f\n", T_obs))
+cat(sprintf("Bootstrap P-Value (Hai phía): %.4f\n", p_value))
+
+# Kiểm tra P-Value
+if (p_value < 0.05) {
+  cat("\nKết luận: P-value < 0.05. Bác bỏ H0. Có sự khác biệt có ý nghĩa thống kê giữa mu1 và mu2.\n")
+} else {
+  cat("\nKết luận: P-value >= 0.05. Không bác bỏ H0. Không có đủ bằng chứng về sự khác biệt.\n")
+}
+
+```

@@ -1,0 +1,543 @@
+---
+title: "Bài 15 – Flight Delays"
+author: "Nguyễn Thị Ngọc Anh"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+```
+
+## Bài tập 15 – Dịch vụ hàng không
+
+(Dịch vụ hàng không). Dữ liệu FlightDelays.csv chứa thông tin của các chuyến bay của hai hãng hàng không UA (United Airlines) và AA (America Airlines) trong tháng 5 và 6 của năm 2009, ta giả định rẳng dữ liệu này đại diện cho một mẫu từ một quần thể lớn hơn các chuyến bay của UA và AA được thực hiện trong những hoàn cảnh tương tự. Một nhà phân tích dữ liệu quan tâm tới trung bình của độ dài thời gian trễ chuyến bay (Delay) của hai hãng này.
+
+Biến quan tâm chính trong bài là **độ dài thời gian trễ chuyến bay** (`Delay`, đơn vị phút).
+
+---
+
+## Đọc dữ liệu và xem cấu trúc
+
+```{r read-data}
+flight <- read_csv("data/FlightDelays.csv")
+
+glimpse(flight)
+```
+
+**Nhận xét:**
+
+- Ta có các biến:
+  - `Carrier`: hãng hàng không (`"UA"`, `"AA"`),
+  - `Delay`: thời gian trễ (có thể âm nếu đến sớm),
+  - `Month`: `"May"` hoặc `"June"`,
+  - cùng nhiều biến khác như `FlightNo`, `Destination`, `DepartTime`, ...
+
+Ta trích riêng các biến cần dùng:
+
+```{r}
+flight_small <- flight |>
+  select(Carrier, Month, Delay)
+
+head(flight_small)
+```
+
+---
+
+## (a)
+
+Tiến hành một số phân tích khám phá mô tả dữ liệu về độ dài thời gian trễ chuyến bay của hai hãng hàng không (phân tích riêng cho từng hãng).
+
+### Thống kê mô tả theo từng hãng
+
+```{r}
+delay_summary <- flight_small |>
+  group_by(Carrier) |>
+  summarise(
+    n          = n(),
+    mean_delay = mean(Delay, na.rm = TRUE),
+    sd_delay   = sd(Delay, na.rm = TRUE),
+    median     = median(Delay, na.rm = TRUE),
+    q1         = quantile(Delay, 0.25, na.rm = TRUE),
+    q3         = quantile(Delay, 0.75, na.rm = TRUE),
+    min_delay  = min(Delay, na.rm = TRUE),
+    max_delay  = max(Delay, na.rm = TRUE)
+  )
+
+delay_summary
+```
+
+**Nhận xét**
+
+- Hãng AA có số chuyến bay nhiều hơn (2906 so với 1123), với thời gian trễ trung bình ~10 phút. Các phân vị cho thấy phần lớn chuyến của AA nằm trong khoảng từ khoảng –6 đến 4 phút, median = –3 phút ⇒ chuyến bay của AA thường đến đúng giờ hoặc hơi sớm, chỉ một phần nhỏ bị trễ nặng (nhưng vẫn có vài outlier rất lớn, max ≈ 693 phút).
+
+- Hãng UA có thời gian trễ trung bình cao hơn (~16 phút) và Q3 = 12.5 phút, median = –1 phút ⇒ so với AA, các chuyến của UA có xu hướng trễ nhiều hơn, đồng thời độ biến thiên cũng lớn hơn (sd ≈ 45 phút).
+
+⇒ Nhìn chung, trong giai đoạn quan sát, UA có mức độ trễ trung bình và “độ trễ điển hình” cao hơn AA, dù cả hai hãng đều có khá nhiều chuyến đến đúng giờ hoặc sớm nhẹ.
+
+### Histogram theo hãng
+
+```{r}
+flight_small |>
+  ggplot(aes(x = Delay)) +
+  geom_histogram(bins = 20, color = "white", fill = "lightblue") +
+  facet_wrap(~ Carrier, nrow = 1) +
+  labs(
+    title = "Phân phối thời gian trễ theo hãng hàng không",
+    x = "Thời gian trễ (phút)",
+    y = "Tần số"
+  ) +
+  theme_bw()
+```
+
+**Nhận xét**
+
+- Với AA, phần lớn chuyến bay có thời gian trễ nằm rất gần 0 phút; đa số chỉ dao động từ 0–20 phút. Các giá trị trễ lớn hơn (trên 100 phút) xuất hiện rất ít, tạo ra đuôi phải dài nhưng tần suất thấp.
+
+- Với UA, phân phối cũng tập trung mạnh quanh 0–20 phút, nhưng số chuyến trễ nhẹ ít hơn AA. Một vài giá trị trễ rất lớn cũng xuất hiện nhưng thưa thớt.
+
+=> Biểu đồ cho thấy cả hai hãng đều có xu hướng trễ nhẹ, nhưng AA có nhiều chuyến bay hơn và tần suất trễ thấp rõ rệt cao hơn UA, củng cố nhận xét rằng UA thường trễ nhiều hơn trong giai đoạn quan sát.
+
+### Boxplot theo hãng
+
+```{r}
+flight_small |>
+  ggplot(aes(x = Carrier, y = Delay, fill = Carrier)) +
+  geom_boxplot(alpha = 0.7, show.legend = FALSE) +
+  labs(
+    title = "Boxplot thời gian trễ theo hãng hàng không",
+    x = "Hãng",
+    y = "Thời gian trễ (phút)"
+  ) +
+  theme_bw()
+```
+
+**Nhận xét**
+
+- Với AA, phần lớn chuyến bay gần như không trễ hoặc chỉ trễ nhẹ: phần hộp nằm ngay sát 0, độ cao không lớn. Tuy nhiên vẫn có một số chuyến trễ rất nặng (các điểm nằm cao hẳn lên), nên phân phối thời gian trễ của AA bị kéo lệch về bên phải.
+
+- Với UA, hộp được đẩy lên cao hơn so với AA, cho thấy mức trễ điển hình (trung vị và phần lớn quan sát) của UA lớn hơn. Đồng thời, UA cũng có khá nhiều điểm ngoại lai với thời gian trễ rất lớn.
+
+=> Cả hai hãng đều có nhiều chuyến trễ nhẹ nhưng đôi khi trễ rất nặng, trong đó UA có xu hướng trễ nhiều hơn và biến động thời gian trễ cũng lớn hơn so với AA.
+
+---
+
+Ta tách dữ liệu theo hãng:
+
+```{r}
+delay_UA <- flight_small |>
+  filter(Carrier == "UA") |>
+  pull(Delay)
+
+delay_AA <- flight_small |>
+  filter(Carrier == "AA") |>
+  pull(Delay)
+
+length(delay_UA); length(delay_AA)
+mean(delay_UA); mean(delay_AA)
+```
+
+---
+
+## (b) 
+
+Tiến hành kiểm định hoán vị hai phía để xem liệu sự khác biệt về thời gian trễ trung bình giữa hai hãng hàng không có ý nghĩa thống kê hay không.
+
+Ta quan tâm đến:
+
+\[
+\theta = \mu_{UA} - \mu_{AA}.
+\]
+
+Giả thuyết:
+
+- \(H_0: \mu_{UA} = \mu_{AA}\) (không có khác biệt trung bình),
+- \(H_1: \mu_{UA} \neq \mu_{AA}\) (có khác biệt trung bình).
+
+### Thống kê quan sát
+
+```{r}
+obs_diff_mean <- mean(delay_UA, na.rm = TRUE) - mean(delay_AA, na.rm = TRUE)
+obs_diff_mean
+```
+
+### Hàm kiểm định hoán vị cho hai trung bình (mẫu độc lập)
+
+```{r}
+perm_test_two_mean <- function(x, y,
+                               R = 10000,
+                               alternative = c("two.sided", "greater", "less"),
+                               seed = NULL) {
+  alternative <- match.arg(alternative)
+  if (!is.null(seed)) set.seed(seed)
+
+  x <- x[!is.na(x)]
+  y <- y[!is.na(y)]
+
+  n1 <- length(x)
+  n2 <- length(y)
+
+  # Thống kê quan sát
+  obs_diff <- mean(x) - mean(y)
+
+  # Ghép hai mẫu lại
+  all_vals <- c(x, y)
+  t_star <- numeric(R)
+
+  for (b in seq_len(R)) {
+    perm_idx <- sample.int(n1 + n2)
+    perm_x <- all_vals[perm_idx[1:n1]]
+    perm_y <- all_vals[perm_idx[(n1 + 1):(n1 + n2)]]
+    t_star[b] <- mean(perm_x) - mean(perm_y)
+  }
+
+  p_val <- switch(
+    alternative,
+    "two.sided" = mean(abs(t_star) >= abs(obs_diff)),
+    "greater"   = mean(t_star >= obs_diff),
+    "less"      = mean(t_star <= obs_diff)
+  )
+
+  list(
+    obs_diff   = obs_diff,
+    p_value    = p_val,
+    alternative = alternative,
+    t_star     = t_star
+  )
+}
+```
+
+### Thực hiện kiểm định hoán vị
+
+```{r}
+perm_result_mean <- perm_test_two_mean(
+  x = delay_UA,
+  y = delay_AA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_result_mean$obs_diff
+perm_result_mean$p_value
+```
+
+**Nhận xét**
+
+- Thời gian trễ trung bình của hãng UA cao hơn hãng AA khoảng $\hat{\theta}_{\text{obs}} = 5.89$ phút. Kiểm định hoán vị 2 phía thu được p-value rất nhỏ ($p = 0.0001$), cho thấy xác suất quan sát được mức chênh lệch lớn như vậy chỉ do ngẫu nhiên gần như bằng không nếu $H_0$ đúng. 
+- Vì vậy, ta bác bỏ giả thuyết $H_0$ và kết luận rằng hai hãng có sự khác biệt có ý nghĩa thống kê về thời gian trễ trung bình, trong đó hãng UA có xu hướng trễ nhiều hơn AA trong giai đoạn quan sát.
+
+---
+
+## (c) 
+Lặp lại ý (b) với kiểm định bootstrap. Kết luận có bị thay đổi hay không?
+
+Giả thuyết vẫn là:
+
+\[
+H_0: \mu_{UA} = \mu_{AA}, \quad H_1: \mu_{UA} \neq \mu_{AA}.
+\]
+
+Ta xây dựng **bootstrap test** dựa trên chênh lệch trung bình, với dữ liệu được **center** để phản ánh \(H_0\).
+
+### Hàm kiểm định bootstrap cho hai trung bình
+
+```{r}
+boot_test_two_mean <- function(x, y,
+                               R = 10000,
+                               alternative = c("two.sided", "greater", "less"),
+                               seed = NULL) {
+  alternative <- match.arg(alternative)
+  if (!is.null(seed)) set.seed(seed)
+
+  x <- x[!is.na(x)]
+  y <- y[!is.na(y)]
+
+  n1 <- length(x)
+  n2 <- length(y)
+
+  # Thống kê quan sát
+  obs_diff <- mean(x) - mean(y)
+
+  # Center dữ liệu để phản ánh H0: mu_x = mu_y
+  x_tilde <- x - mean(x)
+  y_tilde <- y - mean(y)
+
+  t_star <- numeric(R)
+
+  for (b in seq_len(R)) {
+    boot_x <- sample(x_tilde, size = n1, replace = TRUE)
+    boot_y <- sample(y_tilde, size = n2, replace = TRUE)
+    t_star[b] <- mean(boot_x) - mean(boot_y)
+  }
+
+  p_val <- switch(
+    alternative,
+    "two.sided" = mean(abs(t_star) >= abs(obs_diff)),
+    "greater"   = mean(t_star >= obs_diff),
+    "less"      = mean(t_star <= obs_diff)
+  )
+
+  list(
+    obs_diff   = obs_diff,
+    p_value    = p_val,
+    alternative = alternative,
+    t_star     = t_star
+  )
+}
+```
+
+### Thực hiện bootstrap test
+
+```{r}
+boot_result_mean <- boot_test_two_mean(
+  x = delay_UA,
+  y = delay_AA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+boot_result_mean$obs_diff
+boot_result_mean$p_value
+```
+
+**Nhận xét**
+
+- Kiểm định bootstrap hai phía cho kết quả thống kê quan sát 
+$\hat{\theta}_{\text{obs}} = 5.89$ và p-value rất nhỏ ($p = 0.0001$). Điều này cho thấy xác suất quan sát được mức chênh lệch lớn như vậy nếu giả thuyết $H_0$ đúng gần như bằng không. Vì vậy, ta tiếp tục bác bỏ $H_0$.
+
+- So với kiểm định hoán vị ở ý (b), kết luận \emph{không thay đổi}: thời gian trễ trung bình của hãng UA cao hơn hãng AA một cách có ý nghĩa thống kê.
+
+---
+
+## (d)
+Các chuyến bay diễn ra vào tháng 5 và tháng 6 năm 2009. Tiến hành kiểm định hoán vị hai phía để xem liệu sự khác biệt về thời gian trễ trung bình giữa hai tháng có ý nghĩa thống kê hay không, xét các trường hợp: (i) thời gian trễ của cả hai hãng; (ii) chỉ của United Airlines; (iii) chỉ của America Airlines.
+
+### (i) Tất cả các chuyến bay
+
+```{r}
+delay_May <- flight_small |>
+  filter(Month == "May") |>
+  pull(Delay)
+
+delay_June <- flight_small |>
+  filter(Month == "June") |>
+  pull(Delay)
+
+perm_month_all <- perm_test_two_mean(
+  x = delay_May,
+  y = delay_June,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_month_all$obs_diff   # mean(May) - mean(June)
+perm_month_all$p_value
+```
+
+### (ii) Chỉ các chuyến bay của UA
+
+```{r}
+flight_UA <- flight_small |> filter(Carrier == "UA")
+
+delay_May_UA <- flight_UA |>
+  filter(Month == "May") |>
+  pull(Delay)
+
+delay_June_UA <- flight_UA |>
+  filter(Month == "June") |>
+  pull(Delay)
+
+perm_month_UA <- perm_test_two_mean(
+  x = delay_May_UA,
+  y = delay_June_UA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_month_UA$obs_diff
+perm_month_UA$p_value
+```
+
+### (iii) Chỉ các chuyến bay của AA
+
+```{r}
+flight_AA <- flight_small |> filter(Carrier == "AA")
+
+delay_May_AA <- flight_AA |>
+  filter(Month == "May") |>
+  pull(Delay)
+
+delay_June_AA <- flight_AA |>
+  filter(Month == "June") |>
+  pull(Delay)
+
+perm_month_AA <- perm_test_two_mean(
+  x = delay_May_AA,
+  y = delay_June_AA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_month_AA$obs_diff
+perm_month_AA$p_value
+```
+
+**Nhận xét**
+
+- Với tất cả các chuyến bay, chênh lệch trung bình quan sát được là $\hat{\theta}_{\text{obs}} = -5.66$ phút (tháng 6 trễ hơn tháng 5). Kiểm định hoán vị cho p-value gần bằng $0$, cho thấy khả năng quan sát được mức chênh lệch này do ngẫu nhiên là gần như không có. 
+=> Vì vậy, ta bác bỏ $H_{0}$ và kết luận rằng thời gian trễ trung bình của tháng~6 lớn hơn tháng~5 một cách có ý nghĩa thống kê
+
+- Với riêng UA, chênh lệch quan sát $\hat{\theta}_{\text{obs}} = -2.98$ phút, nhưng p-value thu được là $0.2675 > 0.05$. 
+⇒ Không bác bỏ $H_{0}$. Nói cách khác, không có đủ bằng chứng thống kê để khẳng định sự khác biệt về thời gian trễ trung bình giữa tháng 5 và tháng 6 đối với hãng UA.
+
+- Với riêng AA, chênh lệch quan sát $\hat{\theta}_{\text{obs}} = -6.59$ phút và p-value bằng $0.0001$, một giá trị rất nhỏ. 
+=> Vì vậy, ta bác bỏ $H_{0}$ và kết luận rằng thời gian trễ trung bình của các chuyến bay AA tháng 6 cao hơn tháng 5 một cách rõ rệt về mặt thống kê.
+
+---
+
+## (e) 
+
+Tính tỷ lệ các chuyến bay của mỗi hãng hàng không bị chậm hơn 20 phút. Tiến hành kiểm định hai phía để xem sự khác biệt giữa các tỷ lệ này có ý nghĩa thống kê hay không.
+
+Ta tạo biến nhị phân:
+
+\[
+late20 = \mathbf{1}(Delay > 20).
+\]
+
+### Tạo biến chỉ thị và tỉ lệ theo hãng
+
+```{r}
+flight_small <- flight_small |>
+  mutate(
+    late20 = if_else(Delay > 20, 1, 0)
+  )
+
+prop_late20 <- flight_small |>
+  group_by(Carrier) |>
+  summarise(
+    n = n(),
+    prop_late20 = mean(late20)
+  )
+
+prop_late20
+```
+
+### Kiểm định hoán vị cho hai tỉ lệ
+
+```{r}
+late20_UA <- flight_small |>
+  filter(Carrier == "UA") |>
+  pull(late20)
+
+late20_AA <- flight_small |>
+  filter(Carrier == "AA") |>
+  pull(late20)
+
+perm_result_prop <- perm_test_two_mean(
+  x = late20_UA,
+  y = late20_AA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_result_prop$obs_diff   # p_hat_UA - p_hat_AA
+perm_result_prop$p_value
+```
+
+**Nhận xét**
+
+- $\hat{p}_{UA}$ = tỉ lệ chuyến bay UA trễ > 20 phút.  
+- $\hat{p}_{AA}$ = tỉ lệ chuyến bay AA trễ > 20 phút.  
+- Chênh lệch quan sát được là:
+$\hat{\theta}_{\text{obs}} = \hat p_{\text{UA}} - \hat p_{\text{AA}} \approx 0.0435$,
+tức tỉ lệ trễ nặng của UA cao hơn AA khoảng $4.35$ điểm phần trăm.
+- P-value thu được là $p \approx 0.0016 < 0.05$.
+=> Ta bác bỏ $H_0$ và kết luận rằng hai hãng có sự khác biệt có ý nghĩa thống kê về tỉ lệ các chuyến bay trễ hơn 20 phút, trong đó tỉ lệ của UA cao hơn của AA.
+
+---
+
+## (f) 
+
+Tính phương sai về thời gian chậm trễ của mỗi chuyến bay. Tiến hành kiểm định để xem phương sai của United Airlines có khác với American Airlines hay không.
+
+Ta kiểm tra:
+
+\[
+H_0: \sigma^2_{UA} = \sigma^2_{AA}, \qquad
+H_1: \sigma^2_{UA} \neq \sigma^2_{AA}.
+\]
+
+### Hàm permutation test cho tỉ số phương sai
+
+```{r}
+perm_test_var_ratio <- function(x, y,
+                                R = 10000,
+                                seed = NULL) {
+  if (!is.null(seed)) set.seed(seed)
+
+  x <- x[!is.na(x)]
+  y <- y[!is.na(y)]
+
+  n1 <- length(x)
+  n2 <- length(y)
+
+  # Thống kê quan sát
+  obs_ratio <- var(x) / var(y)
+  obs_stat  <- abs(log(obs_ratio))
+
+  all_vals <- c(x, y)
+  t_star <- numeric(R)
+
+  for (b in seq_len(R)) {
+    perm_idx <- sample.int(n1 + n2)
+    perm_x <- all_vals[perm_idx[1:n1]]
+    perm_y <- all_vals[perm_idx[(n1 + 1):(n1 + n2)]]
+    ratio_b <- var(perm_x) / var(perm_y)
+    t_star[b] <- abs(log(ratio_b))
+  }
+
+  p_val <- mean(t_star >= obs_stat)
+
+  list(
+    obs_ratio = obs_ratio,
+    obs_stat  = obs_stat,
+    p_value   = p_val,
+    t_star    = t_star
+  )
+}
+```
+
+### Thực hiện kiểm định
+
+```{r}
+var_result <- perm_test_var_ratio(
+  x = delay_UA,
+  y = delay_AA,
+  R = 10000,
+  seed = 2025
+)
+
+var_result$obs_ratio   # Var(UA) / Var(AA)
+var_result$p_value
+```
+
+**Nhận xét**
+
+- Thống kê quan sát được là tỉ số phương sai:
+  \[
+  T_{\text{obs}} = \frac{\widehat{\sigma}^2_{UA}}{\widehat{\sigma}^2_{AA}} 
+  \approx 1.2683,
+  \]
+  tức phương sai thời gian trễ của UA trong mẫu lớn hơn khoảng $26.8\%$ so với AA.
+
+- P-value thu được là $p \approx 0.3006 > 0.05$.
+=> Ta không bác bỏ $H_0$ và kết luận rằng chưa có đủ bằng chứng thống kê để khẳng định phương sai thời gian trễ của UA khác với AA.
+

@@ -1,0 +1,135 @@
+\begin{question}{8}
+Xét bài toán phân tích dữ liệu về lượng asen thải ra trong nước thải 
+từ một nhà máy công nghiệp. 
+Muc tiêu là kiểm tra xem lượng asen thải ra 
+có vượt quá giá trị trung bình 10 mg/lít
+theo công bố của công ty hay không. 
+Để đưa ra kết luận trong kiểm định một phía, chúng ta sử
+dụng $\alpha$ = 0.05. Trong các nhận xét sau, nhận xét nào là đúng?
+
+% \begin{enumerate}[label=(\alph*)]
+%     \item Nếu $\mu = 10$, với xác suất $0.05$, 
+%     chúng ta sẽ kết luận rằng lượng asen thải ra 
+%     là vượt quá giới hạn.
+
+%     \item Nếu $\mu = 10$, xác suất mà trung bình mẫu 
+%     ($\overline{Y}$) bằng giá trị 
+%     trung bình mẫu của dữ liệu quan sát là $0.05$.
+
+%     \item Nếu lượng asen thải ra của nhà máy là 
+%     vượt quá giới hạn, xác suất mà chúng ta 
+%     sẽ kết luận rằng lượng asen thải ra 
+%     không vượt quá giới hạn là $0.05$.
+
+%     \item Nếu chúng ta bác bỏ giả thuyết $H_0$, 
+%     xác suất mà $H_0$ thực sự đúng là $0.05$.
+
+% \end{enumerate}
+
+\begin{subquestion}{Nếu $\mu = 10$, với xác suất $0.05$, 
+    chúng ta sẽ kết luận rằng lượng asen thải ra 
+    là vượt quá giới hạn.}
+    \begin{answer}
+
+    \textbf{Câu này là chính xác.}
+
+    Rõ ràng, đây là định nghĩa về sai lầm loại I,
+    cụ thể chính là mức ý nghĩa $\alpha$:
+
+    \begin{align*}
+        \alpha = P(\text{bác bỏ } H_0 | H_0 \text{ đúng}) = 0.05
+    \end{align*}
+
+    \end{answer}
+\end{subquestion}
+
+\newpage
+\begin{subquestion}{Nếu $\mu = 10$, xác suất mà trung bình mẫu 
+    ($\overline{Y}$) bằng giá trị 
+    trung bình mẫu của dữ liệu quan sát là $0.05$.}
+    \begin{answer}
+    Bằng biểu diễn toán học, ta sẽ mô tả câu này như sau:
+    \begin{align*}
+        P(\overline{Y} = \overline{y} | \mu = 10) = 0.05
+    \end{align*}
+
+    Ở đây, $\overline{y}$ là giá trị trung bình mẫu
+    được tính từ dữ liệu quan sát. Và hiển nhiên, ta rút 
+    ra một số nhận xét như sau: 
+
+    \begin{itemize}
+        \item Thứ nhất, do $\overline{Y}$ là biến ngẫu nhiên liên tục,
+    nên xác suất để nó nhận một giá trị cụ thể
+    (trong trường hợp này là $\overline{y}$)
+    sẽ luôn bằng 0. Do đó, câu này không đúng.
+
+        \item Thứ hai, ngay cả khi ta sửa lại câu này
+    thành xác suất để $\overline{Y}$ nằm trong một khoảng nhỏ
+    xung quanh $\overline{y}$, thì câu này vẫn không đúng.
+    Bởi vì, xác suất này phụ thuộc vào nhiều yếu tố khác nhau,
+    bao gồm phân phối của dữ liệu, kích thước mẫu,
+    và độ lệch chuẩn của quần thể.
+    Nó không thể được xác định chỉ 
+    dựa trên giả định rằng $\mu = 10$.
+
+    \end{itemize}
+    
+
+    
+
+    
+    \textbf{Câu này là sai.}
+    \end{answer}
+\end{subquestion}
+
+\begin{subquestion}{Nếu lượng asen thải ra của nhà máy là 
+    vượt quá giới hạn, xác suất mà chúng ta 
+    sẽ kết luận rằng lượng asen thải ra 
+    không vượt quá giới hạn là $0.05$.}
+
+    \begin{answer}
+        Ta sẽ mô tả lại câu này bằng công thức toán học như sau:
+        \begin{align*}
+            P(\text{không bác bỏ } H_0 | \mu > 10) = 0.05
+        \end{align*}
+
+        Ở đây, $\mu > 10$ biểu thị rằng lượng asen thải ra
+        của nhà máy vượt quá giới hạn cho phép.
+        Câu này đề cập đến khái niệm sai lầm loại II, tức 
+        là xác suất không bác bỏ giả thuyết gốc
+        khi giả thuyết đối là đúng. Hay được định nghĩa 
+        trong môn lý thuyết thống kê là $\beta$
+
+    
+    \textbf{Câu này là sai.}
+    \end{answer}
+\end{subquestion}
+
+\begin{subquestion}{Nếu chúng ta bác bỏ giả thuyết $H_0$, 
+    xác suất mà $H_0$ thực sự đúng là $0.05$.}
+
+    \begin{answer}
+        Để ý, câu này ngược với câu (a) phía trên :
+        \begin{align*}
+            P(H_0 \text{ đúng } | \text{bác bỏ } H_0) = 0.05
+        \end{align*}
+
+        Câu này không đúng vì mức ý nghĩa $\alpha$
+        không phải được định nghĩa như thế này. 
+        Mà ngay cả khi sử dụng định nghĩa về
+        mức ý nghĩa $\alpha$ để suy luận ngược lại,
+        ta cũng không thể kết luận được điều này. Cụ thể
+        \begin{align*}
+            \alpha &= P(\text{bác bỏ } H_0 | H_0 \text{ đúng}) \\
+            &\neq P(H_0 \text{ đúng } | \text{bác bỏ } H_0)
+        \end{align*}
+
+    \textbf{Câu này là sai.}
+    \end{answer}
+\end{subquestion}
+
+
+
+
+
+\end{question}
