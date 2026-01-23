@@ -1,0 +1,1400 @@
+---
+title: "Lab 03"
+author: "Nguyễn Thái Hưng Thịnh, Trần Tiến Đạt, Nguyễn Thị Ngọc Anh"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)  
+library(ggplot2)
+```
+
+# Bài tập 14
+
+(Khoa học sức khỏe). Kem chocolate có nhiều calo hơn kem vani không? Bộ
+dữ liệu IceCream chứa thông tin về lượng calo của 39 nhãn hiệu kem
+chocolate và kem vani, tương ứng các biến ChocolateCalories và
+VanillaCalories.
+
+## a)
+
+Xem xét bộ dữ liệu, sau đó giải thích tại sao đây là ví dụ về dữ liệu
+ghép cặp
+
+```{r}
+data_ice_cream <- read.csv(file ="../Code/data/IceCream.csv")
+str(data_ice_cream)
+```
+
+**Nhận xét** - Chúng ta có $n=39$ quan sát (observation) hay $n=39$
+hàng. - Chúng ta có các biến Brand, VanillaCalories và
+ChocolateCalories, VanillaFat và ChocolateFat, VanillaSugar và
+ChocolateSugar cùng tồn tại trong một data.frame.
+
+```{r}
+head(data_ice_cream)
+```
+
+**Nhận xét** Dữ liệu thể hiện rõ cấu trúc cặp trùng khớp (matched
+pairs): - Đơn vị quan sát (Observation Unit): Mỗi hàng đại diện cho một
+Nhãn hiệu (Brand) duy nhất. - Cặp biến số: Hai biến quan tâm
+VanillaCalories ($X$) và ChocolateCalories ($Y$) nằm trên cùng một
+hàng. - Kết luận sơ bộ: Cấu trúc này gợi ý rằng $X$ và $Y$ không độc lập
+mà gắn liền với nhau thông qua đặc tính của Nhãn hiệu. Đây là dấu hiệu
+nhận biết cơ bản của dữ liệu ghép cặp (paired data).
+
+Cho nên ta dùng cov để kiểm tra?
+
+Gọi - $i = 1, \dots, 39$ là chỉ số đại diện cho Nhãn hiệu (Brand) (đơn
+vị thực nghiệm). - $X_i$ là biến ngẫu nhiên đại diện cho lượng calo kem
+Vani (VanillaCalories) của nhãn hiệu $i$. - $Y_i$ là biến ngẫu nhiên đại
+diện cho lượng calo kem Chocolate (ChocolateCalories) của nhãn hiệu
+$i$. - $D = \text{Chocolate} - \text{Vanilla}$ và $\mu_D$ là trung bình
+thực của các chênh lệch này trong quần thể.
+
+Ta có : $H_0$ - Null Hypothesis: Trung bình lượng calo của kem chocolate
+và kem vani là như nhau ($H_0: \mu_D = 0$) $H_a$ - Alternative
+Hypothesis: Trung bình lượng calo của kem chocolate nhiều hơn kem vani
+$H_a: \mu_D > 0$
+
+```{r}
+# ---------------------------------------------------------
+# PHẦN 1: CHUẨN BỊ DỮ LIỆU
+# ---------------------------------------------------------
+X <- data_ice_cream$VanillaCalories      
+Y <- data_ice_cream$ChocolateCalories    
+D <- Y - X                               
+
+# ---------------------------------------------------------
+# PHẦN 2: KIỂM CHỨNG HIỆP PHƯƠNG SAI (COVARIANCE)
+# Lý thuyết: Nếu ghép cặp đúng, Cov(X,Y) > 0.
+# ---------------------------------------------------------
+
+# Tính hệ số tương quan Pearson (r)
+cor_xy <- cor(X, Y)
+# Kỳ vọng: r rất gần 1 (vì cùng một hãng sản xuất)
+
+# Tính Hiệp phương sai (Covariance)
+cov_xy <- cov(X, Y)
+
+# In kết quả 
+cat("\n--- r VÀ cov ---\n")
+cat("Hệ số tương quan Pearson (r):", cor_xy, "\n")
+cat("Hiệp phương sai giữa X và Y (Cov):", cov_xy, "\n")
+
+# ---------------------------------------------------------
+# PHẦN 3: CHỨNG MINH SỰ GIẢM PHƯƠNG SAI (VARIANCE REDUCTION)
+# Lý thuyết: Var(D) = Var(X) + Var(Y) - 2*Cov(X,Y)
+# ---------------------------------------------------------
+
+var_x <- var(X)
+var_y <- var(Y)
+var_d_thuc_te <- var(D)
+
+# Tính tổng phương sai (nếu giả sử độc lập)
+var_independent <- var_x + var_y
+
+# Tính thành phần giảm trừ (Reduction term)
+reduction_term <- 2 * cov_xy
+
+# In kết quả so sánh
+cat("\n--- SO SÁNH PHƯƠNG SAI ---\n")
+cat("Phương sai của Vani Var(X):", var_x, "\n")
+cat("Phương sai của Chocolate Var(Y):", var_y, "\n")
+cat("Tổng phương sai (nếu độc lập):", var_independent, "\n")
+cat("Thành phần giảm trừ (2*Cov):", reduction_term, "\n")
+cat("Phương sai của khác biệt Var(D) [Thực tế]:", var_d_thuc_te, "\n")
+
+# Kiểm chứng công thức toán học
+cat("Kiểm chứng công thức (Var_Indep - 2Cov):", var_independent - reduction_term, "\n")
+
+# ---------------------------------------------------------
+# PHẦN 4: HỆ QUẢ LÊN KIỂM ĐỊNH T (T-TEST IMPLICATION)
+# So sánh p-value khi dùng sai (độc lập) và dùng đúng (ghép cặp)
+# ---------------------------------------------------------
+
+test_wrong <- t.test(Y, X, paired = FALSE) 
+test_right <- t.test(Y, X, paired = TRUE)  
+
+cat("\n--- SO SÁNH KẾT QUẢ KIỂM ĐỊNH ---\n")
+cat("P-value (Giả định độc lập):", test_wrong$p.value, "\n")
+cat("P-value (Giả định ghép cặp):", test_right$p.value, "\n")
+```
+
+**Nhận xét** - Hệ số tương quan: r $\approx$ 0.98 cho thấy mối quan hệ
+tuyến tính cực mạnh. Nếu biết lượng calo Vani, ta có thể dự đoán lượng
+calo Chocolate với độ chính xác rất cao. Điều này xác nhận giả định
+$\text{Cov}(X, Y) > 0$.
+
+-   Phân tích phương sai:
+    $$\text{Var}(D) = \underbrace{\text{Var}(X) + \text{Var}(Y)}_{\text{Tổng phương sai nhiễu}} - \underbrace{2\text{Cov}(X, Y)}_{\text{Thành phần khử nhiễu}}$$
+    -   Tổng phương sai nhiễu (Nếu độc lập): $\approx$ 7416.1. Con số
+        này rất lớn, đại diện cho sự chênh lệch khổng lồ giữa các nhãn
+        hiệu kem khác nhau trên thị trường.
+
+    -   Thành phần khử nhiễu: $\approx 7248.9$. Nhờ ghép cặp, chúng ta
+        đã "loại bỏ" được lượng phương sai này.
+
+    -   Phương sai thực tế của hiệu số: $\approx 167.2$.
+-   Phần so sánh P-value:
+    -   Trường hợp giả định độc lập :$p\text{-value} \approx 0.596$
+        ($> 0.05$).
+
+    -   Diễn giải: Nếu ta sai lầm coi hai mẫu là độc lập, sai số chuẩn
+        (Standard Error) sẽ bị thổi phồng bởi phương sai lớn ($7416$).
+        Kết quả là ta không thể bác bỏ $H_0$. Ta sẽ kết luận sai lầm
+        rằng "không có sự khác biệt giữa hai vị kem".
+
+    -   Trường hợp giả định ghép cặp :$p\text{-value} \approx 0.001$
+        ($< 0.05$).
+
+    -   Diễn giải: Khi xử lý đúng, sai số chuẩn giảm mạnh (do phương sai
+        chỉ còn $167$). Tín hiệu khác biệt ($d \approx 7.3$ calo) trở
+        nên rõ ràng trên nền nhiễu thấp. Ta bác bỏ $H_0$ một cách tự
+        tin.
+
+**Kết luận** Đây là một ví dụ kinh điển về dữ liệu ghép cặp.
+
+-   Về mặt thiết kế: Các cặp quan sát $(x_i, y_i)$ được liên kết bởi một
+    biến phân loại chung là Nhãn hiệu (Brand).
+
+-Về mặt thống kê: Sự phụ thuộc này tạo ra một hiệp phương sai dương rất
+lớn ($\text{Cov} \approx 3624$), giúp triệt tiêu nhiễu biến thiên giữa
+các nhãn hiệu và làm lộ rõ sự khác biệt thực sự giữa hai hương vị.
+
+## b)
+
+Tính toán thống kê tổng hợp về lượng calo của hai hương vị.
+
+```{r}
+calories_data <- data_ice_cream[, c("VanillaCalories", "ChocolateCalories")]
+summary(calories_data)
+```
+
+```{r}
+V <- data_ice_cream$VanillaCalories
+C <- data_ice_cream$ChocolateCalories
+
+# Tính toán các chỉ số thống kê
+n_obs <- length(V)
+sd_v <- sd(V)
+sd_c <- sd(C)
+
+# Tính Sai số chuẩn của Trung bình (SEM)
+sem_v <- sd_v / sqrt(n_obs)
+sem_c <- sd_c / sqrt(n_obs)
+
+# Tính các phân vị (Q1, Median, Q3)
+q_v <- quantile(V, probs = c(0.25, 0.50, 0.75))
+q_c <- quantile(C, probs = c(0.25, 0.50, 0.75))
+
+stats_table <- data.frame(
+  Variable = c("VanillaCalories", "ChocolateCalories"),
+  N = n_obs,
+  Mean = c(mean(V), mean(C)),
+  SD = c(sd_v, sd_c),
+  SEM = c(sem_v, sem_c),
+  Median = c(q_v[2], q_c[2]),
+  Q1 = c(q_v[1], q_c[1]),
+  Q3 = c(q_v[3], q_c[3]),
+  Min = c(min(V), min(C)),
+  Max = c(max(V), max(C))
+)
+stats_table
+```
+
+## c)
+
+Thực hiện phép thử hoán vị để xác định xem kem chocolate có trung bình
+calo nhiều hơn kem vani hay không.
+
+Gọi: - $X_i$ là biến ngẫu nhiên đại diện cho lượng calo kem Vani
+(VanillaCalories) của nhãn hiệu $i$. - $Y_i$ là biến ngẫu nhiên đại diện
+cho lượng calo kem Chocolate (ChocolateCalories) của nhãn hiệu $i$. -
+$D = \text{Chocolate} - \text{Vanilla}$ và $\mu_D$ là trung bình thực
+của các chênh lệch này trong quần thể.
+
+Ta có : $H_0$ - Null Hypothesis: Trung bình lượng calo của kem chocolate
+và kem vani là như nhau ($H_0: \mu_D = 0$) $H_a$ - Alternative
+Hypothesis: Trung bình lượng calo của kem chocolate nhiều hơn kem vani
+$H_a: \mu_D > 0$ Thống kê quan sát ($\bar{d}_{obs}$): Trung bình chênh
+lệch calo quan sát được :$\bar{d}_{obs} = \bar{Y} - \bar{X}$
+
+```{r}
+# C1: Code tay theo cong thuc 
+observed_mean_diff <- mean(D)
+N_permutations <- 10000
+set.seed(42) 
+
+permutation_means <- replicate(N_permutations, {
+  random_signs <- sample(c(-1, 1), size = n_obs, replace = TRUE)
+  permuted_diffs <- D * random_signs
+  mean(permuted_diffs)
+})
+
+p_value <- sum(permutation_means >= observed_mean_diff) / N_permutations
+
+round(observed_mean_diff, 4)
+p_value
+```
+
+```{r}
+# C2: Theo hàm permutation 
+perm_test_paired_sign_flip <- function(D, R = 10000, alternative = c("two.sided", "greater", "less")) {
+  
+  observed_mean_diff <- mean(D)
+  n <- length(D)
+  alternative <- match.arg(alternative)
+  
+  mean_diff_perm <- replicate(R, {
+    random_signs <- sample(c(-1, 1), size = n, replace = TRUE)
+    permuted_diffs <- D * random_signs
+    mean(permuted_diffs)
+  })
+  
+  p_val <- switch(alternative,
+    "two.sided" = mean(abs(mean_diff_perm) >= abs(observed_mean_diff)),
+    "greater"   = mean(mean_diff_perm > observed_mean_diff), 
+    "less"      = mean(mean_diff_perm < observed_mean_diff)
+  )
+  
+  return(list(
+    observed_mean_diff = observed_mean_diff,
+    p_val = p_val,
+    alternative = alternative
+  ))
+}
+
+ket_qua_kiem_dinh <- perm_test_paired_sign_flip(D, alternative = "greater", R = 10000)
+round(ket_qua_kiem_dinh$observed_mean_diff, 4)
+ket_qua_kiem_dinh$p_val
+
+```
+
+**Nhận xét** - Thống kê quan sát ($\bar{d}_{obs}$): Trung bình chênh
+lệch calo quan sát được :\$\bar{d}\_{obs} = \bar{Y} - \bar{X} \approx
+7.3333 \Rightarrow \$ Mức chênh lệch trung bình được đo lường thực tế
+thì calo Chocolate \> calo Vani.
+
+-   $p\text{-value} \approx 1e-04 < \alpha = 0.05 \Rightarrow Bác bỏ giả thuyết H_0.$.
+    Vậy kem chocolate có trung bình calo nhiều hơn kem vani.
+
+------------------------------------------------------------------------
+
+# Bài tập 15 – Dịch vụ hàng không
+
+(Dịch vụ hàng không). Dữ liệu FlightDelays.csv chứa thông tin của các
+chuyến bay của hai hãng hàng không UA (United Airlines) và AA (America
+Airlines) trong tháng 5 và 6 của năm 2009, ta giả định rẳng dữ liệu này
+đại diện cho một mẫu từ một quần thể lớn hơn các chuyến bay của UA và AA
+được thực hiện trong những hoàn cảnh tương tự. Một nhà phân tích dữ liệu
+quan tâm tới trung bình của độ dài thời gian trễ chuyến bay (Delay) của
+hai hãng này.
+
+Biến quan tâm chính trong bài là **độ dài thời gian trễ chuyến bay**
+(`Delay`, đơn vị phút).
+
+------------------------------------------------------------------------
+
+## Đọc dữ liệu và xem cấu trúc
+
+```{r read-data}
+flight <- read_csv("data/FlightDelays.csv")
+
+glimpse(flight)
+```
+
+**Nhận xét:**
+
+-   Ta có các biến:
+    -   `Carrier`: hãng hàng không (`"UA"`, `"AA"`),
+    -   `Delay`: thời gian trễ (có thể âm nếu đến sớm),
+    -   `Month`: `"May"` hoặc `"June"`,
+    -   cùng nhiều biến khác như `FlightNo`, `Destination`,
+        `DepartTime`, ...
+
+Ta trích riêng các biến cần dùng:
+
+```{r}
+flight_small <- flight |>
+  select(Carrier, Month, Delay)
+
+head(flight_small)
+```
+
+------------------------------------------------------------------------
+
+## (a)
+
+Tiến hành một số phân tích khám phá mô tả dữ liệu về độ dài thời gian
+trễ chuyến bay của hai hãng hàng không (phân tích riêng cho từng hãng).
+
+### Thống kê mô tả theo từng hãng
+
+```{r}
+delay_summary <- flight_small |>
+  group_by(Carrier) |>
+  summarise(
+    n          = n(),
+    mean_delay = mean(Delay, na.rm = TRUE),
+    sd_delay   = sd(Delay, na.rm = TRUE),
+    median     = median(Delay, na.rm = TRUE),
+    q1         = quantile(Delay, 0.25, na.rm = TRUE),
+    q3         = quantile(Delay, 0.75, na.rm = TRUE),
+    min_delay  = min(Delay, na.rm = TRUE),
+    max_delay  = max(Delay, na.rm = TRUE)
+  )
+
+delay_summary
+```
+
+**Nhận xét**
+
+-   Hãng AA có số chuyến bay nhiều hơn (2906 so với 1123), với thời gian
+    trễ trung bình \~10 phút. Các phân vị cho thấy phần lớn chuyến của
+    AA nằm trong khoảng từ khoảng –6 đến 4 phút, median = –3 phút ⇒
+    chuyến bay của AA thường đến đúng giờ hoặc hơi sớm, chỉ một phần nhỏ
+    bị trễ nặng (nhưng vẫn có vài outlier rất lớn, max ≈ 693 phút).
+
+-   Hãng UA có thời gian trễ trung bình cao hơn (\~16 phút) và Q3 = 12.5
+    phút, median = –1 phút ⇒ so với AA, các chuyến của UA có xu hướng
+    trễ nhiều hơn, đồng thời độ biến thiên cũng lớn hơn (sd ≈ 45 phút).
+
+⇒ Nhìn chung, trong giai đoạn quan sát, UA có mức độ trễ trung bình và
+“độ trễ điển hình” cao hơn AA, dù cả hai hãng đều có khá nhiều chuyến
+đến đúng giờ hoặc sớm nhẹ.
+
+### Histogram theo hãng
+
+```{r}
+flight_small |>
+  ggplot(aes(x = Delay)) +
+  geom_histogram(bins = 20, color = "white", fill = "lightblue") +
+  facet_wrap(~ Carrier, nrow = 1) +
+  labs(
+    title = "Phân phối thời gian trễ theo hãng hàng không",
+    x = "Thời gian trễ (phút)",
+    y = "Tần số"
+  ) +
+  theme_bw()
+```
+
+**Nhận xét**
+
+-   Với AA, phần lớn chuyến bay có thời gian trễ nằm rất gần 0 phút; đa
+    số chỉ dao động từ 0–20 phút. Các giá trị trễ lớn hơn (trên 100
+    phút) xuất hiện rất ít, tạo ra đuôi phải dài nhưng tần suất thấp.
+
+-   Với UA, phân phối cũng tập trung mạnh quanh 0–20 phút, nhưng số
+    chuyến trễ nhẹ ít hơn AA. Một vài giá trị trễ rất lớn cũng xuất hiện
+    nhưng thưa thớt.
+
+=\> Biểu đồ cho thấy cả hai hãng đều có xu hướng trễ nhẹ, nhưng AA có
+nhiều chuyến bay hơn và tần suất trễ thấp rõ rệt cao hơn UA, củng cố
+nhận xét rằng UA thường trễ nhiều hơn trong giai đoạn quan sát.
+
+### Boxplot theo hãng
+
+```{r}
+flight_small |>
+  ggplot(aes(x = Carrier, y = Delay, fill = Carrier)) +
+  geom_boxplot(alpha = 0.7, show.legend = FALSE) +
+  labs(
+    title = "Boxplot thời gian trễ theo hãng hàng không",
+    x = "Hãng",
+    y = "Thời gian trễ (phút)"
+  ) +
+  theme_bw()
+```
+
+**Nhận xét**
+
+-   Với AA, phần lớn chuyến bay gần như không trễ hoặc chỉ trễ nhẹ: phần
+    hộp nằm ngay sát 0, độ cao không lớn. Tuy nhiên vẫn có một số chuyến
+    trễ rất nặng (các điểm nằm cao hẳn lên), nên phân phối thời gian trễ
+    của AA bị kéo lệch về bên phải.
+
+-   Với UA, hộp được đẩy lên cao hơn so với AA, cho thấy mức trễ điển
+    hình (trung vị và phần lớn quan sát) của UA lớn hơn. Đồng thời, UA
+    cũng có khá nhiều điểm ngoại lai với thời gian trễ rất lớn.
+
+=\> Cả hai hãng đều có nhiều chuyến trễ nhẹ nhưng đôi khi trễ rất nặng,
+trong đó UA có xu hướng trễ nhiều hơn và biến động thời gian trễ cũng
+lớn hơn so với AA.
+
+------------------------------------------------------------------------
+
+Ta tách dữ liệu theo hãng:
+
+```{r}
+delay_UA <- flight_small |>
+  filter(Carrier == "UA") |>
+  pull(Delay)
+
+delay_AA <- flight_small |>
+  filter(Carrier == "AA") |>
+  pull(Delay)
+
+length(delay_UA); length(delay_AA)
+mean(delay_UA); mean(delay_AA)
+```
+
+------------------------------------------------------------------------
+
+## (b)
+
+Tiến hành kiểm định hoán vị hai phía để xem liệu sự khác biệt về thời
+gian trễ trung bình giữa hai hãng hàng không có ý nghĩa thống kê hay
+không.
+
+Ta quan tâm đến:
+
+$$
+\theta = \mu_{UA} - \mu_{AA}.
+$$
+
+Giả thuyết:
+
+-   $H_0: \mu_{UA} = \mu_{AA}$ (không có khác biệt trung bình),
+-   $H_1: \mu_{UA} \neq \mu_{AA}$ (có khác biệt trung bình).
+
+### Thống kê quan sát
+
+```{r}
+obs_diff_mean <- mean(delay_UA, na.rm = TRUE) - mean(delay_AA, na.rm = TRUE)
+obs_diff_mean
+```
+
+### Hàm kiểm định hoán vị cho hai trung bình (mẫu độc lập)
+
+```{r}
+perm_test_two_mean <- function(x, y,
+                               R = 10000,
+                               alternative = c("two.sided", "greater", "less"),
+                               seed = NULL) {
+  alternative <- match.arg(alternative)
+  if (!is.null(seed)) set.seed(seed)
+
+  x <- x[!is.na(x)]
+  y <- y[!is.na(y)]
+
+  n1 <- length(x)
+  n2 <- length(y)
+
+  # Thống kê quan sát
+  obs_diff <- mean(x) - mean(y)
+
+  # Ghép hai mẫu lại
+  all_vals <- c(x, y)
+  t_star <- numeric(R)
+
+  for (b in seq_len(R)) {
+    perm_idx <- sample.int(n1 + n2)
+    perm_x <- all_vals[perm_idx[1:n1]]
+    perm_y <- all_vals[perm_idx[(n1 + 1):(n1 + n2)]]
+    t_star[b] <- mean(perm_x) - mean(perm_y)
+  }
+
+  p_val <- switch(
+    alternative,
+    "two.sided" = mean(abs(t_star) >= abs(obs_diff)),
+    "greater"   = mean(t_star >= obs_diff),
+    "less"      = mean(t_star <= obs_diff)
+  )
+
+  list(
+    obs_diff   = obs_diff,
+    p_value    = p_val,
+    alternative = alternative,
+    t_star     = t_star
+  )
+}
+```
+
+### Thực hiện kiểm định hoán vị
+
+```{r}
+perm_result_mean <- perm_test_two_mean(
+  x = delay_UA,
+  y = delay_AA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_result_mean$obs_diff
+perm_result_mean$p_value
+```
+
+**Nhận xét**
+
+-   Thời gian trễ trung bình của hãng UA cao hơn hãng AA khoảng
+    $\hat{\theta}_{\text{obs}} = 5.89$ phút. Kiểm định hoán vị 2 phía
+    thu được p-value rất nhỏ ($p = 0.0001$), cho thấy xác suất quan sát
+    được mức chênh lệch lớn như vậy chỉ do ngẫu nhiên gần như bằng không
+    nếu $H_0$ đúng.
+-   Vì vậy, ta bác bỏ giả thuyết $H_0$ và kết luận rằng hai hãng có sự
+    khác biệt có ý nghĩa thống kê về thời gian trễ trung bình, trong đó
+    hãng UA có xu hướng trễ nhiều hơn AA trong giai đoạn quan sát.
+
+------------------------------------------------------------------------
+
+## (c)
+
+Lặp lại ý (b) với kiểm định bootstrap. Kết luận có bị thay đổi hay
+không?
+
+Giả thuyết vẫn là:
+
+$$
+H_0: \mu_{UA} = \mu_{AA}, \quad H_1: \mu_{UA} \neq \mu_{AA}.
+$$
+
+Ta xây dựng **bootstrap test** dựa trên chênh lệch trung bình, với dữ
+liệu được **center** để phản ánh $H_0$.
+
+### Hàm kiểm định bootstrap cho hai trung bình
+
+```{r}
+boot_test_two_mean <- function(x, y,
+                               R = 10000,
+                               alternative = c("two.sided", "greater", "less"),
+                               seed = NULL) {
+  alternative <- match.arg(alternative)
+  if (!is.null(seed)) set.seed(seed)
+
+  x <- x[!is.na(x)]
+  y <- y[!is.na(y)]
+
+  n1 <- length(x)
+  n2 <- length(y)
+
+  # Thống kê quan sát
+  obs_diff <- mean(x) - mean(y)
+
+  # Center dữ liệu để phản ánh H0: mu_x = mu_y
+  x_tilde <- x - mean(x)
+  y_tilde <- y - mean(y)
+
+  t_star <- numeric(R)
+
+  for (b in seq_len(R)) {
+    boot_x <- sample(x_tilde, size = n1, replace = TRUE)
+    boot_y <- sample(y_tilde, size = n2, replace = TRUE)
+    t_star[b] <- mean(boot_x) - mean(boot_y)
+  }
+
+  p_val <- switch(
+    alternative,
+    "two.sided" = mean(abs(t_star) >= abs(obs_diff)),
+    "greater"   = mean(t_star >= obs_diff),
+    "less"      = mean(t_star <= obs_diff)
+  )
+
+  list(
+    obs_diff   = obs_diff,
+    p_value    = p_val,
+    alternative = alternative,
+    t_star     = t_star
+  )
+}
+```
+
+### Thực hiện bootstrap test
+
+```{r}
+boot_result_mean <- boot_test_two_mean(
+  x = delay_UA,
+  y = delay_AA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+boot_result_mean$obs_diff
+boot_result_mean$p_value
+```
+
+**Nhận xét**
+
+-   Kiểm định bootstrap hai phía cho kết quả thống kê quan sát
+    $\hat{\theta}_{\text{obs}} = 5.89$ và p-value rất nhỏ
+    ($p = 0.0001$). Điều này cho thấy xác suất quan sát được mức chênh
+    lệch lớn như vậy nếu giả thuyết $H_0$ đúng gần như bằng không. Vì
+    vậy, ta tiếp tục bác bỏ $H_0$.
+
+-   So với kiểm định hoán vị ở ý (b), kết luận \emph{không thay đổi}:
+    thời gian trễ trung bình của hãng UA cao hơn hãng AA một cách có ý
+    nghĩa thống kê.
+
+------------------------------------------------------------------------
+
+## (d)
+
+Các chuyến bay diễn ra vào tháng 5 và tháng 6 năm 2009. Tiến hành kiểm
+định hoán vị hai phía để xem liệu sự khác biệt về thời gian trễ trung
+bình giữa hai tháng có ý nghĩa thống kê hay không, xét các trường hợp:
+(i) thời gian trễ của cả hai hãng; (ii) chỉ của United Airlines; (iii)
+chỉ của America Airlines.
+
+### (i) Tất cả các chuyến bay
+
+```{r}
+delay_May <- flight_small |>
+  filter(Month == "May") |>
+  pull(Delay)
+
+delay_June <- flight_small |>
+  filter(Month == "June") |>
+  pull(Delay)
+
+perm_month_all <- perm_test_two_mean(
+  x = delay_May,
+  y = delay_June,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_month_all$obs_diff   # mean(May) - mean(June)
+perm_month_all$p_value
+```
+
+### (ii) Chỉ các chuyến bay của UA
+
+```{r}
+flight_UA <- flight_small |> filter(Carrier == "UA")
+
+delay_May_UA <- flight_UA |>
+  filter(Month == "May") |>
+  pull(Delay)
+
+delay_June_UA <- flight_UA |>
+  filter(Month == "June") |>
+  pull(Delay)
+
+perm_month_UA <- perm_test_two_mean(
+  x = delay_May_UA,
+  y = delay_June_UA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_month_UA$obs_diff
+perm_month_UA$p_value
+```
+
+### (iii) Chỉ các chuyến bay của AA
+
+```{r}
+flight_AA <- flight_small |> filter(Carrier == "AA")
+
+delay_May_AA <- flight_AA |>
+  filter(Month == "May") |>
+  pull(Delay)
+
+delay_June_AA <- flight_AA |>
+  filter(Month == "June") |>
+  pull(Delay)
+
+perm_month_AA <- perm_test_two_mean(
+  x = delay_May_AA,
+  y = delay_June_AA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_month_AA$obs_diff
+perm_month_AA$p_value
+```
+
+**Nhận xét**
+
+-   Với tất cả các chuyến bay, chênh lệch trung bình quan sát được là
+    $\hat{\theta}_{\text{obs}} = -5.66$ phút (tháng 6 trễ hơn tháng 5).
+    Kiểm định hoán vị cho p-value gần bằng $0$, cho thấy khả năng quan
+    sát được mức chênh lệch này do ngẫu nhiên là gần như không có. =\>
+    Vì vậy, ta bác bỏ $H_{0}$ và kết luận rằng thời gian trễ trung bình
+    của tháng\~6 lớn hơn tháng\~5 một cách có ý nghĩa thống kê
+
+-   Với riêng UA, chênh lệch quan sát
+    $\hat{\theta}_{\text{obs}} = -2.98$ phút, nhưng p-value thu được là
+    $0.2675 > 0.05$. ⇒ Không bác bỏ $H_{0}$. Nói cách khác, không có đủ
+    bằng chứng thống kê để khẳng định sự khác biệt về thời gian trễ
+    trung bình giữa tháng 5 và tháng 6 đối với hãng UA.
+
+-   Với riêng AA, chênh lệch quan sát
+    $\hat{\theta}_{\text{obs}} = -6.59$ phút và p-value bằng $0.0001$,
+    một giá trị rất nhỏ. =\> Vì vậy, ta bác bỏ $H_{0}$ và kết luận rằng
+    thời gian trễ trung bình của các chuyến bay AA tháng 6 cao hơn tháng
+    5 một cách rõ rệt về mặt thống kê.
+
+------------------------------------------------------------------------
+
+## (e)
+
+Tính tỷ lệ các chuyến bay của mỗi hãng hàng không bị chậm hơn 20 phút.
+Tiến hành kiểm định hai phía để xem sự khác biệt giữa các tỷ lệ này có ý
+nghĩa thống kê hay không.
+
+Ta tạo biến nhị phân:
+
+$$
+late20 = \mathbf{1}(Delay > 20).
+$$
+
+### Tạo biến chỉ thị và tỉ lệ theo hãng
+
+```{r}
+flight_small <- flight_small |>
+  mutate(
+    late20 = if_else(Delay > 20, 1, 0)
+  )
+
+prop_late20 <- flight_small |>
+  group_by(Carrier) |>
+  summarise(
+    n = n(),
+    prop_late20 = mean(late20)
+  )
+
+prop_late20
+```
+
+### Kiểm định hoán vị cho hai tỉ lệ
+
+```{r}
+late20_UA <- flight_small |>
+  filter(Carrier == "UA") |>
+  pull(late20)
+
+late20_AA <- flight_small |>
+  filter(Carrier == "AA") |>
+  pull(late20)
+
+perm_result_prop <- perm_test_two_mean(
+  x = late20_UA,
+  y = late20_AA,
+  R = 10000,
+  alternative = "two.sided",
+  seed = 2025
+)
+
+perm_result_prop$obs_diff   # p_hat_UA - p_hat_AA
+perm_result_prop$p_value
+```
+
+**Nhận xét**
+
+-   $\hat{p}_{UA}$ = tỉ lệ chuyến bay UA trễ \> 20 phút.\
+-   $\hat{p}_{AA}$ = tỉ lệ chuyến bay AA trễ \> 20 phút.\
+-   Chênh lệch quan sát được là:
+    $\hat{\theta}_{\text{obs}} = \hat p_{\text{UA}} - \hat p_{\text{AA}} \approx 0.0435$,
+    tức tỉ lệ trễ nặng của UA cao hơn AA khoảng $4.35$ điểm phần trăm.
+-   P-value thu được là $p \approx 0.0016 < 0.05$. =\> Ta bác bỏ $H_0$
+    và kết luận rằng hai hãng có sự khác biệt có ý nghĩa thống kê về tỉ
+    lệ các chuyến bay trễ hơn 20 phút, trong đó tỉ lệ của UA cao hơn của
+    AA.
+
+------------------------------------------------------------------------
+
+## (f)
+
+Tính phương sai về thời gian chậm trễ của mỗi chuyến bay. Tiến hành kiểm
+định để xem phương sai của United Airlines có khác với American Airlines
+hay không.
+
+Ta kiểm tra:
+
+$$
+H_0: \sigma^2_{UA} = \sigma^2_{AA}, \qquad
+H_1: \sigma^2_{UA} \neq \sigma^2_{AA}.
+$$
+
+### Hàm permutation test cho tỉ số phương sai
+
+```{r}
+perm_test_var_ratio <- function(x, y,
+                                R = 10000,
+                                seed = NULL) {
+  if (!is.null(seed)) set.seed(seed)
+
+  x <- x[!is.na(x)]
+  y <- y[!is.na(y)]
+
+  n1 <- length(x)
+  n2 <- length(y)
+
+  # Thống kê quan sát
+  obs_ratio <- var(x) / var(y)
+  obs_stat  <- abs(log(obs_ratio))
+
+  all_vals <- c(x, y)
+  t_star <- numeric(R)
+
+  for (b in seq_len(R)) {
+    perm_idx <- sample.int(n1 + n2)
+    perm_x <- all_vals[perm_idx[1:n1]]
+    perm_y <- all_vals[perm_idx[(n1 + 1):(n1 + n2)]]
+    ratio_b <- var(perm_x) / var(perm_y)
+    t_star[b] <- abs(log(ratio_b))
+  }
+
+  p_val <- mean(t_star >= obs_stat)
+
+  list(
+    obs_ratio = obs_ratio,
+    obs_stat  = obs_stat,
+    p_value   = p_val,
+    t_star    = t_star
+  )
+}
+```
+
+### Thực hiện kiểm định
+
+```{r}
+var_result <- perm_test_var_ratio(
+  x = delay_UA,
+  y = delay_AA,
+  R = 10000,
+  seed = 2025
+)
+
+var_result$obs_ratio   # Var(UA) / Var(AA)
+var_result$p_value
+```
+
+**Nhận xét**
+
+-   Thống kê quan sát được là tỉ số phương sai: $$
+    T_{\text{obs}} = \frac{\widehat{\sigma}^2_{UA}}{\widehat{\sigma}^2_{AA}} 
+    \approx 1.2683,
+    $$ tức phương sai thời gian trễ của UA trong mẫu lớn hơn khoảng
+    $26.8\%$ so với AA.
+
+-   P-value thu được là $p \approx 0.3006 > 0.05$. =\> Ta không bác bỏ
+    $H_0$ và kết luận rằng chưa có đủ bằng chứng thống kê để khẳng định
+    phương sai thời gian trễ của UA khác với AA.
+
+------------------------------------------------------------------------
+
+# Bài tập 16 : MobileAds dataset
+
+# About MobileAds dataset
+
+## Load data
+
+```{r}
+mobile_ads = read_csv("data/MobileAds.csv")
+```
+
+```{r}
+glimpse(mobile_ads)
+```
+
+# Exploration
+
+## Re-format dataframe
+
+```{r}
+summary_table <- mobile_ads |> select(where(is.numeric)) |>                
+  summarize(across(everything(), list(
+    mean = mean,
+    median = median,
+    sd = sd,
+    min = min,
+    max = max
+  ), na.rm = TRUE, .names = "{.col}#{.fn}")) |>  
+  pivot_longer(cols = everything(),
+               names_to = "name",
+               values_to = "value") |>
+  separate(name, into = c("variable", "stat"), sep = "\\#") |>
+  pivot_wider( names_from = variable, values_from = value)
+```
+
+```{r}
+summary_table
+```
+
+```{r}
+data_a <- mobile_ads |> 
+  select(Campaign,contains("error.cpr"))
+
+head(data_a)
+```
+
+```{r}
+data_b <- mobile_ads |> select(- mult.change & -error.cpr_pre & -error.cpr_post)
+
+head(data_b)
+```
+
+```{r}
+data_b <- data_b |>
+  pivot_longer(
+    cols = -Campaign,
+    names_to = "variable",
+    values_to = "value"
+  ) |>
+  separate(
+    col = variable,
+    into = c("platform", "stat", "time"),
+    sep = "[._]"
+  ) |>
+  pivot_wider(names_from = stat)
+
+data_b
+```
+
+# Problems
+
+## 1.1 Question
+
+> What is the rate of zero - cpc in mobile platform during experiments ?
+
+## 1.2 Ans
+
+```{r}
+cpc_m_zero <- data_b |>
+  filter(time == "post", cpc == 0, platform == "m") 
+
+cpc_m <- data_b |>
+  filter(time == "post", platform == "m") 
+
+cpc_d_zero <- data_b |>
+  filter(time == "post", cpc == 0, platform == "d") 
+
+cpc_d <- data_b |>
+  filter(time == "post", platform == "d") 
+cpc_m_zero
+```
+
+```{r}
+nrow(cpc_m_zero)/ nrow(cpc_m)
+```
+
+## 2.1 Question
+
+> Is there any *statistical* difference between mobile and desktop in
+> term of cpc ?
+
+## 2.2 Ans
+
+```{r}
+prop.test(
+  x = c(nrow(cpc_m_zero), nrow(cpc_d_zero)),
+  n = c(nrow(cpc_m), nrow(cpc_d)),
+  correct = FALSE
+)
+```
+
+**Nhận xét**
+
+-   Tỷ lệ **zero-CPC** cao hơn trên **thiết bị di động** (7.18%) so với
+    trên **máy tính để bàn** (4.27%).
+-   Giá trị **p-value** là $0.02385$ ($\text{<} 0.05$), sự khác biệt này
+    có **ý nghĩa thống kê**.
+
+=\> Điều này cho thấy rằng nền tảng di động và máy tính để bàn **không**
+có cùng tỷ lệ zero-CPC.
+
+## 3.1 Question
+
+> Utilize the data in terms of mobile platform. Do the Exploratory Data
+> Anaysis.
+
+## 3.2 Ans
+
+```{r}
+m_stats <- data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  group_by(time) |>
+  summarise(across(
+    conv,
+    list(
+      mean = mean,
+      median = median,
+      sd = sd,
+      min = min,
+      max = max
+    ),
+    na.rm = TRUE,
+    .names = "{.fn}"
+  ))
+
+m_stats
+```
+
+```{r}
+data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  ggplot(aes(x = time, y = conv, fill = time)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, color = "black", alpha = 0.8) +
+  scale_fill_manual(values = c("pre" = "#8C6BB1", "post" = "#9E9AC8")) +
+  labs(
+    title = "Comparison of conv Distributions (Pre vs Post)",
+    x = "",
+    y = "conv"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+```{r}
+data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  mutate(conv_log = log1p(conv)) |>
+  ggplot(aes(x = time, y = conv_log, fill = time)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, color = "black", alpha = 0.8) +
+  scale_fill_manual(values = c("pre" = "#8C6BB1", "post" = "#9E9AC8")) +
+  labs(
+    title = "Violin Plot using log1p(conv)",
+    x = "",
+    y = "log1p(conv)"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+Để dễ hình dung hơn, ta đã áp dụng **phép biến đổi logarit** (log
+transformation) cho các giá trị số lượng chuyển đổi (**conv**). Và ta
+rút ra các kết luận dựa vào biểu đồ là:
+
+-   **Loại Phân phối:** Biểu đồ này cho thấy các mẫu **không tuân theo
+    phân phối Gaussian (Phân phối Chuẩn)**.
+
+-   **Phát hiện Chính:** Số lượng chuyển đổi trung vị (median) **thấp
+    hơn** sau thử nghiệm, cho thấy **sự thay đổi tiêu cực** trong hiệu
+    suất trung bình.
+
+-   **Thay đổi Phân phối:** Các giá trị trước thử nghiệm cao hơn (lên
+    tới 14), trong khi các giá trị sau thử nghiệm **phân bố đều hơn**
+    nhưng thấp hơn (lên tới 11).
+
+-   **Kết luận:** Thử nghiệm đã **ảnh hưởng tiêu cực đến số lượng chuyển
+    đổi thành công trung bình** nhưng **ổn định kết quả hiệu suất** (ít
+    giá trị cực đại hơn).
+
+## 4.1 Question
+
+> applied A/B testing on conversion rate
+
+## 4.2 Ans
+
+Như đã đề cập ở trên, **kiểm định t-test** sẽ không được sử dụng trực
+tiếp. Chúng ta sẽ thử một phương pháp dựa trên dữ liệu (data-driven):
+**Kiểm định Bootstrap** trên giá trị trung bình.
+
+Và dữ liệu này, về mặt giả thuyết, có thể nó không phù hợp về tính hoán
+đổi (invertability) nên ta không dùng permutation test.
+
+Chúng ta thiết lập giả thuyết như sau:
+
+$$
+\begin{aligned}
+H_0: \ \mu_{\text{nền tảng A}} &= \mu_{\text{nền tảng B}} \\
+H_1: \ \mu_{\text{nền tảng A}} &\neq \mu_{\text{nền tảng B}}
+\end{aligned}
+$$
+
+Trong đó, $\mu_{\text{nền tảng A}}$ và $\mu_{\text{nền tảng B}}$ đại
+diện cho **tỷ lệ chuyển đổi trung bình thực** của mỗi nền tảng.
+
+```{r}
+set.seed(42)
+
+conv_m <- data_b |> 
+  filter(platform == "m") |>
+  select(conv) |>
+  pull()
+
+conv_d <- data_b |>
+  filter(platform == "d") |>
+  select(conv) |>
+  pull()
+
+observed_diff <- abs(mean(conv_m,na.rm = TRUE) - mean(conv_d,na.rm = TRUE))
+cat(sprintf("Sự khác biệt Quan sát (B - A): %.4f\n\n", observed_diff))
+
+
+```
+
+Vòng lặp Bootstrap :
+
+-   Ở đây ta sẽ dịch dữ liệu về gốc bằng cách trừ cho trung bình mãu của
+    nó
+-   Thực hiện việc boostrap 10000 lần và tính các thống kê cần thiết.
+-   Trong mỗi lần lặp, tính toán đại lượng thống kê kiểm định (giống như
+    giá trị $t$) dựa trên công thức:
+
+$$
+T^* = \frac{\bar{X}_{m}^{*} - \bar{X}_{d}^{*}}{\sqrt{\frac{\text{SD}(X_{m}^{*})^2}{n_m} + \frac{\text{SD}(X_{d}^{*})^2}{n_d}}}
+$$
+
+Đại lượng này được lưu vào `diffs_simulated` để xây dựng phân phối mô
+phỏng và tính toán **p-value** sau đó.
+
+```{r}
+n_m <- length(conv_m)
+n_d <- length(conv_d)
+N_total <- n_m + n_d
+
+num_bootstraps <- 10000
+diffs_simulated <- numeric(num_bootstraps)
+
+cat(sprintf("Boostraping (%d times)...\n", num_bootstraps))
+
+conv_m_til <- conv_m - mean(conv_m,na.rm = TRUE)
+conv_d_til <- conv_d -mean(conv_d,na.rm = TRUE)
+
+conv_sm <- sd(conv_m,na.rm = TRUE)
+conv_sd <- sd(conv_d,na.rm = TRUE)
+
+
+for (i in 1:num_bootstraps) {
+  sample_m <- sample(conv_m_til,
+                     size = n_m,
+                     replace = TRUE)
+  
+  sample_d <- sample(conv_d_til,
+                     size = n_d,
+                     replace = TRUE)
+  
+  
+  # Tính và lưu lại sự khác biệt của mẫu mô phỏng
+  diffs_simulated[i] <- (mean(sample_m,na.rm = TRUE) - mean(sample_d,na.rm = TRUE))/sqrt((sd(sample_m,na.rm = TRUE)^2)/n_m + (sd(sample_d,na.rm = TRUE)^2)/n_d )
+}
+
+cat("Done.\n\n")
+```
+
+Tính P-Value và Kết luận ---
+
+```{r}
+
+T_obs <- observed_diff/sqrt((conv_sm^2)/n_m + (conv_sd^2)/n_d )
+
+p_value <- sum(abs(diffs_simulated) >= abs(T_obs)) / num_bootstraps
+
+# In kết quả
+cat("--- Kết quả Kiểm tra Bootstrap Shift Method ---\n")
+cat(sprintf("Observed Statistic (Y_bar1 - Y_bar2): %.4f\n", T_obs))
+cat(sprintf("Bootstrap P-Value (Hai phía): %.4f\n", p_value))
+
+# Kiểm tra P-Value
+if (p_value < 0.05) {
+  cat("\nKết luận: P-value < 0.05. Bác bỏ H0. Có sự khác biệt có ý nghĩa thống kê giữa mu1 và mu2.\n")
+} else {
+  cat("\nKết luận: P-value >= 0.05. Không bác bỏ H0. Không có đủ bằng chứng về sự khác biệt.\n")
+}
+```
+
+```{r}
+abs(T_obs)
+max(abs(diffs_simulated))
+```
+
+**Nhận xét :** Dựa vào kết quả, ta sẽ bác bỏ H0.
+
+Tuy nhiên, thật sự hơi lạ vì p value bằng 0, tuy nhiên khi thực hiện
+kiểm tra thì ta thấy kể cả có lần phần từ lớn nhất của diffs_simulated
+thì chúng không bao giờ chạm tới T_obs đã tính phía trên, nên dẫn tới
+việc công thức tính P-value phía trên trả về giá trị 0.
+
+## 5.1 Question
+
+> Utilize the data in terms of ROI. Do the Exploratory Data Anaysis.
+
+## 5.2 Ans
+
+```{r}
+
+data_b <- data_b|>
+  mutate(roi = value/cost)
+
+m_stats <- data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  group_by(time) |>
+  summarise(across(
+    roi,
+    list(
+      mean = mean,
+      median = median,
+      sd = sd,
+      min = min,
+      max = max
+    ),
+    na.rm = TRUE,
+    .names = "{.fn}"
+  ))
+
+m_stats
+```
+
+```{r}
+data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  ggplot(aes(x = time, y = roi, fill = time)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, color = "black", alpha = 0.8) +
+  scale_fill_manual(values = c("pre" = "#8C6BB1", "post" = "#9E9AC8")) +
+  labs(
+    title = "Comparison of conv Distributions (Pre vs Post)",
+    x = "",
+    y = "conv"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+```{r}
+data_b |>
+  filter(platform == "m", time %in% c("pre", "post")) |>
+  mutate(roi_log = log1p(roi)) |>
+  ggplot(aes(x = time, y = roi_log, fill = time)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.15, color = "black", alpha = 0.8) +
+  scale_fill_manual(values = c("pre" = "#8C6BB1", "post" = "#9E9AC8")) +
+  labs(
+    title = "Violin Plot using log1p(conv)",
+    x = "",
+    y = "log1p(conv)"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+Biểu đồ violin này so sánh hiệu suất chuyển đổi **'pre'** và **'post'**
+một thử nghiệm, như ban trên, dữ liệu bị lệch khá nặng nên ta áp dụng
+log-transfỏrm để theo dõi được những pattern của dữ liệu:
+
+-   **Giảm Sút Độ Trung Vị:** Độ trung vị $\text{conv}$ đã **giảm** từ
+    'trước' (khoảng 0.75) xuống 'sau' (dưới 0.5). Điều này cho thấy **tỷ
+    lệ ROI** sau khi thay đổi được thực hiện.
+
+Tóm lại, thử nghiệm đã tác động tiêu cực đến **tỷ lệ ROI thấp hơn** và
+làm tăng **rủi ro cao hơn** (do phương sai cao hơn) trong các kết quả
+chuyển đổi trên các nền tảng.
+
+## 5.1 Question
+
+> applied A/B testing on conversion rate
+
+## 5.2 Ans
+
+Như đã đề cập ở trên, **kiểm định t-test** sẽ không được sử dụng trực
+tiếp. Chúng ta sẽ thử một phương pháp dựa trên dữ liệu (data-driven):
+**Kiểm định Bootstrap** trên giá trị trung bình.
+
+Và dữ liệu này, về mặt giả thuyết, có thể nó không phù hợp về tính hoán
+đổi (invertability) nên ta không dùng permutation test.
+
+Chúng ta thiết lập giả thuyết như sau:
+
+$$
+\begin{aligned}
+H_0: \ \mu_{\text{ROI A}} &= \mu_{\text{ROI B}} \\
+H_1: \ \mu_{\text{ROI A}} &\neq \mu_{\text{ROI B}}
+\end{aligned}
+$$
+
+trong đó $\mu_{\text{ROI A}}$ và $\mu_{\text{ROI B}}$ đại diện cho **tỷ
+lệ chuyển đổi trung bình thực** của mỗi nền tảng.
+
+```{r}
+set.seed(42)
+
+roi_m <- data_b |> 
+  filter(platform == "m") |>
+  select(roi) |>
+  pull()
+
+roi_d <- data_b |>
+  filter(platform == "d") |>
+  select(roi) |>
+  pull()
+
+observed_diff <- abs(mean(roi_m,na.rm = TRUE) - mean(roi_d,na.rm = TRUE))
+cat(sprintf("Sự khác biệt Quan sát (B - A): %.4f\n\n", observed_diff))
+
+
+```
+
+Vòng lặp Bootstrap
+
+```{r}
+mean(roi_m,na.rm = TRUE)
+```
+
+```{r}
+n_m <- length(roi_m)
+n_d <- length(roi_d)
+N_total <- n_m + n_d
+
+num_bootstraps <- 10000
+diffs_simulated <- numeric(num_bootstraps)
+
+cat(sprintf("Boostraping (%d times)...\n", num_bootstraps))
+
+roi_sm <- sd(roi_m,na.rm = TRUE)
+roi_sd <- sd(roi_d,na.rm = TRUE)
+
+roi_m_til <- roi_m - mean(roi_m,na.rm = TRUE)
+roi_d_til <- roi_d -mean(roi_d,na.rm = TRUE)
+
+
+
+
+for (i in 1:num_bootstraps) {
+  sample_m <- sample(roi_m_til,
+                     size = n_m,
+                     replace = TRUE)
+  
+  sample_d <- sample(roi_d_til,
+                     size = n_d,
+                     replace = TRUE)
+  
+  
+  # Tính và lưu lại sự khác biệt của mẫu mô phỏng
+  diffs_simulated[i] <- (mean(sample_m,na.rm = TRUE) - mean(sample_d,na.rm = TRUE))/sqrt((sd(sample_m,na.rm = TRUE)^2)/n_m + (sd(sample_d,na.rm = TRUE)^2)/n_d )
+}
+
+cat("Done.\n\n")
+```
+
+Tính P-Value và Kết luận ---
+
+```{r}
+
+T_obs <- observed_diff/sqrt((roi_sm^2)/n_m + (roi_sd^2)/n_d )
+
+p_value <- sum(abs(diffs_simulated) >= abs(T_obs)) / num_bootstraps
+
+# In kết quả
+cat("--- Kết quả Kiểm tra Bootstrap Shift Method ---\n")
+cat(sprintf("Observed Statistic (Y_bar1 - Y_bar2): %.4f\n", T_obs))
+cat(sprintf("Bootstrap P-Value (Hai phía): %.4f\n", p_value))
+
+# Kiểm tra P-Value
+if (p_value < 0.05) {
+  cat("\nKết luận: P-value < 0.05. Bác bỏ H0. Có sự khác biệt có ý nghĩa thống kê giữa mu1 và mu2.\n")
+} else {
+  cat("\nKết luận: P-value >= 0.05. Không bác bỏ H0. Không có đủ bằng chứng về sự khác biệt.\n")
+}
+
+```
+
+**Nhận xét**
+
+Do p_value = 0.885 \>= 0.05 nên ta chưa đủ bằng chứng bác bỏ giả thuyết
+tỷ lệ ROI trước và sau thí nghiệm là khác nhau.

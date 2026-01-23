@@ -1,0 +1,127 @@
+\begin{question}{4}
+Một công ty quản lý phân phối sản phẩm tới các cửa hàng bán lẻ, đã thực hiện thu
+thập dữ liệu về giá niêm yết của cùng 1 sản phẩm từ hai cửa hàng. 
+Có tất cả n sản phẩm được
+quan sát. Mục tiêu của công ty là so sánh giá niêm yết của cùng một sản phẩm tại hai cửa hàng
+khác nhau nhằm phát hiện gian lận thương mại.
+
+
+ %---- 6.a ----
+    \begin{subquestion}{Dựa vào cách thiết kế và thu thập dữ liệu, 
+        hãy giải thích tại sao đây là ví dụ về dữ liệu ghép cặp.}
+        \begin{answer}
+            Dựa vào cách thiết kế thu thập dữ liệu được mô tả phía trên,
+            ta đã tiến hành lấy mẫu ngẫu nhiên n sản phẩm từ cả hai cửa hàng.
+            Ta đặt :
+            \begin{align*}
+                Y_{1i} &: \text{giá niêm yết của sản phẩm thứ i tại cửa hàng 1} \\
+                Y_{2i} &: \text{giá niêm yết của sản phẩm thứ i tại cửa hàng 2} \\
+            \end{align*}
+
+            Như vậy, ta có thể thấy rằng giá niêm yết của cùng một sản phẩm tại hai cửa hàng
+            khác nhau sẽ có sự liên kết với nhau, tức là giá niêm yết của sản phẩm 
+            thứ i tại cửa hàng 1
+            sẽ liên quan đến giá niêm yết của sản phẩm thứ i tại cửa hàng 2.
+            Do đó, ta có thể kết luận rằng đây là ví dụ về dữ liệu ghép cặp.
+        \end{answer}
+
+    \end{subquestion}
+
+ %---- 6.b ----
+    \begin{subquestion}{Hãy phát biểu giả thuyết gốc H0 
+        và đối thuyết H1 theo mục tiêu của công ty, tương ứng với
+thiết kế thu thập dữ liệu.}
+    \begin{answer}
+        Mục tiêu của công ty là so sánh giá niêm yết của cùng một sản phẩm tại hai cửa hàng
+        khác nhau nhằm phát hiện gian lận thương mại. Do đó, ta có thể phát biểu giả thuyết gốc
+        và đối thuyết như sau:
+        \begin{align*}
+            H_0 &: \mu_D = 0 \quad \text{(không có sự khác biệt về giá niêm yết giữa hai cửa hàng)} \\
+            H_1 &: \mu_D \neq 0 \quad \text{(có sự khác biệt về giá niêm yết giữa hai cửa hàng)}
+        \end{align*}
+        Trong đó, $\mu_D$ là trung bình của các hiệu giá niêm yết giữa hai cửa hàng cho cùng một sản phẩm.
+
+    \end{answer}
+  \end{subquestion}
+
+  \begin{subquestion}{Hãy xây dựng quy trình kiểm định hoán vị cho giả thuyết gốc H0 và đối thuyết H1 được phát
+biểu trong ý (b) sao cho tương ứng với dữ liệu ghép cặp.}
+
+    \begin{answer}
+        Để xây dựng quy trình kiểm định hoán vị cho giả thuyết gốc H0 và đối thuyết H1,
+         ta có thể thực hiện các bước sau:
+        \begin{enumerate}
+            \item Tính $t_{diff} = \bar{Y_1} - \bar{Y_2}$ từ dữ liệu quan sát ban đầu
+            \item Gộp chung hai dữ liệu thành một dữ liệu chung, ký hiệu chung là $Y$.
+            với cỡ mẫu là $2n$
+            \item Hoán vị các vị trí trong dữ liệu chung, sau đó, chia ngẫu nhiên dữ liệu thành hai bộ dữ
+liệu có kích cỡ bằng nhau là $n$.
+            \item Tính toán hiệu trung bình sau hoán vị của hai nhóm:
+            \[
+                t_{diff,\pi} = bar{Y_{1,\pi}} - bar{Y_{2,\pi}}
+            \]
+            \item Lập lại bước 3 và 4 trong n! lần
+            \item Tính P-value :
+            \[
+                p\text{-value} = \frac{\text{số lần } |t_{diff,\pi}| \geq |t_{diff}|}{\text{tổng số hoán vị}}
+            \]
+            \item Quyết định kết luận:
+            \begin{itemize}
+                \item Nếu p-value nhỏ hơn mức ý nghĩa $\alpha$ (ví dụ: 0.05), bác bỏ giả thuyết gốc H0.
+                \item Ngược lại, không đủ bằng chứng để bác bỏ H0.
+            \end{itemize}
+        \end{enumerate}
+
+    \end{answer}
+
+\end{subquestion}
+
+\begin{subquestion}{Hãy xây dựng quy trình kiểm định Bootstrap cho giả thuyết 
+    gốc H0 và đối thuyết H1 tương ứng với dữ liệu ghép cặp.}
+
+\begin{answer}
+    Để xây dựng quy trình kiểm định Bootstrap, 
+    ta sẽ tập trung vào hiệu số giữa các cặp quan sát và sử dụng phương pháp *
+    *Bootstrap để kiểm định giả thuyết .
+    \begin{enumerate}
+        \item  Tính toán Thống kê Quan sát: 
+        \begin{itemize}
+            \item Tính  hiệu số  $D_i = Y_{1,i} - Y_{2,i}$ cho mỗi cặp dữ liệu $i = 1, \dots, n$.
+            \item Tính toán  thống kê kiểm định quan sát  $T_{obs} = \bar{D}$ (trung bình của các hiệu số $D_i$).
+        \end{itemize}
+        \item  Dịch chuyển dữ liệu (Shifting): 
+        \begin{itemize}
+            \item Theo giả thuyết $H_0: \mu_d = 0$, ta cần tạo ra một tập dữ liệu  mẫu Bootstrap  tuân theo $H_0$.
+            \item  Dịch chuyển  (center) tập hiệu số $D$ bằng cách tính $D^* = D - \bar{D}$. Khi đó, $\bar{D^*} = 0$, phù hợp với $H_0$.
+        \end{itemize}
+        \item  Lặp lại quá trình Bootstrap $B$ lần (ví dụ: $B=10,000$): 
+        \begin{enumerate}
+            \item  Lấy mẫu Bootstrap:  Rút mẫu ngẫu nhiên  có hoàn lại  $n$ hiệu số từ tập $D^*$ để tạo ra tập mẫu Bootstrap $D_b^* = \{D_{b,1}^*, \dots, D_{b,n}^*\}$.
+            \item  Tính toán Thống kê Bootstrap:  Tính toán  thống kê kiểm định Bootstrap  $T_b$ từ mẫu $D_b^*$:
+            \[
+                T_b = \bar{D_b^*} = \frac{1}{n} \sum_{i=1}^{n} D_{b,i}^*
+            \]
+        \end{enumerate}
+        \item  Xây dựng Phân phối Mẫu Bootstrap: 
+        \begin{itemize}
+            \item Tập hợp tất cả các giá trị $T_b$ thu được để tạo ra  phân phối mẫu Bootstrap  dưới $H_0$.
+        \end{itemize}
+        \item  Tính toán P-value: 
+        \begin{itemize}
+            \item Giá trị $p$ được tính bằng tỷ lệ các thống kê Bootstrap có giá trị bằng hoặc lớn hơn (theo trị tuyệt đối) thống kê quan sát $T_{obs}$ (đối với kiểm định hai phía):
+            \[
+                p\text{-value} = \frac{\text{số lần } |T_b| \geq |T_{obs}|}{B}
+            \]
+        \end{itemize}
+        \item  Quyết định kết luận: 
+        \begin{itemize}
+            \item Nếu $p$-value nhỏ hơn mức ý nghĩa $\alpha$ (ví dụ: 0.05),  bác bỏ giả thuyết gốc $H_0$ .
+            \item Ngược lại,  không đủ bằng chứng để bác bỏ $H_0$ .
+        \end{itemize}
+    \end{enumerate}
+
+\end{answer}
+\end{subquestion}
+
+\end{question}
+

@@ -26,7 +26,7 @@ sudo apt install texlive-bibtex-extra chktex latexmk texlive-lang-other texlive-
 2. Gõ **LaTeX Workshop**
 3. Nhấn **Install**
 
- Inside Vscode, hold ctrl shift P -> Open user settings (Json), then modify your settings,json files into this:
+ Inside Vscode, hold ctrl shift P -> Open user settings (Json), then modify your settings.json files into this:
 
 ```bash
 {
@@ -117,9 +117,9 @@ sudo apt install texlive-bibtex-extra chktex latexmk texlive-lang-other texlive-
    \LaTeX\ is working perfectly.
    \end{document}
    ```
+
 4. Nhấn **Ctrl + Alt + B** (hoặc nhấn biểu tượng “Build LaTeX project” ở thanh công cụ) để biên dịch thành file PDF.
 
----
 
 
 

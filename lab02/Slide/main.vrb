@@ -1,0 +1,17 @@
+\frametitle{Analysis 2: Conversion Rate}
+\begin{block}{Test Statistic Function (Proportion Difference)}
+        \[
+        t = \hat{p}_{\text{new}} - \hat{p}_{\text{old}}
+        \]
+    \end{block}
+
+    \begin{block}{Execution and Results (R = 10,000)}
+        \scriptsize
+\begin{verbatim}
+> cat("Observed Proportion Difference (Conversion):", res_conv$observed, "\n")
+Observed Proportion Difference (Conversion): 0.24
+
+> cat("P-value (Conversion):", res_conv$p_value, "\n")
+P-value (Conversion): 0.0147
+\end{verbatim}
+    \end{block}
