@@ -1,42 +1,76 @@
 ---
-title: "Clean Data"
-author: Ngọc Anh
+title: "Uncovering Key Drivers of Diabetes Status"
+subtitle: "A Statistical Analysis of the BRFSS Health Indicators Dataset"
+author: "Nguyễn Thị Ngọc Anh, Trần Tiến Đạt, Nguyễn Thái Hưng Thịnh"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_float: true
 ---
 
-## 2. Objective
-The objective of this analysis is to explore the relationships between lifestyle factors, demographic characteristics, and health indicators, with a particular focus on diabetes status. Specifically, the study aims to understand the overall structure and key characteristics of the dataset, ensure data reliability through appropriate cleaning procedures, and identify meaningful patterns and trends associated with diabetes. The findings are intended to provide insights into how lifestyle and demographic factors relate to health outcomes. We plan to use another data for methods
+# 1. Introduction
 
-*How diabetes differs from diferent democra class*
-Tuổi tác ảnh hướng như thế nào đến Bệnh tiểu đường?
-Giới tính liệu có liên quan gì đến bệnh tiểu đường hay không ?
-Khả năng tiếp cận y tế có liên quan như thế nào đến với bệnh tiểu đường
-*How their style life affects diabetes risk*
-1. Does bad habits relate to tiểu đường
-2. How good habits relate to bệnh tiểu đường
-*What risk factors are most predictive of diabetes risk?*
-Tình trạng béo phì có khác nhau giữa những lớp người bị tiểu đường hay không ? <A/B testing>
-Tình trạng cholesterol có khác nhau giữa những lớp người bị tiểu đường không ? <A/B testing>
-xử lý dữ liệu (kiểm tra đa cộng tuyến,...) để huấn luyện các mô hình học máy, dựa vào các biến sức khỏe -> đưa ra các con số để xem risk factors nào là ảnh hướng nhất tới việc dự đoán bệnh tiểu đường
+Diabetes is currently one of the most prevalent chronic diseases worldwide, posing a significant burden on individuals, healthcare systems, and public health infrastructures. Numerous studies have been conducted to analyze diabetes risk, progression, and associated complications, with many of them focusing on statistical analyses or traditional risk factors. However, a major challenge remains: identifying individuals at high risk of diabetes early enough to enable timely intervention.
 
+Early diagnosis of diabetes can facilitate lifestyle modifications and more effective treatment strategies, thereby reducing the risk of more severe complications. For this reason, predictive models for diabetes risk have become increasingly important tools for various clinic and health survices, as well as decrease the time and pressure on health sectors.
 
+The objective of this project is to investigate how diabetes risk varies across different demographic groups and lifestyle patterns, and to identify the most important health-related predictors of diabetes. Specifically, the study seeks to understand how diabetes prevalence differs by age and gender, and whether access to healthcare is associated with diabetes outcomes. In addition, the analysis examines how lifestyle behaviors—such as unhealthy habits (e.g., smoking, physical inactivity) and positive habits (e.g., regular exercise, healthy diet)—influence the risk of developing diabetes. The project also evaluates whether key clinical risk factors, including obesity status and cholesterol levels, differ significantly between individuals with and without diabetes using comparative statistical analyses. After ensuring data quality through preprocessing steps such as handling missing values and checking multicollinearity, several machine learning models will be trained using health indicators to predict diabetes status. The importance of each risk factor will be quantified to determine which variables contribute most strongly to diabetes prediction, providing practical insights for early risk assessment and prevention strategies.
 
----
+------------------------------------------------------------------------
 
-## 3. Background / Context
+# 2. Dataset
 
-Building upon previous public health studies that rely on large-scale survey data, this **research** makes use of the 2015 Behavioral Risk Factor Surveillance System (BRFSS), an annual health monitoring program conducted by the Centers for Disease Control and Prevention (CDC) in the United States. The BRFSS is designed to capture information on health-related behaviors, chronic disease prevalence, and access to preventive health services among adults aged 18 years and older across all U.S. states and selected territories.
+## 2.1 Context
+
+Building upon previous public health studies that rely on large-scale survey data, this report makes use of the **2015 Behavioral Risk Factor Surveillance System (BRFSS)**, an annual health monitoring program conducted by the Centers for Disease Control and Prevention (CDC) in the United States. The BRFSS is designed to capture information on health-related behaviors, chronic disease prevalence, and access to preventive health services among adults aged 18 years and older across all U.S. states and selected territories.
 
 Data are collected through standardized telephone-based surveys, including both landline and mobile phones, and are administered by state health departments following protocols developed by the CDC. The collected responses are subsequently aggregated, cleaned, and standardized to support population-level analyses in public health and epidemiology.
 
 The variables in the dataset are primarily based on self-reported information provided by survey participants. In particular, variables related to disease status reflect whether respondents had previously been diagnosed by a physician or other health care professional, rather than being derived from direct clinical measurements. Additionally, certain composite indicators, such as body mass index (BMI), are calculated from self-reported personal information, including height and weight.
 
-The original BRFSS 2015 dataset is publicly available and can be accessed at:
-https://www.cdc.gov/brfss/annual_data/annual_2015.html
+The original dataset contain three files: 1. diabetes \_ 012 \_ health \_ indicators \_ BRFSS2015.csv 2. diabetes \_ binary \_ 5050split \_ health \_ indicators \_ BRFSS2015.csv 3. diabetes \_ binary \_ health \_ indicators \_ BRFSS2015.csv In this project we mainly focus on the first one :"diabetes \_ 012 \_ health \_ indicators \_ BRFSS2015.csv"
 
-## 4. Data Preparation
-### 4.1 Data ingestion
+The original BRFSS 2015 dataset is publicly available and can be accessed at: <https://www.cdc.gov/brfss/annual_data/annual_2015.html>
+
+## 2.2 Content
+
+diabetes \_ 012 \_ health \_ indicators \_ BRFSS2015.csv is a clean dataset of 253,680 survey responses to the CDC's BRFSS2015. The target variable Diabetes_012 has 3 classes. 0 is for no diabetes or only during pregnancy, 1 is for prediabetes, and 2 is for diabetes. There is class imbalance in this dataset. This dataset has 21 feature variables and 1 target variable (Diabetes_012), includes:
+
+-   **Diabetes_012**: diabetes status (no diabetes / prediabetes / diabetes)
+-   **HighBP**: whether the individual has high blood pressure
+-   **HighChol**: whether the individual has high cholesterol
+-   **CholCheck**: cholesterol check within the past 5 years
+-   **BMI**: body mass index calculated from height and weight
+-   **Smoker**: smoking status of the individual
+-   **Stroke**: history of stroke
+-   **HeartDiseaseorAttack**: history of heart disease or heart attack
+-   **PhysActivity**: whether the individual engages in physical activity
+-   **Fruits**: fruit consumption behavior
+-   **Veggies**: vegetable consumption behavior
+-   **HvyAlcoholConsump**: heavy alcohol consumption indicator
+-   **AnyHealthcare**: access to health care services
+-   **NoDocbcCost**: inability to see a doctor due to cost
+-   **GenHlth**: self-reported general health status
+-   **MentHlth**: number of days of poor mental health
+-   **PhysHlth**: number of days of poor physical health
+-   **DiffWalk**: difficulty in walking or climbing stairs
+-   **Sex**: gender of the individual
+-   **Age**: age group category
+-   **Education**: highest education level
+-   **Income**: income level category
+
+The below section will discover more on these variables.
+
+------------------------------------------------------------------------
+
+# 3. Data Preparation
+
+In this section, we about to take a look at ours data structures, extract most overall information of this dataset, then we perform several analysis and cleaning process to make sure the data is reliable for later use.
+
+## 3.1 Overall
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -46,50 +80,23 @@ library(reshape2)  # for melt()
 library(patchwork)
 library(fastDummies)
 ```
-The dataset has 22 variables, including:
-
-- **Diabetes_012**: diabetes status (no diabetes / prediabetes / diabetes)
-- **HighBP**: whether the individual has high blood pressure
-- **HighChol**: whether the individual has high cholesterol
-- **CholCheck**: cholesterol check within the past 5 years
-- **BMI**: body mass index calculated from height and weight
-- **Smoker**: smoking status of the individual
-- **Stroke**: history of stroke
-- **HeartDiseaseorAttack**: history of heart disease or heart attack
-- **PhysActivity**: whether the individual engages in physical activity
-- **Fruits**: fruit consumption behavior
-- **Veggies**: vegetable consumption behavior
-- **HvyAlcoholConsump**: heavy alcohol consumption indicator
-- **AnyHealthcare**: access to health care services
-- **NoDocbcCost**: inability to see a doctor due to cost
-- **GenHlth**: self-reported general health status
-- **MentHlth**: number of days of poor mental health
-- **PhysHlth**: number of days of poor physical health
-- **DiffWalk**: difficulty in walking or climbing stairs
-- **Sex**: gender of the individual
-- **Age**: age group category
-- **Education**: highest education level
-- **Income**: income level category
 
 First, we load the data and take a quick look at its overview.
+
 ```{r}
 data <- read_csv("diabetes_012_health_indicators_BRFSS2015.csv")
 
 glimpse(data)
 ```
+
+## 3.2 Summarization
+
+**Numeric Vars** First we filter out features having more than 20 different values and consider it as numeric features.
+
 ```{r}
-head(data)
-```
-
-
-
-### 4.2 Summarization
-
-**Numeric Vars**
-```{r}
-numeric_vars <- data %>%
-  select(where(is.numeric)) %>%
-  select(where(~ n_distinct(., na.rm = TRUE) > 20)) %>% 
+numeric_vars <- data |>
+  select(where(is.numeric)) |>
+  select(where(~ n_distinct(., na.rm = TRUE) > 20)) |> 
   names()
 
 numeric_vars
@@ -127,6 +134,9 @@ num_stats
 Overall, BMI shows substantial variability and extreme values, while MentHlth and PhysHlth are highly right-skewed, with most respondents reporting zero unhealthy days and a small group driving the higher means.
 
 **Categorical Vars**
+
+In contrast, we might filter the rest of the columns as categoricals.
+
 ```{r}
 categorical_vars <- data %>%
   select(1:22) %>%                      
@@ -167,13 +177,15 @@ cat_stats <- data %>%
 cat_stats
 ```
 
-Overall, most categorical variables are highly imbalanced, with one dominant mode accounting for a large majority of observations (often > 80–90%). Age and socioeconomic variables show more spread across levels, while many health behavior and condition indicators are concentrated in a single category.
+Overall, most categorical variables are highly imbalanced, with one dominant mode accounting for a large majority of observations (often \> 80–90%). Age and socioeconomic variables show more spread across levels, while many health behavior and condition indicators are concentrated in a single category.
 
-## 6. Data Preprocessing
+------------------------------------------------------------------------
+
+# 4. Data Preprocessing
 
 Data preprocessing is a critical step to improve data quality and ensure reliable analysis. In this study, the preprocessing stage addresses duplicate records, missing values, outliers, and class imbalance to reduce noise, limit bias, and prepare the dataset for effective modeling.
 
-### 6.1. Duplicate Data Assessment
+## 4.1. Duplicate Data Assessment
 
 ```{r}
 # Number of fully duplicated rows
@@ -185,14 +197,13 @@ duplicate_rate <- num_duplicates / nrow(data) * 100
 duplicate_rate
 ```
 
-**Conclusion**
-The analysis indicates that the dataset contains 23,899 fully duplicated observations, accounting for 9.42% of the total number of records.
+**Conclusion** The analysis indicates that the dataset contains 23,899 fully duplicated observations, accounting for 9.42% of the total number of records.
 
 However, duplicated observations in terms of values do not necessarily imply repeated measurements of the same individual. Instead, they may represent different individuals sharing identical demographic characteristics, lifestyle factors, and health conditions. Removing these observations would unnecessarily reduce the sample size and could potentially distort the true population distribution, particularly for common health-related profiles.
 
 Therefore, duplicated observations are retained to preserve the original distributional structure of the data, ensure the representativeness of the survey sample, and maintain the reliability of subsequent analyses.
 
-### 6.2. Missing value
+## 4.2. Missing value
 
 ```{r}
 missing_summary <- data.frame(
@@ -207,9 +218,9 @@ missing_summary
 
 The dataset contains no missing values across all 22 variables. Therefore, no missing data handling or imputation methods are required.
 
-### 6.3. Outliers Assessment
+## 4.3. Outliers Assessment
 
-#### BMI
+### 4.3.1 BMI
 
 **Density**
 
@@ -240,17 +251,51 @@ ggplot(data, aes(y = BMI)) +
 
 The boxplot shows a narrow central distribution of BMI with numerous upper-end outliers, indicating cases of extremely high BMI.
 
+**Case study**
+
+To exams these outliers, we randomly drawl a few records from these and examine these cases.
+
+```{r}
+# Calculate bounds using summarise (tidyverse style)
+bounds <- data %>%
+  summarise(
+    Q1 = quantile(BMI, 0.25, na.rm = TRUE),
+    Q3 = quantile(BMI, 0.75, na.rm = TRUE),
+    IQR = IQR(BMI, na.rm = TRUE)
+  ) %>%
+  mutate(
+    lower = Q1 - 1.5 * IQR,
+    upper = Q3 + 1.5 * IQR
+  )
+
+cat("Lower bound:", bounds$lower, "\nUpper bound:", bounds$upper, "\n")
+
+result_df <- data %>%
+  filter(BMI < bounds$lower | BMI > bounds$upper) %>%
+  mutate(Outlier_Type = if_else(BMI > bounds$upper, "High_Outlier", "Low_Outlier")) %>%
+  group_by(Outlier_Type) %>%
+  slice_sample(n = 5) %>%
+  ungroup()
+
+# Print the final tibble
+head(result_df,n = 10)
+```
+
+As the figure suggested, super obese people might have the tendancy of difficult to walk. and are likely to have High blood pressure as well. This trend might indicate that these data is not anomalies, that just extremes values. There fore, there is no needs to remove these values because it might encapsulate some importance informations for later analytical phrases.
+
 **BMI Groups**
+
+From above, we decided to group out these values into bins, based on guide on WHO on [Adult BMI Categories](https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html), we will divide ours data into 5 groups, namely: 1. Underweight 2. Normal 3. Overweight 4. Obese 5. Unknown
 
 ```{r}
 data <- data %>%
   mutate(
     BMI_group = case_when(
-      BMI < 18.5 ~ "Underweight",
-      BMI < 25   ~ "Normal",
-      BMI < 30   ~ "Overweight",
-      BMI >= 30  ~ "Obese",
-      TRUE ~ NA_character_
+    BMI < 18.5 ~ "Underweight",
+    BMI >= 18.5 & BMI < 25 ~ "Normal",
+    BMI >= 25 & BMI < 30 ~ "Overweight",
+    BMI >= 30 ~ "Obese",
+    TRUE ~ "Unknown"
     )
   )
 
@@ -264,16 +309,16 @@ ggplot(data, aes(x = BMI_group)) +
   theme_bw()
 ```
 
-
 The BMI distribution is dominated by the overweight and obese categories, while underweight individuals represent a very small proportion of the sample.
 
 **Conclusion**
 
 Outliers were not removed from the dataset. Case-based inspection combined with boxplot analysis indicated that extreme values represent severe obesity rather than data errors. These observations are meaningful and may substantially influence health-related analyses; therefore, they were retained in the study.
 
-#### PhysHlth
+### 4.3.1 PhysHlth
 
 **Density**
+
 ```{r}
 ggplot(data, aes(x = PhysHlth)) +
   geom_density(fill = "lightgreen", alpha = 0.6) +
@@ -325,10 +370,10 @@ ggplot(data, aes(x = PhysHlth_group)) +
   theme_bw()
 ```
 
-- **0 days**: No poor physical health
-- **1--7 days**: Mild
-- **8--14 days**: Moderate
-- **15--30 days**: Severe
+-   **0 days**: No poor physical health
+-   **1--7 days**: Mild
+-   **8--14 days**: Moderate
+-   **15--30 days**: Severe
 
 The categorical distribution shows that the majority of respondents reported zero days of poor physical health, while progressively fewer individuals fall into higher-duration categories, indicating that severe physical health issues affect a relatively small subset of the population.
 
@@ -336,7 +381,7 @@ The categorical distribution shows that the majority of respondents reported zer
 
 Taken together, the density plot, boxplot, and categorical distribution of PhysHlth indicate that extreme values are rare but meaningful. These observations reflect prolonged periods of poor physical health rather than data errors. Consequently, removing such values could underestimate the burden of physical health problems, and the outliers were therefore retained in the analysis.
 
-#### MentHlth
+### 4.3.1 MentHlth
 
 **Density**
 
@@ -368,6 +413,7 @@ ggplot(data, aes(y = MentHlth)) +
 The boxplot of MentHlth reveals a highly right-skewed distribution with numerous high-end outliers. While most observations are concentrated near zero, the outliers represent individuals reporting extended periods of poor mental health.
 
 **MentHlth Groups**
+
 ```{r}
 data <- data %>%
   mutate(
@@ -390,10 +436,10 @@ ggplot(data, aes(x = MentHlth_group)) +
   theme_bw()
 ```
 
-- **0 days**: No poor mental health
-- **1--7 days**: Mild
-- **8--14 days**: Moderate
-- **15--30 days**: Severe
+-   **0 days**: No poor mental health
+-   **1--7 days**: Mild
+-   **8--14 days**: Moderate
+-   **15--30 days**: Severe
 
 The categorical distribution shows that the majority of individuals reported zero days of poor mental health, while progressively fewer individuals fall into higher-duration categories, indicating that severe mental health issues affect a smaller subset of the population.
 
@@ -401,40 +447,45 @@ The categorical distribution shows that the majority of individuals reported zer
 
 Taken together, the density plot, boxplot, and categorical distribution of MentHlth show that extreme values are rare but meaningful. These observations represent individuals experiencing prolonged periods of poor mental health rather than data errors. Consequently, removing such values could underestimate mental health burden, and the outliers were therefore retained in the analysis.
 
-## 7. Exploration and visualization
+------------------------------------------------------------------------
 
-### 7.1 Data grouping
+# 5 Exploration and visualization
 
-- **Demographic and Social characteristics included:**
-  - Sex
-  - Age
-  - Education
-  - Income
-  - AnyHealthcare
-  - NoDocbcCos
-  - CholCheckt
+## 5.1 Data grouping
 
-- **Behavioral factors comprised:**
-  - Smoker
-  - PhysActivity
-  - Fruits
-  - Veggies
-  - HvyAlcoholConsump
+Based on the meaning of each features, we shall split these features into three categorical, namely:
 
-- **Health status indicators included:**
-  - Diabetes_012
-  - HighBP
-  - HighChol
-  - BMI
-  - Stroke
-  - HeartDiseaseorAttack
-  - GenHlth
-  - MentHlth
-  - PhysHlth
-  - DiffWalk
+-   **Demographic and Social characteristics included:**
+    -   Sex
+    -   Age
+    -   Education
+    -   Income
+    -   AnyHealthcare
+    -   NoDocbcCos
+    -   CholCheckt
+-   **Behavioral factors comprised:**
+    -   Smoker
+    -   PhysActivity
+    -   Fruits
+    -   Veggies
+    -   HvyAlcoholConsump
+-   **Health status indicators included:**
+    -   Diabetes_012
+    -   HighBP
+    -   HighChol
+    -   BMI
+    -   Stroke
+    -   HeartDiseaseorAttack
+    -   GenHlth
+    -   MentHlth
+    -   PhysHlth
+    -   DiffWalk
 
-### 7.2 Density/ distribution plot
-#### 7.2.1 Demographic and Social characteristics indicators
+Later analysis will focus on the relationship between these group to the diabetes status. At first, we will glimpse at each of the features to see its distributions.
+
+## 5.2 Density/ distribution plot
+
+### 5.2.1 Demographic and Social characteristics indicators
 
 This dataset includes critical variables to assess socioeconomic status and healthcare access beyond basic demographics (such as age or gender,...). **Education** and **Income** categorize respondents based on schooling levels and earning ranges, while **AnyHealthcare** confirms the presence of health insurance. Additionally, **NoDocbcCost** tracks financial barriers to seeing a doctor, and **CholCheck** indicates whether a cholesterol screening has occurred recently.
 
@@ -522,7 +573,6 @@ print(p_age)
 # Function definition
 draw_mono_charts <- function(data, var_vector, title1, title2) {
   
-  # Reshape data to long format
   plot_data <- data %>%
     select(all_of(var_vector)) %>%
     pivot_longer(cols = everything(), names_to = "Variable", values_to = "Value") %>%
@@ -541,7 +591,7 @@ draw_mono_charts <- function(data, var_vector, title1, title2) {
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
-  print(p1) # Show first plot
+  print(p1)
   
   # --- Chart 2: Fraction (Stacked %) ---
   # Calculate percentages
@@ -563,7 +613,7 @@ draw_mono_charts <- function(data, var_vector, title1, title2) {
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
-  print(p2) # Show second plot
+  print(p2)
 }
 
 ```
@@ -582,20 +632,18 @@ draw_mono_charts(
 
 ```
 
-As the figure suggested, more than 24000/25000 surveyed people have no difficulty in healthcare accessment.
+As the figure suggested, more than 24000/25000 surveyed people have no difficulty in Healthcare Accessment.
 
-#### 7.2.2 Health Indicators
+### 5.2.2 Health Indicators
 
 Furthermore, the dataset contains eight variables reflecting health status: HighBP, HighChol, BMI, Stroke, HeartDiseaseorAttack, GenHlth, MentHlth, PhysHlth, and DiffWalk. Apart from BMI, MentHlth, and PhysHlth, most of these serve as binary indicators, with the sole exception of GenHlth, which is a categorical variable consisting of five distinct levels.
 
-
 ```{r}
-# Create dummy variables for specific columns
-data <- data %>%
+data <- data |> 
   dummy_cols(
     select_columns = c("BMI_group", "MentHlth_group", "PhysHlth_group"),
-    remove_first_dummy = FALSE, # Set TRUE to avoid multicollinearity
-    remove_selected_columns = FALSE # Set TRUE to remove original columns
+    remove_first_dummy = FALSE, 
+    remove_selected_columns = FALSE
   )
 ```
 
@@ -624,7 +672,6 @@ data %>%
   theme_minimal()
 ```
 
-
 ```{r}
 health_vars <- c( "HighBP", "HighChol", 
   "Stroke", "HeartDiseaseorAttack", "DiffWalk"
@@ -642,10 +689,9 @@ draw_mono_charts(
 
 ```
 
+### 5.2.3 Target variable: Diabetes_012
 
-#### 7.2.3 Target variable: Diabetes_012
-
-Biến Diabetes_012 là một biến phân loại với ba giá trị 0(không bị tiểu đường), 1(tiểu đường loại 1) và 2(tiểu đường loại 2). Đầu tiên ta xem phân phối của từng lớp
+The variable Diabetes_012 is a categorical variable with three values: 0 (no diabetes), 1 (type 1 diabetes), and 2 (type 2 diabetes). First, we examine the distribution of each class.
 
 ```{r}
 imbalance_report <- function(df, var_name, var_label = var_name) {
@@ -687,7 +733,6 @@ p_pct <- ggplot(tab, aes(x = factor(.data[[var_name]]), y = Percentage)) +
 }
 ```
 
-
 ```{r}
 res_diabetes <- imbalance_report(
   df = data,
@@ -702,10 +747,9 @@ res_diabetes$plot_pct
 
 Overall, the Diabetes_012 variable is highly imbalanced: the majority of individuals report no diabetes (84.24%), while prediabetes (1.83%) and diabetes (13.93%) account for much smaller proportions of the dataset.
 
-####  7.2.4 Lifestyles indicators
-Ta có tổng cộng 5 biến thể hiện thói quen/ lối sống như sau:
-1. Các Biến thể hiện thói quen/ lối sống tích cực bao gồm : Fruits, Veggies, PhysActivit.
-2.Các Biến thể hiện thói quen/ lối sống tiêu cực bao gồm : Smoker,HvyAlcoholConsum.
+### 5.2.4 Lifestyles indicators
+
+There are a total of five variables representing lifestyle habits. (1) Variables indicating positive lifestyle behaviors include Fruits, Veggies, and PhysActivity. (2) Variables indicating negative lifestyle behaviors include Smoker and HvyAlcoholConsum.
 
 ```{r}
 # Define behavioral variables
@@ -723,7 +767,7 @@ ggplot(plot_data, aes(x = Variable, fill = Value)) +
   geom_text(stat = "count", aes(label = ..count..), 
             position = position_dodge(width = 0.9), vjust = -0.5) + # Add count labels
   scale_fill_manual(
-    values = c("0" = "forestgreen", "1" = "firebrick"),
+    values = c("0" = "forestgreen", "1" = "darkblue"),
     name = "Value"
   ) +
   labs(
@@ -747,7 +791,7 @@ ggplot(plot_data_pct, aes(x = Variable, y = Percent, fill = Value)) +
             position = position_fill(vjust = 0.5), color = "white") + # Add % labels
   scale_y_continuous(labels = scales::percent) +
   scale_fill_manual(
-    values = c("0" = "forestgreen", "1" = "firebrick"),
+    values = c("0" = "forestgreen", "1" = "darkblue"),
     name = "Value"
   ) +
   labs(
@@ -759,26 +803,22 @@ ggplot(plot_data_pct, aes(x = Variable, y = Percent, fill = Value)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
-cmt out
+
+As the figures suggested, about half of the interviewed people maintain a healthy habits (over 60% of people eat vegetables/ fruit regularly)
+
+In speaking of bad habits, a small portions of people commit to heavy alchohol consumptions. and less than a half of surveyor smoke.
 
 **Conclusion**
 
 The dataset shows a clear class imbalance, particularly in diabetes status, where the majority class dominates. This imbalance may bias models toward the majority class and reduce predictive performance for clinically important minority groups. Therefore, class imbalance uses class-weighted algorithms rather than resampling methods such as oversampling, undersampling, or SMOTE. Model performance should be interpreted using metrics such as recall, F1-score, or ROC-AUC instead of accuracy alone.
 
-### 7.3 Interaction
-Phần này chủ yếu là đưa ra một vài phân tích về sự tương quan của các biến với nhau:
-Cụ thể là Phân tích giữa các Biến
+## 5.3 Interaction
 
+In this section, we about to analysis the link between each group factors to diabtetes. We categorize these factors by three different group mentioned above, namely: \* Demographic and Social characteristics \* Lifestyles/ habits behaviours \* Health indicators
 
-#### 7.3.1 Về Nhân khẩu học và Tiểu đường
+#### 5.3.1 Demographic and Social characteristics
 
-Phần này thì tìm hiểu về tương quan giữa 
-* Giới tính so với bệnh tiểu đường
-* Tuổi tác so với tiểu đường
-Và các biến còn lại của nó, ta cũng sẽ vẽ heatmap cho nó (các biến phần nhân khaair & xã hội + diabetes ?)
-
-
-
+This subsection examines the correlations between: \* gender and diabetes \* age and diabetes, as well as the remaining sociodemographic variables related to the disease. Specifically, we analyze whether differences in gender and age groups are associated with variations in diabetes prevalence, and how other personal and social factors may contribute to this relationship. To visualize these patterns more clearly, a heatmap will also be generated to illustrate the strength and direction of the correlations among all sociodemographic variables and diabetes status.
 
 **Sex**
 
@@ -816,7 +856,7 @@ Overall, the distribution of diabetes status is broadly similar across sexes, wi
 
 **Diabetes by Age Group**
 
-Trẻ, Thanh niên, Trung Niên, người zà
+Then we draw the plots to see how much of each age group contributes to diabetes status.
 
 ```{r}
 
@@ -856,18 +896,51 @@ ggplot(age_table,
 
 Overall, the prevalence of diabetes increases markedly with age. Younger age groups are predominantly non-diabetic, while the proportions of prediabetes and diabetes rise steadily in middle-aged and older groups, with the highest prevalence observed among individuals aged 60 and above.
 
+### 5.3.2 How Lifestyles affects diabetes
 
-#### 7.3.2 Về Lối sống và Tiểu đường
+In this subsection, we interested in these questions : \* How diets relates to diabetes \* How bad habits like heavy alcoholics and smoking contribute to the diagnoise of diabetes After all, we will plots a heatmap to see a whole overall pictures about this
 
-Phần này thì tìm hiểu về tương quan giữa 
-* Hút thuốc và rượu so với bệnh tiểu đường
-* Ăn trái cây & ăn chay so với tiểu đường
-Và các biến còn lại của nó, ta cũng sẽ vẽ heatmap cho nó (các biến phần nhân khaair & xã hội + diabetes ?)
+**Physical exercise and diabetes**
+
+```{r}
+phys_table <- data %>%
+  group_by(PhysActivity, Diabetes_012) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(PhysActivity) %>%
+  mutate(Percentage = round(n / sum(n) * 100, 2)) %>%
+  ungroup()
+
+phys_table
+```
+
+```{r}
+
+phys_table <- phys_table %>%
+  mutate(PhysActivity = ifelse(PhysActivity == 1, 
+                               "who exercise regularly", 
+                               "who do not exercise regularly"))
+
+ggplot(phys_table,
+       aes(x = PhysActivity, 
+           y = Percentage, 
+           fill = fct_rev(factor(Diabetes_012)))) +
+  geom_col(position = "fill") +
+  theme_bw() +
+  labs(
+    title = "Diabetes Status by exercise habits",
+    x = "Class type ",
+    y = "Proportion",
+    fill = "Diabetes Status"
+  )
 
 
-**Ăn uống lành mạnh và bệnh tiểu đường**
+```
 
-First, ta thực hiện feature engineering
+As the figure suggested, people exercising regularly are less likely to have diabetes
+
+**Healthy diets and diabetes**
+
+First, we combine fruits and veggies to produce a features which is represent for those who regularly consume vegetables and fruits.
 
 ```{r}
 
@@ -882,13 +955,11 @@ draw_mono_charts(
 )
 
 ```
-```{r}
-head(data$is_vegfruit)
-```
 
 ```{r}
 
 is_vegfruit_table <- data %>%
+  mutate(is_vegfruit = ifelse(is_vegfruit == 1, "has Daily fruit/veg habit", "do not have Daily fruit/veg habit")) |>
   group_by(is_vegfruit, Diabetes_012) %>%
   summarise(n = n(), .groups = "drop") %>%
   group_by(is_vegfruit) %>%
@@ -896,10 +967,10 @@ is_vegfruit_table <- data %>%
   ungroup()
 
 ggplot(is_vegfruit_table,
-       aes(x = is_vegfruit, y = Percentage, fill = factor(Diabetes_012))) +
+       aes(x = is_vegfruit, 
+           y = Percentage, 
+           fill = fct_rev(factor(Diabetes_012)))) +
   geom_col(position = "fill") +
-  facet_wrap(~is_vegfruit, strip.position = "bottom",
-             labeller = as_labeller(c("0" = "Non - Veggetable consumer", "1" = "Veggetable consumer"))) +
   theme_bw() +
   labs(
     title = "Diabetes Status for those who eat green",
@@ -909,39 +980,124 @@ ggplot(is_vegfruit_table,
   )
 ```
 
-**Thói qe**
+As the figure suggested, in comparison with those who do not eat fruit regularly, people maintaining this habits seem to less likely to have diabetes.
 
-Overall, the prevalence of diabetes increases with higher BMI categories. Underweight and normal-weight groups are largely non-diabetic, while overweight and especially obese individuals show substantially higher proportions of diabetes and prediabetes, indicating a strong positive association between BMI and diabetes status.
+**Alchoholics and diabetes**
 
+```{r}
+alchoholic_table <- data %>%
+  group_by(HvyAlcoholConsump, Diabetes_012) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(HvyAlcoholConsump) %>%
+  mutate(Percentage = round(n / sum(n) * 100, 2)) %>%
+  ungroup()
 
-#### 7.3.3 Chỉ số sức khỏe và bệnh Tiểu đường
+alchoholic_table
+```
 
+```{r}
+alchoholic_table <- data %>%
+  mutate(HvyAlcoholConsump = ifelse(HvyAlcoholConsump == 1, "alcoholic person", "not an alcoholic person")) |>
+  group_by(HvyAlcoholConsump, Diabetes_012) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(HvyAlcoholConsump) %>%
+  mutate(Percentage = round(n / sum(n) * 100, 2)) %>%
+  ungroup()
+
+ggplot(alchoholic_table,
+       aes(x = HvyAlcoholConsump, 
+           y = Percentage, 
+           fill = fct_rev(factor(Diabetes_012)))) +
+  geom_col(position = "fill") +
+  theme_bw() +
+  labs(
+    title = "Diabetes Status for alcoholic",
+    x = "Class type ",
+    y = "Proportion",
+    fill = "Diabetes Status"
+  )
+```
+
+The figure give us a hunch that people consuming alchoholic frequently might have a higher changes of diagnosed as diabetes.
+
+**Smoking and diabetes**
+
+```{r}
+smoker_table <- data %>%
+  group_by(Smoker, Diabetes_012) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(Smoker) %>%
+  mutate(Percentage = round(n / sum(n) * 100, 2)) %>%
+  ungroup()
+
+smoker_table
+```
+
+```{r}
+smoker_table <- data %>%
+  mutate(Smoker = ifelse(Smoker == 1, "Chain smoker", " not a chain smoker")) |>
+  group_by(Smoker, Diabetes_012) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(Smoker) %>%
+  mutate(Percentage = round(n / sum(n) * 100, 2)) %>%
+  ungroup()
+
+ggplot(smoker_table,
+       aes(x = Smoker, 
+           y = Percentage, 
+           fill = fct_rev(factor(Diabetes_012)))) +
+  geom_col(position = "fill") +
+  theme_bw() +
+  labs(
+    title = "Diabetes Status for chain smokers",
+    x = "Class type ",
+    y = "Proportion",
+    fill = "Diabetes Status"
+  )
+```
+
+There is a subtle different in the diabetes when comparing to those who smoke. but it still give us an intuition that those who smoke is likely to have diabetes but not as extreme as diabetes.
+
+**Correlation**
+
+```{r}
+vars_to_plot <- c("Diabetes_012", "Smoker", "Fruits", "Veggies", "PhysActivity")
+
+cor_data <- data %>%
+  select(all_of(vars_to_plot)) %>%
+  cor(use = "complete.obs") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "Var1") %>%
+  pivot_longer(-Var1, names_to = "Var2", values_to = "Correlation")
+
+ggplot(cor_data, aes(Var1, Var2, fill = Correlation)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1, 1)) +
+  geom_text(aes(label = round(Correlation, 2))) +
+  theme_minimal() +
+  labs(title = "Heatmap for habits and diabetes")
+```
+
+In general, the heatmap suggests that people maintaining good habits relate to each other. In contrast with those who smoke and drink, People in these group tend to have diabetes
+
+### 5.3.3 Health indicators and diabetes
 
 **Diabetes by BMI**
 
 ```{r}
-bmi_table <- data %>%
-  mutate(
-    BMI_Group = factor(
-      case_when(
-        BMI < 18.5 ~ "Underweight",
-        BMI < 25   ~ "Normal",
-        BMI < 30   ~ "Overweight",
-        TRUE       ~ "Obese"
-      ),
-      levels = c("Underweight", "Normal", "Overweight", "Obese")
-    )
-  ) %>%
-  group_by(BMI_Group, Diabetes_012) %>%
+bmi_table <- data  %>%
+  group_by(BMI_group, Diabetes_012) %>%
   summarise(n = n(), .groups = "drop") %>%
-  group_by(BMI_Group) %>%
+  group_by(BMI_group) %>%
   mutate(Percentage = round(n / sum(n) * 100, 2)) %>%
   ungroup()
 
 bmi_table
 ```
+
 ```{r}
-ggplot(bmi_table, aes(x = BMI_Group, y = n, fill = factor(Diabetes_012))) +
+ggplot(bmi_table, aes(x = BMI_group, y = n, fill = factor(Diabetes_012))) +
   geom_col(position = "fill") +
   theme_bw() +
   labs(
@@ -951,14 +1107,31 @@ ggplot(bmi_table, aes(x = BMI_Group, y = n, fill = factor(Diabetes_012))) +
     fill = "Diabetes Status"
   )
 ```
-#### 7.3.4 Phân này chủ yếu là coi coi các thói quen lối sống có ảnh hương như nào tớicác chỉ số sức khỏe
 
-PHÂN NÀY ĐANG LÀM HUHU (MÀ CHẮC SAU 19 ANH MỚI LÀM TIẾP ĐƯỢC DO ANH ĐI THI RẦU)
+Overall, the prevalence of diabetes increases with higher BMI categories. Underweight and normal-weight groups are largely non-diabetic, while overweight and especially obese individuals show substantially higher proportions of diabetes and prediabetes, indicating a strong positive association between BMI and diabetes status.
 
-## 8. Testing
+### 5.3.4 Life styles and health indicators
 
-Từ Trên, khúc này mình sẽ kiểm định mấy câu hỏi phía trên
+```{r}
+vars_to_plot <- c("Diabetes_012", "HighChol", "HighBP", "HeartDiseaseorAttack", "BMI_group", "Smoker", "Fruits", "Veggies", "PhysActivity")
 
+cor_data <- data %>%
+  select(all_of(vars_to_plot)) %>%
+  mutate(across(everything(), ~as.numeric(as.factor(.)))) %>%
+  cor(use = "complete.obs") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "Var1") %>%
+  pivot_longer(-Var1, names_to = "Var2", values_to = "Correlation")
 
-
-
+ggplot(cor_data, aes(Var1, Var2, fill = Correlation)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1, 1)) +
+  geom_text(aes(label = round(Correlation, 2))) +
+  theme_minimal() +
+  labs(title = "Heatmap for habits and diabetes")+ 
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    panel.grid = element_blank()
+  )
+```
