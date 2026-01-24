@@ -1,0 +1,61 @@
+\section{About Dataset}
+
+\subsection{Context}
+
+Building upon previous public health studies that rely on large-scale survey data, this report makes use of the 2015 Behavioral Risk Factor Surveillance System (BRFSS), an annual health monitoring program conducted by the Centers for Disease Control and Prevention (CDC) in the United States. The BRFSS is designed to capture information on health-related behaviors, chronic disease prevalence, and access to preventive health services among adults aged 18 years and older across all U.S. states and selected territories.
+
+Data are collected through standardized telephone-based surveys, including both landline and mobile phones, and are administered by state health departments following protocols developed by the CDC. The collected responses are subsequently aggregated, cleaned, and standardized to support population-level analyses in public health and epidemiology.
+
+The variables in the dataset are primarily based on self-reported information provided by survey participants. In particular, variables related to disease status reflect whether respondents had previously been diagnosed by a physician or other health care professional, rather than being derived from direct clinical measurements. Additionally, certain composite indicators, such as body mass index (BMI), are calculated from self-reported personal information, including height and weight.
+
+The original dataset contain three files:
+
+\begin{itemize}
+    \item \texttt{diabetes\_012\_health\_indicators\_BRFSS2015.csv} 
+    \item \texttt{diabetes\_binary\_5050split\_health\_indicators\_BRFSS2015.csv} 
+    \item \texttt{diabetes\_binary\_health\_indicators\_BRFSS2015.csv} 
+\end{itemize}
+
+\noindent In this project, we mainly focus on the first one: ``\texttt{diabetes\_012\_health\_indicators\_BRFSS2015.csv}''.
+
+\noindent The original BRFSS 2015 dataset is publicly available and can be accessed at:\\
+\url{https://www.cdc.gov/brfss/annual_data/annual_2015.html}
+
+
+\subsection{Content}
+
+\noindent The dataset \texttt{diabetes\_012\_health\_indicators\_BRFSS2015.csv} is a clean dataset comprising 253,680 survey responses to the CDC’s BRFSS2015. 
+
+The target variable, \textbf{Diabetes\_012}, consists of 3 classes:
+\begin{itemize}
+    \item 0: No diabetes or only during pregnancy
+    \item 1: Prediabetes
+    \item 2: Diabetes
+\end{itemize}
+It is important to note that there is a class imbalance in this dataset. The dataset contains 21 feature variables and 1 target variable (\textbf{Diabetes\_012}), described as follows:
+
+\begin{itemize}
+    \item \textbf{Diabetes\_012}: Diabetes status (no diabetes / prediabetes / diabetes).
+    \item \textbf{HighBP}: Whether the individual has high blood pressure.
+    \item \textbf{HighChol}: Whether the individual has high cholesterol.
+    \item \textbf{CholCheck}: Cholesterol check within the past 5 years.
+    \item \textbf{BMI}: Body mass index calculated from height and weight.
+    \item \textbf{Smoker}: Smoking status of the individual.
+    \item \textbf{Stroke}: History of stroke.
+    \item \textbf{HeartDiseaseorAttack}: History of heart disease or heart attack.
+    \item \textbf{PhysActivity}: Whether the individual engages in physical activity.
+    \item \textbf{Fruits}: Fruit consumption behavior.
+    \item \textbf{Veggies}: Vegetable consumption behavior.
+    \item \textbf{HvyAlcoholConsump}: Heavy alcohol consumption indicator.
+    \item \textbf{AnyHealthcare}: Access to health care services.
+    \item \textbf{NoDocbcCost}: Inability to see a doctor due to cost.
+    \item \textbf{GenHlth}: Self-reported general health status.
+    \item \textbf{MentHlth}: Number of days of poor mental health.
+    \item \textbf{PhysHlth}: Number of days of poor physical health.
+    \item \textbf{DiffWalk}: Difficulty in walking or climbing stairs.
+    \item \textbf{Sex}: Gender of the individual.
+    \item \textbf{Age}: Age group category.
+    \item \textbf{Education}: Highest education level.
+    \item \textbf{Income}: Income level category.
+\end{itemize}
+
