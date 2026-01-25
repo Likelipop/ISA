@@ -1,0 +1,83 @@
+\section{Methodology \& Modeling Strategy}
+
+\subsection{Analytical Framework \& Strategy}
+Based on the findings from the Exploratory Data Analysis (EDA), the research team established a quantitative analytical framework designed to address two core challenges of the BRFSS 2015 dataset:
+
+\begin{enumerate}
+    \item Severe class imbalance.
+    \item The nominal/ordinal nature of health variables.
+\end{enumerate}
+
+The overall strategy comprises three phases:
+\begin{itemize}
+    \item \textbf{Data Conditioning}: Handling class imbalance and assessing multicollinearity to ensure the stability of input data.
+    \item \textbf{Model Training}: Training multiclass classification models using a Cross-Validation mechanism.
+    \item \textbf{Comparative Evaluation}: Assessing performance based on medical metrics (Sensitivity, Specificity) rather than relying solely on overall Accuracy.
+\end{itemize}
+
+Notably, the modeling strategy is built upon a predefined variable partition structure:
+
+\begin{description}
+    \item[Demographic Characteristics (Basic Demographics)] Includes \textit{Age} and \textit{Sex}. These are non-modifiable risk factors but play a foundational role. They are included in the model to control for confounders, helping to isolate the effects of natural aging from actual pathological risks.
+    
+    \item[Behavioral \& Preventive Factors] Includes \textit{PhysActivity} (Physical Activity) and \textit{CholCheck} (Cholesterol Check Behavior).
+    \begin{itemize}
+        \item \textit{PhysActivity}: Represents an active lifestyle and is considered the most critical intervention factor.
+        \item \textit{CholCheck}: Represents health awareness and access to preventive medicine.
+    \end{itemize}
+    
+    \item[Clinical Health Status \& Comorbidities] This is the strongest predictive group, including:
+    \begin{itemize}
+        \item \textbf{Vital/Metabolic Indicators}: BMI (Obesity), HighBP (Hypertension), HighChol (High Cholesterol).
+        \item \textbf{Serious Medical History}: Stroke, HeartDiseaseorAttack.
+        \item \textbf{Functional Status}: DiffWalk (Difficulty Walking) -- reflecting physical burden or neurological complications of the disease.
+    \end{itemize}
+\end{description}
+
+\subsection{Data Conditioning Strategy}
+
+\subsubsection{Class Imbalance \& Splitting Strategy}
+The non-diabetic group (Class 0) constitutes the vast majority ($\sim 84\%$), while the diabetes group (Class 2 $\sim 14\%$) and prediabetes group (Class 1 $\sim 2\%$) account for small proportions. This creates a risk that standard models will overlook the minority patient groups.
+
+\textbf{Solution:} To ensure objectivity and prevent data leakage, the team split the original dataset into two independent subsets: Train Set ($80\%$) and Test Set ($20\%$) using Stratified Sampling.
+
+\textbf{Note:} The Upsampling technique is applied only to the Train Set, specifically within the Cross-Validation process. Instead of using a single fixed validation set, the study employs 5-fold Cross-Validation to ensure the stability and reliability of the results.
+
+\subsubsection{Model Selection \& Rationale}
+Given the specific characteristics of medical data (categorical variables, non-normal distribution), the team proposes two models for verification:
+
+\begin{enumerate}
+    \item \textbf{Multinomial Logistic Regression}
+    \begin{itemize}
+        \item \textbf{Role}: Primary Model.
+        \item \textbf{Scientific Basis}:
+        \begin{itemize}
+            \item Does not require the assumption of multivariate normality for independent variables.
+            \item Handles multiclass target variables (0, 1, 2) effectively.
+            \item \textbf{Most importantly}: Provides Interpretability through the Odds Ratio (OR), allowing for the quantification of the impact of each risk factor, directly serving the goal of public health recommendations.
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{Naive Bayes}
+    \begin{itemize}
+        \item \textbf{Role}: Benchmark Model.
+        \item \textbf{Scientific Basis}: Naive Bayes performs effectively on discrete/categorical data. Although the "conditional independence" assumption may be slightly violated due to correlations among health variables, this model provides a solid performance baseline for comparison with Logistic Regression.
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Multicollinearity Assessment}
+Multicollinearity occurs when independent variables are strongly correlated, distorting the coefficient estimates of the Logistic Regression model and the stability of Odds Ratios. To verify this, the research team uses the VIF (Variance Inflation Factor).
+
+$$VIF_j = \frac{1}{1 - R_j^2}$$
+
+\noindent Where:
+\begin{itemize}
+    \item $VIF_j$: The variance inflation factor for variable $j$.
+    \item $R_j^2$: The coefficient of determination in a linear regression model where variable $j$ is the dependent variable and the remaining variables are independent.
+\end{itemize}
+
+\noindent \textbf{Evaluation Rules:}
+\begin{itemize}
+    \item $VIF < 5$: No serious multicollinearity (Safe).
+    \item $VIF > 10$: Serious multicollinearity (Variable removal required).
+\end{itemize}
