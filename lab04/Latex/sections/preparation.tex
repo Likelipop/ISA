@@ -14,7 +14,7 @@ typically, a data preparation consists of:
 \end{itemize}
 
 
-\subsection{Variable Classification and Summarization}
+\subsection{Data Overview}
 
 \subsubsection{Identification of Variable Types}
 
@@ -23,7 +23,7 @@ Variables were classified into numeric and categorical types based on their unde
 \begin{table}[H]
 \centering
 \caption{Variable Types in the Dataset}
-\begin{tabular}{p{6cm} p{9cm}}
+\begin{tabular}{p{6cm}|p{9cm}}
 \hline
 \textbf{Numeric Variables} & \textbf{Categorical Variables} \\
 \hline
@@ -43,12 +43,23 @@ This classification strategy was adopted to avoid statistical bias and ensure va
 
 Descriptive statistics were used to summarize numeric variables and assess their distributional characteristics.
 
-\begin{figure}[H]
+\begin{table}[H]
 \centering
-\includegraphics[width=1\textwidth]{img/NumStatistics.png}
 \caption{Descriptive statistics for numeric variables}
-\label{fig:num_stats}
-\end{figure}
+\label{tab:desc_numeric}
+
+\resizebox{0.8\textwidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|r|r|}
+\hline
+Variable & Mean & SD & Median & IQR & Min & Max \\
+\hline
+BMI      & 28.382364 & 6.608694 & 27 & 7 & 12 & 98 \\
+MentHlth & 3.184772  & 7.412847 & 0  & 2 & 0  & 30 \\
+PhysHlth & 4.242081  & 8.717951 & 0  & 3 & 0  & 30 \\
+\hline
+\end{tabular}
+}
+\end{table}
 
 The BMI variable exhibits a relatively high mean value along with a large standard deviation, indicating substantial variability in body weight within the study population. This reflects the coexistence of multiple weight groups, including a considerable proportion of individuals classified as overweight or obese.
 
@@ -58,16 +69,47 @@ In contrast, MentHlth and PhysHlth display asymmetric distributions with median 
 
 Descriptive statistics were used to summarize categorical variables and assess their distributional characteristics.
 
-\begin{figure}[H]
+\begin{table}[H]
 \centering
-\includegraphics[width=1\textwidth]{img/CatStatistics_1.png}
-\includegraphics[width=1\textwidth]{img/CatStatistics_2.png}
 \caption{Descriptive statistics for categorical variables}
-\label{fig:cat_stats}
-\end{figure}
+\label{tab:desc_categorical}
+
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.1}
+
+\resizebox{0.9\textwidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\textbf{Variable} & \textbf{n\_levels} & \textbf{Mode} & \textbf{Mode Count} & \textbf{Mode (\%)} \\
+\hline
+Age                & 13 & 9 & 33244  & 13.10 \\
+AnyHealthcare      & 2  & 1 & 241263 & 95.11 \\
+CholCheck           & 2  & 1 & 244210 & 96.27 \\
+Diabetes\_012        & 3  & 0 & 213703 & 84.24 \\
+DiffWalk            & 2  & 0 & 211005 & 83.18 \\
+Education           & 6  & 6 & 107325 & 42.31 \\
+Fruits              & 2  & 1 & 160898 & 63.43 \\
+GenHlth             & 5  & 2 & 89084  & 35.12 \\
+HeartDiseaseorAttack& 2  & 0 & 229787 & 90.58 \\
+HighBP              & 2  & 0 & 144851 & 57.10 \\
+HighChol             & 2  & 0 & 146089 & 57.59 \\
+HvyAlcoholConsump    & 2  & 0 & 239424 & 94.38 \\
+Income               & 8  & 8 & 90385  & 35.63 \\
+NoDocbcCost           & 2  & 0 & 233326 & 91.58 \\
+PhysActivity          & 2  & 1 & 191920 & 75.65 \\
+Sex                   & 2  & 0 & 141974 & 55.97 \\
+Smoker                & 2  & 0 & 141257 & 55.68 \\
+Stroke                & 2  & 0 & 243388 & 95.94 \\
+Veggies               & 2  & 1 & 205841 & 81.14 \\
+\hline
+\end{tabular}
+}
+\end{table}
 
 Most categorical variables exhibit class imbalance, particularly those related to health status and healthcare services. In contrast, demographic and socioeconomic variables show more evenly distributed class structures, reflecting greater heterogeneity across population groups. Therefore, class imbalance should be carefully considered in subsequent analyses and modeling tasks.
 
+\section{Data Preprocessing}
 \subsection{Duplicate Data Assessment}
 
 Duplicate data assessment was conducted to ensure data reliability and to mitigate potential biases in subsequent analyses.
@@ -81,16 +123,45 @@ Although a moderate proportion of duplicated records was detected, these observa
 \subsection{Missing Data Assessment}
 
 Missing data assessment was performed to evaluate the extent and patterns of missingness in the dataset.
-
-\textbf{Result:} 
-\begin{figure}[H]
+ 
+\begin{table}[H]
 \centering
-\includegraphics[width=1\textwidth]{img/Missing_1.png}
-\includegraphics[width=1\textwidth]{img/Missing_2.png}
-\includegraphics[width=1\textwidth]{img/Missing_3.png}
 \caption{Missing data patterns}
-\label{fig:missing_data}
-\end{figure}
+\label{tab:missing_data}
+
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.1}
+
+\begin{tabular}{|l|r|r|}
+\hline
+\textbf{Variable} & \textbf{Missing Count} & \textbf{Missing Rate} \\
+\hline
+Diabetes\_012          & 0 & 0 \\
+HighBP                 & 0 & 0 \\
+HighChol               & 0 & 0 \\
+CholCheck              & 0 & 0 \\
+BMI                    & 0 & 0 \\
+Smoker                 & 0 & 0 \\
+Stroke                 & 0 & 0 \\
+HeartDiseaseorAttack   & 0 & 0 \\
+PhysActivity            & 0 & 0 \\
+Fruits                  & 0 & 0 \\
+Veggies                 & 0 & 0 \\
+HvyAlcoholConsump        & 0 & 0 \\
+AnyHealthcare            & 0 & 0 \\
+NoDocbcCost              & 0 & 0 \\
+GenHlth                  & 0 & 0 \\
+MentHlth                 & 0 & 0 \\
+PhysHlth                 & 0 & 0 \\
+DiffWalk                 & 0 & 0 \\
+Sex                      & 0 & 0 \\
+Age                      & 0 & 0 \\
+Education                & 0 & 0 \\
+Income                   & 0 & 0 \\
+\hline
+\end{tabular}
+\end{table}
 
 \textbf{Conclusion:} \\
 The missing data assessment indicates that no missing values were detected across all variables in the dataset. Therefore, no missing data handling or imputation techniques were required.
@@ -119,45 +190,52 @@ The boxplot and density plot of BMI indicate the presence of numerous high-end e
 \textbf{Outlier Case Study:} \\
 After applying density plots and IQR-based boxplots to identify outliers in BMI, the study further classified BMI according to the World Health Organization (WHO) categories, including underweight (BMI < 18.5), normal weight (18.5 ≤ BMI < 25), overweight (25 ≤ BMI < 30), and obesity (BMI ≥ 30).
 
-To assess the impact of extreme BMI values, a representative observation with an exceptionally high BMI (BMI = 63) was selected for in-depth analysis. Detailed information on this case is presented in Table~\ref{tab:bmi63_case}.
+To assess the impact of extreme BMI values, several representative observations with exceptionally high BMI were selected for in-depth analysis. Detailed information on these cases are presented in Table~\ref{tab:bmi_cases}.
 
 \begin{table}[H]
 \centering
-\caption{Detailed information of the selected extreme BMI case (BMI = 63)}
-\label{tab:bmi63_case}
-\begin{tabular}{lc}
+\caption{Selected individuals with different BMI levels}
+\label{tab:bmi_cases}
+
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+
+\begin{tabular}{l|c|c|c|c}
 \hline
-\textbf{Variable} & \textbf{Value} \\
+\textbf{Variable} & \textbf{Case 1 (BMI=40)} & \textbf{Case 2 (BMI=63)} & \textbf{Case 3 (BMI=85)} & \textbf{Case 4 (BMI=98)} \\
 \hline
-Diabetes\_012 & 1 \\
-HighBP & 1 \\
-HighChol & 1 \\
-CholCheck & 1 \\
-BMI & 63 \\
-Smoker & 0 \\
-Stroke & 1 \\
-HeartDiseaseorAttack & 1 \\
-PhysActivity & 0 \\
-Fruits & 1 \\
-Veggies & 1 \\
-HvyAlcoholConsump & 0 \\
-AnyHealthcare & 1 \\
-NoDocbcCost & 0 \\
-GenHlth & 4 \\
-MentHlth & 0 \\
-PhysHlth & 30 \\
-DiffWalk & 1 \\
-Sex & 0 \\
-Age & 6 \\
-Education & 4 \\
-Income & 2 \\
+Diabetes\_012 & 0 & 1 & 2 & 2 \\
+HighBP & 1 & 1 & 1 & 1 \\
+HighChol & 1 & 1 & 1 & 1 \\
+CholCheck & 1 & 1 & 1 & 1 \\
+BMI & 40 & 63 & 85 & 98 \\
+Smoker & 0 & 0 & 1 & 1 \\
+Stroke & 0 & 1 & 1 & 0 \\
+HeartDiseaseorAttack & 0 & 1 & 1 & 1 \\
+PhysActivity & 0 & 0 & 0 & 0 \\
+Fruits & 0 & 1 & 0 & 1 \\
+Veggies & 1 & 1 & 0 & 1 \\
+HvyAlcoholConsump & 0 & 0 & 0 & 0 \\
+AnyHealthcare & 1 & 1 & 1 & 1 \\
+NoDocbcCost & 0 & 0 & 0 & 0 \\
+GenHlth & 5 & 4 & 5 & 5 \\
+MentHlth & 18 & 0 & 0 & 30 \\
+PhysHlth & 15 & 30 & 30 & 30 \\
+DiffWalk & 1 & 1 & 1 & 1 \\
+Sex & 0 & 0 & 0 & 0 \\
+Age & 9 & 6 & 6 & 8 \\
+Education & 4 & 4 & 4 & 6 \\
+Income & 3 & 2 & 1 & 5 \\
 \hline
 \end{tabular}
 \end{table}
 
-From an epidemiological perspective, a high BMI not only reflects excessive adipose tissue accumulation but is also strongly associated with metabolic disorders, particularly hypertension and dyslipidemia. Biological mechanisms such as insulin resistance, chronic low-grade inflammation, and adipose tissue endocrine dysfunction are considered key pathways linking obesity to an increased risk of diabetes.
+From an epidemiological perspective, a high BMI not only reflects excessive adipose tissue accumulation but is also strongly associated with metabolic disorders, particularly hypertension and dyslipidemia. Biological mechanisms such as insulin resistance, chronic low-grade inflammation, and adipose tissue endocrine dysfunction have been identified as key pathways linking obesity to an increased risk of diabetes. Previous cohort studies have shown that central obesity and other components of the metabolic syndrome, including hypertension and dyslipidemia, are significantly associated with an elevated risk of type 2 diabetes.
 
-In this observed case, the coexistence of extremely high BMI with hypertension and high cholesterol is consistent with the metabolic risk profile commonly reported among obese individuals. This indicates that the extreme BMI value is not a data anomaly, but rather an extreme yet plausible manifestation of the population distribution, carrying important information about disease risk. Therefore, very high BMI values play a critical role in evaluating the relationship between obesity and diabetes risk.
+(Cite: https://pmc.ncbi.nlm.nih.gov/articles/PMC5023917/)
+
+In the observed case, the coexistence of extremely high BMI with hypertension and high cholesterol is consistent with the metabolic risk profile commonly reported among obese individuals. This suggests that the extreme BMI value is not a data anomaly, but rather an extreme yet plausible manifestation within the population distribution that carries important information regarding cardiometabolic disease risk. Therefore, very high BMI values play a critical role in evaluating the relationship between obesity and diabetes risk and should not be removed as statistical outliers.
 
 \begin{figure}[H]
 \centering
@@ -192,43 +270,53 @@ The boxplot and density plot of PhysHlth show a strongly right-skewed distributi
 \textbf{Outlier Case Study:} \\
 After using density plots and IQR-based boxplots to identify outliers in the \textit{PhysHlth} variable, the study further examined the epidemiological relevance of these extreme observations. To improve interpretability and reduce data sparsity at higher values, \textit{PhysHlth} was categorized into four ordinal levels (0 days, 1--7 days, 8--14 days, and 15--30 days), representing increasing levels of physical health impairment over the past 30 days.
 
-To assess the impact of extreme values, a representative observation in the 15--30 day category (specifically, \textit{PhysHlth} = 30) was selected for in-depth analysis. Detailed information on this case is presented in Table~\ref{tab:physhlth30_case}.
-
+To assess the impact of extreme values, several representative observations in the 15–30 day category were selected for in-depth analysis. Detailed information on these cases is presented in Table~\ref{tab:physhlth_cases}.
 \begin{table}[H]
 \centering
-\caption{Detailed information of the selected extreme PhysHlth case (PhysHlth = 30)}
-\label{tab:physhlth30_case}
-\begin{tabular}{lc}
+\caption{Selected diabetic individuals with high PhysHlth values (case studies)}
+\label{tab:physhlth_cases}
+
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|c|c|c|c}
 \hline
-\textbf{Variable} & \textbf{Value} \\
+\textbf{Variable} & \textbf{Case 1 (PhysHlth=30)} & \textbf{Case 2 (PhysHlth=26)} & \textbf{Case 3 (PhysHlth=21)} & \textbf{Case 4 (PhysHlth=20)} \\
 \hline
-Diabetes\_012 & 1 \\
-HighBP & 1 \\
-HighChol & 1 \\
-CholCheck & 1 \\
-BMI & 23 \\
-Smoker & 0 \\
-Stroke & 0 \\
-HeartDiseaseorAttack & 1 \\
-PhysActivity & 0 \\
-Fruits & 0 \\
-Veggies & 0 \\
-HvyAlcoholConsump & 0 \\
-AnyHealthcare & 1 \\
-NoDocbcCost & 0 \\
-GenHlth & 5 \\
-MentHlth & 0 \\
-PhysHlth & 30 \\
-DiffWalk & 1 \\
-Sex & 0 \\
-Age & 13 \\
-Education & 2 \\
-Income & 2 \\
+Diabetes\_012 & 1 & 1 & 1 & 1 \\
+HighBP & 1 & 1 & 1 & 0 \\
+HighChol & 1 & 0 & 1 & 1 \\
+CholCheck & 1 & 1 & 1 & 1 \\
+BMI & 37 & 36 & 32 & 45 \\
+Smoker & 0 & 1 & 1 & 1 \\
+Stroke & 1 & 0 & 0 & 0 \\
+HeartDiseaseorAttack & 0 & 1 & 0 & 0 \\
+PhysActivity & 1 & 0 & 1 & 0 \\
+Fruits & 0 & 0 & 1 & 1 \\
+Veggies & 1 & 0 & 1 & 1 \\
+HvyAlcoholConsump & 0 & 0 & 0 & 0 \\
+AnyHealthcare & 1 & 1 & 1 & 1 \\
+NoDocbcCost & 0 & 0 & 1 & 0 \\
+GenHlth & 5 & 4 & 4 & 5 \\
+MentHlth & 26 & 18 & 21 & 20 \\
+PhysHlth & \textbf{30} & \textbf{26} & \textbf{21} & \textbf{20} \\
+DiffWalk & 1 & 1 & 1 & 1 \\
+Sex & 0 & 1 & 1 & 0 \\
+Age & 12 & 10 & 9 & 8 \\
+Education & 5 & 6 & 3 & 5 \\
+Income & 6 & 3 & 7 & 2 \\
 \hline
 \end{tabular}
+}
 \end{table}
 
 High PhysHlth values are often accompanied by mobility limitations and low levels of physical activity, as observed through the \textit{PhysActivity} and \textit{DiffWalk} variables in the representative case study. Reduced physical activity typically reflects the co-occurrence of chronic conditions such as overweight and obesity, hypertension, dyslipidemia, and cardiovascular disease. These conditions contribute to insulin resistance and impaired glucose metabolism, thereby increasing the risk of diabetes.
+
+Prior research has demonstrated that regular physical activity improves glycemic control and can prevent or delay the onset of type 2 diabetes, highlighting the critical role of physical functioning in metabolic health.
+
+(Cite: https://pmc.ncbi.nlm.nih.gov/articles/PMC2992225/)
 
 Therefore, very high PhysHlth values play a critical role in evaluating the relationship between physical health impairment and diabetes risk.
 
@@ -265,43 +353,53 @@ The boxplot and density plot of MentHlth show a strongly right-skewed distributi
 \textbf{Outlier Case Study:} \\
 After using density plots and IQR-based boxplots to identify outliers in the \textit{MentHlth} variable, the study further examined the epidemiological relevance of these extreme observations. To improve interpretability and reduce data sparsity at higher values, \textit{MentHlth} was categorized into four ordinal levels (0 days, 1--7 days, 8--14 days, and 15--30 days), representing increasing levels of mental health impairment over the past 30 days.
 
-To assess the impact of extreme values, a representative observation in the 15--30 day category (specifically, \textit{MentHlth} = 30) was selected for in-depth analysis. Detailed information on this case is presented in Table~\ref{tab:menthlth30_case}.
+To assess the impact of extreme values, several representative observations in the 15–30 day category were selected for in-depth analysis. Detailed information on these cases is presented in Table~\ref{tab:menthlth_cases}.
 
 \begin{table}[H]
 \centering
-\caption{Detailed information of the selected extreme MentHlth case (MentHlth = 30)}
-\label{tab:menthlth30_case}
-\begin{tabular}{lc}
+\caption{Selected individuals with extreme mental health values (MentHlth outliers)}
+\label{tab:menthlth_cases}
+
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+
+\begin{tabular}{l|c|c|c}
 \hline
-\textbf{Variable} & \textbf{Value} \\
+\textbf{Variable} & \textbf{Case 1 (MentHlth=30)} & \textbf{Case 2 (MentHlth=30)} & \textbf{Case 3 (MentHlth=28)} \\
 \hline
-Diabetes\_012 & 1 \\
-HighBP & 0 \\
-HighChol & 1 \\
-CholCheck & 1 \\
-BMI & 28 \\
-Smoker & 0 \\
-Stroke & 0 \\
-HeartDiseaseorAttack & 0 \\
-PhysActivity & 1 \\
-Fruits & 1 \\
-Veggies & 0 \\
-HvyAlcoholConsump & 0 \\
-AnyHealthcare & 1 \\
-NoDocbcCost & 0 \\
-GenHlth & 4 \\
-MentHlth & 30 \\
-PhysHlth & 13 \\
-DiffWalk & 1 \\
-Sex & 0 \\
-Age & 4 \\
-Education & 4 \\
-Income & 1 \\
+Diabetes\_012 & 1 & 1 & 1 \\
+HighBP & 1 & 1 & 1 \\
+HighChol & 1 & 1 & 1 \\
+CholCheck & 1 & 1 & 1 \\
+BMI & 27 & 36 & 28 \\
+Smoker & 0 & 1 & 1 \\
+Stroke & 0 & 0 & 0 \\
+HeartDiseaseorAttack & 0 & 0 & 1 \\
+PhysActivity & 1 & 0 & 0 \\
+Fruits & 1 & 0 & 1 \\
+Veggies & 1 & 0 & 1 \\
+HvyAlcoholConsump & 0 & 0 & 0 \\
+AnyHealthcare & 1 & 1 & 1 \\
+NoDocbcCost & 1 & 0 & 0 \\
+GenHlth & 4 & 5 & 5 \\
+MentHlth & 30 & 30 & 28 \\
+PhysHlth & 30 & 21 & 24 \\
+DiffWalk & 1 & 1 & 1 \\
+Sex & 0 & 1 & 0 \\
+Age & 10 & 9 & 9 \\
+Education & 4 & 3 & 4 \\
+Income & 3 & 5 & 2 \\
 \hline
 \end{tabular}
 \end{table}
 
+
 High MentHlth values often reflect prolonged psychological stress, anxiety, or depression, which may substantially influence health behaviors and metabolic-related physiological mechanisms. In the representative case study, the individual with MentHlth = 30 also reported mobility limitations (DiffWalk = 1) and relatively low levels of physical activity, suggesting a potential association between impaired mental health and a sedentary lifestyle. Chronic psychological disorders may lead to unhealthy behaviors such as poor dietary habits, reduced physical activity, and low treatment adherence, thereby exacerbating metabolic risk factors.
+
+Moreover, prior literature has demonstrated a bidirectional relationship between diabetes and mental health disorders, with depression increasing the risk of diabetes and diabetes-related burden worsening mental health outcomes 
+
+(Cite: https://www.ncbi.nlm.nih.gov/books/NBK498652/).
 
 Therefore, very high MentHlth values play an important role in evaluating the relationship between impaired mental health and diabetes risk.
 
@@ -326,5 +424,3 @@ Based on visual evidence and representative case analysis, this study decided to
     
     \item \textbf{Outlier assessment:} Outliers were identified using density plots and IQR-based boxplots for BMI, PhysHlth, and MentHlth. Extreme values were retained because they are epidemiologically meaningful and represent high-risk health profiles related to diabetes.
 \end{itemize}
-
-
