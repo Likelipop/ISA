@@ -1,7 +1,24 @@
-# XỬ LÝ SỐ LIỆU THÔNG KÊKÊ
+# XỬ LÝ SỐ LIỆU THÔNG KÊ
 
-## 1. **Mục tiêu của project:**
+## 0. **Đồng hành**
+Repo này được tạo nên từ:
+Trần Tiến Đạt @Likelipop
+Nguyễn Thị Ngọc Anh
+Nguyễn Thái Hưng Thịnh.
 
+Cảm ơn mọi người vì đã cùng nhau xây dựng, đóng góp nội dung không ngừng.
+
+## 1. **Tổng quan:**
+Github này là tổng hợp về các phần mini-project, bài tập,... của môn Xử Lý số liệu thống kê (TTH - HCMUS).
+
+Repo được chia ra làm 4 thư mục, tương đương với 4 project khác nhau xuyên suốt môn học, bao gồm:
+
+1. lab01: gồm phần bài tập mở đầu mang tính khởi động của môn
+2. lab02: mini-project về A/B testing về chủ đề thiết kế giao diện ảnh hưởng tới số lần click chuột
+3. lab03: gồm phần bài tập mở rộng (lý thuyết và cả thực hành) về các nội dung phân tích dữ liệu, a/b testing, ước lượng hàm mật độ,...
+4. lab04: final project về việc xây dựng mô hình dự báo người bị bệnh tiểu đường.
+
+Mỗi lab sẽ có 3 thư mục tương ứng gồm latex (để viết file báo cáo), slide (dùng beamer-latex để soạn slide) và code (gồm các file rmd)
 ## **2. Cài Đặt LaTeX Workshop Trên VSCode**
 
 Ta sẽ cần phải cài đặt các phần sau:
