@@ -34,7 +34,7 @@ Ta sẽ cần phải cài đặt các phần sau:
 
 ```bash
 sudo apt update
-sudo apt install texlive-bibtex-extra chktex latexmk texlive-lang-other texlive-science texlive-xetex texlive-luatex texlive-fonts-recommended 
+sudo apt install texlive-full
 ```
 
 ### 🧩 Bước 2: Cài đặt tiện ích mở rộng **LaTeX Workshop**
