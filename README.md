@@ -2,11 +2,11 @@
 
 ## 0. **Đồng hành**
 Repo này được tạo nên từ:
-Trần Tiến Đạt @Likelipop
-Nguyễn Thị Ngọc Anh
-Nguyễn Thái Hưng Thịnh.
+1. Trần Tiến Đạt @Likelipop
+2. Nguyễn Thái Hưng Thịnh @Pot1725
+3. Nguyễn Thị Ngọc Anh @nannh2582005
 
-Cảm ơn mọi người vì đã cùng nhau xây dựng, đóng góp nội dung không ngừng.
+Cảm ơn mọi người vì đã cùng nhau xây dựng, đóng góp nội dung không ngừng trong xuyên suốt môn học
 
 ## 1. **Tổng quan:**
 Github này là tổng hợp về các phần mini-project, bài tập,... của môn Xử Lý số liệu thống kê (TTH - HCMUS).
