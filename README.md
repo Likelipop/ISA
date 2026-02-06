@@ -8,6 +8,8 @@ Repo này được tạo nên từ:
 
 Cảm ơn mọi người vì đã cùng nhau xây dựng, đóng góp nội dung không ngừng trong xuyên suốt môn học
 
+Bên cạnh đó, xin chân thành cảm ơn tới [khongsomeo/hcmus-unofficial-report-template](https://github.com/khongsomeo/hcmus-unofficial-report-template.git) cho phần report template
+
 ## 1. **Tổng quan:**
 Github này là tổng hợp về các phần mini-project, bài tập,... của môn Xử Lý số liệu thống kê (TTH - HCMUS).
 
